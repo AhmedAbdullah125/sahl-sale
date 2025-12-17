@@ -38,7 +38,7 @@ const buySellProducts = [
     price: "2100 د.ك",
     dateText: "منذ 1 يوم",
   },
-  
+
   {
     id: "3",
     href: "#",
@@ -49,8 +49,8 @@ const buySellProducts = [
     price: "2100 د.ك",
     dateText: "منذ 1 يوم",
   },
-  
-  
+
+
   {
     id: "4",
     href: "#",
@@ -61,8 +61,8 @@ const buySellProducts = [
     price: "2100 د.ك",
     dateText: "منذ 1 يوم",
   },
-  
-  
+
+
 ];
 
 export default function BuySellProductsSection() {
@@ -95,7 +95,7 @@ export default function BuySellProductsSection() {
           >
             {buySellProducts.map((item) => (
               <SwiperSlide key={item.id} className="swiper-slide">
-                <Link href={item.href} className="product-item">
+                <Link href={`product/${item.id}`} className="product-item">
                   <div className="product-img">
                     <figure>
                       <Image

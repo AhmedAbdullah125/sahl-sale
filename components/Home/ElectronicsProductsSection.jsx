@@ -36,7 +36,7 @@ const electronicsProducts = [
     price: "2100 د.ك",
     dateText: "منذ 1 يوم",
   },
-  
+
   {
     id: "3",
     href: "#",
@@ -47,7 +47,7 @@ const electronicsProducts = [
     price: "3500 د.ك",
     dateText: "منذ 3 أيام",
   },
-    
+
   {
     id: "4",
     href: "#",
@@ -58,7 +58,7 @@ const electronicsProducts = [
     price: "800 د.ك",
     dateText: "منذ 5 أيام",
   },
-  
+
   {
     id: "5",
     href: "#",
@@ -101,7 +101,7 @@ export default function ElectronicsProductsSection() {
           >
             {electronicsProducts.map((item) => (
               <SwiperSlide key={item.id} className="swiper-slide">
-                <Link href={item.href} className="product-item">
+                <Link href={`/product/${item.id}`} className="product-item">
                   <div className="product-img">
                     <figure>
                       <Image

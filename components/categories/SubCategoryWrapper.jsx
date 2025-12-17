@@ -21,7 +21,7 @@ import img1 from "@/src/images/01.jpg";
 const PRODUCTS = [
     {
         id: "1",
-        href: "#",
+        href: "/product/1",
         img: img1,
         typeA: "ياباني",
         typeB: "لكزس",
@@ -32,7 +32,7 @@ const PRODUCTS = [
     },
     {
         id: "2",
-        href: "#",
+        href: "/product/2",
         img: img1,
         typeA: "ياباني",
         typeB: "تويوتا",
@@ -43,7 +43,7 @@ const PRODUCTS = [
     },
     {
         id: "3",
-        href: "#",
+        href: "/product/3",
         img: img1,
         typeA: "ياباني",
         typeB: "تويوتا",
@@ -54,7 +54,7 @@ const PRODUCTS = [
     },
     {
         id: "4",
-        href: "#",
+        href: "/product/4",
         img: img1,
         typeA: "ياباني",
         typeB: "لكزس",

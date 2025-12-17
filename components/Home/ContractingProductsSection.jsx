@@ -12,7 +12,7 @@ import "swiper/css";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
 
-import img1 from "@/src/images/3.jpg"; 
+import img1 from "@/src/images/3.jpg";
 
 
 
@@ -37,7 +37,7 @@ const contractingProducts = [
     price: "2100 د.ك",
     dateText: "منذ 1 يوم",
   },
-  
+
   {
     id: "3",
     href: "#",
@@ -48,7 +48,7 @@ const contractingProducts = [
     price: "3000 د.ك",
     dateText: "منذ 2 يوم",
   },
-  
+
   {
     id: "4",
     href: "#",
@@ -59,7 +59,7 @@ const contractingProducts = [
     price: "4500 د.ك",
     dateText: "منذ 3 يوم",
   },
-  
+
   {
     id: "5",
     href: "#",
@@ -70,7 +70,7 @@ const contractingProducts = [
     price: "3500 د.ك",
     dateText: "منذ 4 يوم",
   },
-  
+
 ];
 
 export default function ContractingProductsSection() {
@@ -103,7 +103,7 @@ export default function ContractingProductsSection() {
           >
             {contractingProducts.map((item) => (
               <SwiperSlide key={item.id} className="swiper-slide">
-                <Link href={item.href} className="product-item">
+                <Link href={`/product/${item.id}`} className="product-item">
                   <div className="product-img">
                     <figure>
                       <Image

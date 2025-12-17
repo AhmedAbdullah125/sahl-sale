@@ -287,7 +287,7 @@ export default function CompanyWrapper() {
                             </div>
                         ) : (
                             filtered.map((p) => (
-                                <Link key={p.id} href={p.href} className="product-item">
+                                <Link key={p.id} href={`/product/${p.id}`} className="product-item">
                                     <div className="product-img">
                                         <figure>
                                             <Image

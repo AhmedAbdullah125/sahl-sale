@@ -89,7 +89,7 @@ export default function EstateProductsSection() {
           >
             {estateProducts.map((item) => (
               <SwiperSlide key={item.id} className="swiper-slide">
-                <Link href={item.href} className="product-item">
+                <Link href={`/product/${item.id}`} className="product-item">
                   <div className="product-img">
                     <figure>
                       <Image

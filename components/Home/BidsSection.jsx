@@ -65,7 +65,7 @@ const auctions = [
         currentBid: "2100 د.ك",
         isLive: true,
     },
-    
+
 ];
 
 export default function BidsSection() {
@@ -98,7 +98,7 @@ export default function BidsSection() {
                         >
                             {auctions.map((item, idx) => (
                                 <SwiperSlide key={idx} className="swiper-slide">
-                                    <Link href={item.href} className="product-item">
+                                    <Link href={`/product/${item.id}`} className="product-item">
                                         <div className="product-img">
                                             <figure>
                                                 <Image
