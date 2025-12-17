@@ -1,0 +1,52 @@
+//  colors
+
+:root {
+  --main-color: #37B5FF;
+  --primary-color: #0a0a0a;
+  --secondary-color: #fff;
+  --sec-color: #233D58;
+  --back-color: #F6F6F6;
+  --background-color: #fff;
+
+  --text-color: #1e1e1e;
+  --text-sec: #757575;
+  --input-text: #233D58;
+  --link-text: #404040;
+  --line-color: #ededed;
+  --black-color: #000;
+  --white-color: #fff;
+  --border-color: #e8e8e8;
+}
+body.dark-mode {
+  --primary-color: #fff;
+  --secondary-color: #0a0a0a;
+  --back-color: #0a0a0a;
+  --background-color: #000;
+
+  --text-color: #fff;
+  --text-sec: #fff;
+  --input-text: #233D58;
+  --link-text: #fff;
+  --line-color: #C2C2C2;
+  --black-color: #000;
+  --white-color: #fff;
+  --border-color: #ffffffe1;
+  
+}
+$main: var(--main-color);
+$primary: var(--primary-color);
+$secondary: var(--secondary-color);
+$sec: var(--sec-color);
+$text: var(--text-color);
+$text-sec: var(--text-sec);
+$input-text: var(--input-text);
+$link-text: var(--link-text);
+$line-color: var(--line-color);
+$black: var(--black-color);
+$white: var(--white-color);
+
+$back: var(--back-color);
+$background: var(--background-color);
+$border: var(--border-color);
+
+$radius: var(--border-radius);

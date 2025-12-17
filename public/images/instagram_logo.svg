@@ -1,0 +1,15 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="instaGradient" cx="30%" cy="107%" r="150%" fx="30%" fy="107%">
+      <stop offset="0%" stop-color="#fdf497"/>
+      <stop offset="5%" stop-color="#fdf497"/>
+      <stop offset="45%" stop-color="#fd5949"/>
+      <stop offset="60%" stop-color="#d6249f"/>
+      <stop offset="90%" stop-color="#285AEB"/>
+    </radialGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#instaGradient)" />
+  <path fill="#fff" d="M256 149.3c-58.8 0-106.7 47.9-106.7 106.7S197.2 362.7 256 362.7 362.7 314.8 362.7 256 314.8 149.3 256 149.3zm0 176c-38.2 0-69.3-31.1-69.3-69.3S217.8 186.7 256 186.7 325.3 217.8 325.3 256 294.2 325.3 256 325.3z"/>
+  <circle cx="370.5" cy="141.5" r="25.5" fill="#fff"/>
+  <path fill="#fff" d="M377.3 64H134.7C95.4 64 64 95.4 64 134.7v242.7C64 416.6 95.4 448 134.7 448h242.7c39.3 0 70.7-31.4 70.7-70.7V134.7C448 95.4 416.6 64 377.3 64zM416 377.3c0 21.3-17.3 38.7-38.7 38.7H134.7c-21.3 0-38.7-17.3-38.7-38.7V134.7c0-21.3 17.3-38.7 38.7-38.7h242.7c21.3 0 38.7 17.3 38.7 38.7v242.6z"/>
+</svg>

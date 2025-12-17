@@ -1,0 +1,505 @@
+.content-section {
+  padding: 40px 0;
+  min-height: calc(100vh - 274px);
+}
+
+.upper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  @include flexCenter;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  font-size: 24px;
+  color: $text;
+  @include tr;
+
+  &:hover {
+    color: $main;
+  }
+
+  html[dir="ltr"] & {
+    transform: scaleX(-1);
+  }
+}
+
+.page-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 18px;
+  color: $text;
+  text-align: center;
+
+  @include min-992 {
+    font-size: 24px;
+  }
+}
+
+.page-head {
+  font-weight: 700;
+  font-size: 18px;
+  color: $text;
+  margin-bottom: 20px;
+  text-align: center;
+
+  @include min-992 {
+    font-size: 24px;
+  }
+}
+
+.category-title {
+  text-align: start;
+  font-weight: 900;
+  font-size: 18px;
+  color: $main;
+  margin-bottom: 15px;
+}
+
+.empty {
+  width: 24px;
+}
+
+.add-progress {
+  width: 100%;
+  height: 10px;
+  margin: 0 auto 10px;
+  background-color: rgba(#d9d9d9, 0.8);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+
+  span {
+    height: 100%;
+    position: absolute;
+    background-color: $main;
+  }
+}
+
+.progress-name {
+  font-weight: 400;
+  font-size: 14px;
+  color: $text;
+  margin-bottom: 20px;
+}
+
+.add-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+
+  @include max-991 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+}
+
+label.category-ancor {
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+}
+
+.image-upload {
+  border-radius: 15px;
+  width: 100%;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.upload-box {
+  position: relative;
+  border: 1px solid #e8e8e8;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  aspect-ratio: 122/100;
+  max-width: 122px;
+  border-radius: 15px;
+  background-color: $secondary;
+  overflow: hidden;
+  position: relative;
+  @include flexCenter;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.upload-btn {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: transparent;
+  color: $text;
+  padding: 2px;
+  @include flexCenter;
+  font-weight: 400;
+  font-size: 14px;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+    color: $main;
+  }
+
+  user-select: none;
+  pointer-events: none;
+  background-color: $secondary;
+}
+
+.upload-logo {
+  user-select: none;
+  pointer-events: none;
+}
+
+.upload-text {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 16px;
+  text-align: center;
+  color: $text;
+  margin-bottom: 8px;
+}
+
+.image-upload {
+  display: grid;
+  grid-template-columns: 1fr 6fr;
+  gap: 12px;
+  align-items: center;
+
+  @include max-991 {
+    grid-template-columns: 1fr 4fr;
+  }
+
+  @include max-767 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* upload box */
+
+.upload-box input {
+  display: none;
+}
+
+/* preview image */
+.image-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 122/100;
+  max-width: 122px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* remove button */
+.remove-btn {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 27px;
+  height: 27px;
+  border: none;
+  border-radius: 4px;
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: $text;
+  margin-bottom: 8px;
+  display: block;
+  position: relative;
+
+  span {
+    font-size: 12px;
+  }
+}
+
+.form-input {
+  background-color: $secondary;
+  border-radius: 15px;
+  color: $sec;
+  font-size: 14px;
+  border: 1px solid $border;
+  height: 50px;
+  width: 100%;
+  padding: 0 25px;
+  text-align: start;
+  font-weight: 400;
+  margin-bottom: 0;
+  outline: none !important;
+  transition: all 0.3s ease-in-out;
+  caret-color: var(--main-color);
+
+  &:focus {
+    border-color: $main;
+  }
+
+  .form-input-relative & {
+    padding: 0 35px;
+  }
+
+  .dark-mode & {
+    color: $primary;
+  }
+}
+
+textarea.form-input {
+  padding: 18px 25px;
+  height: 163px;
+}
+
+.form-btn {
+  background-color: $main;
+  background-size: 100%;
+  width: 100%;
+  max-width: 600px;
+  height: 50px;
+  border-radius: 15px;
+  margin: 0 auto;
+  margin-top: 40px;
+  text-transform: capitalize;
+  @include flexCenter;
+  font-weight: 700;
+  font-size: 16px;
+  color: $white;
+  border: none;
+  outline: none;
+  text-decoration: none !important;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background-color: $sec;
+  }
+}
+
+.word-count {
+  font-weight: 400;
+  font-size: 14px;
+  color: $sec;
+  display: block;
+  margin: 8px 0 27px;
+  text-align: end;
+
+  .dark-mode & {
+    color: $primary;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+
+  @include max-991 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-contact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: $secondary;
+  cursor: pointer;
+
+  input {
+    display: none;
+  }
+}
+
+.pill-btn {
+  width: 100%;
+  height: 50px;
+  padding: 10px 17px;
+  border-radius: 15px;
+  border: 1px solid $border;
+  max-width: 400px;
+}
+
+.pill input:checked~.switch {
+  background: $main;
+}
+
+.pill input:checked~.switch::after {
+  transform: translateX(10px);
+}
+
+.pill input:checked~.text {
+  color: $main;
+}
+
+.pill:has(input:checked) {
+  border-color: $main;
+}
+
+.pill .price {
+  color: #babdbf;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.pill input:checked~.price {
+  color: $main;
+}
+
+/* switch */
+.switch {
+  width: 24px;
+  height: 14px;
+  border-radius: 12px;
+  background: #cbcbcb;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.switch::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  transition: 0.2s;
+  box-shadow: 0px 3px 8px 0px #00000026;
+}
+
+/* text */
+.icon-text {
+  font-weight: 400;
+  font-size: 14px;
+  color: #292929;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.content-section .product-item {
+  max-width: 400px;
+  margin-bottom: 20px;
+
+  .product-name {
+    min-height: auto;
+  }
+}
+
+.item-info {
+  background-color: $secondary;
+  border: 1px solid $border;
+  padding: 15px 18px;
+  border-radius: 15px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: start;
+}
+
+.item-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: $text;
+}
+
+.item-text {
+  font-weight: 400;
+  font-size: 12px;
+  color: $sec;
+
+  .dark-mode & {
+    color: $primary;
+  }
+}
+
+.item-box {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  font-weight: 900;
+  font-size: 12px;
+  color: $main;
+}
+
+.info-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  max-width: 650px;
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text;
+    gap: 5px;
+
+    &.total {
+      padding-top: 13px;
+      border-top: 1px solid $border;
+
+      .value {
+        font-weight: 900;
+        color: $main;
+      }
+    }
+  }
+}
