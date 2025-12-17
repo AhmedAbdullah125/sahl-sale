@@ -2,9 +2,10 @@
 footer {
   padding: 24px 0;
   position: relative;
-  background-color: $main;
+  background-color: $sec;
   margin-top: 40px;
 }
+
 .copy-flex {
   display: flex;
   align-items: center;
@@ -13,16 +14,34 @@ footer {
   text-align: center;
   gap: 15px;
 }
+
+.footer-logo-cont {
+  background-color: $white;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 12px;
+  max-width: 200px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
 .copy-right {
   display: block;
   font-size: 14px;
   font-weight: 400;
   color: $white;
   text-align: center;
+
   span {
     font-weight: 500;
   }
 }
+
 .design-text {
   display: flex;
   align-items: center;
@@ -33,9 +52,11 @@ footer {
   color: $white;
   gap: 5px;
 }
+
 @media (max-width: 991px) {
   footer {
     padding: 20px 0 120px;
   }
 }
+
 /*                                   footer                            */

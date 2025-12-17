@@ -162,7 +162,7 @@ export default function Header() {
                     <Link href="#" className="cat-anchor">الرئيسية</Link>
                   </li>
                   <li className="cat-li">
-                    <Link href="#" className="cat-anchor">الأقسام</Link>
+                    <Link href="/categories" className="cat-anchor">الأقسام</Link>
                   </li>
                   <li className="cat-li">
                     <Link href="/add-ad" className="cat-anchor">أضف اعلان</Link>
@@ -189,7 +189,7 @@ export default function Header() {
           </Link>
         </div>
         <div>
-          <Link href="#">
+          <Link href="/categories">
             <i className="fa-solid fa-grid-2"></i>
             <span>الأقسام</span>
           </Link>

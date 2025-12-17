@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --main-color: #37B5FF;
   --primary-color: #0a0a0a;
@@ -1267,7 +1268,7 @@ header nav {
 footer {
   padding: 24px 0;
   position: relative;
-  background-color: var(--main-color);
+  background-color: var(--sec-color);
   margin-top: 40px;
 }
 
@@ -1278,6 +1279,21 @@ footer {
   justify-content: center;
   text-align: center;
   gap: 15px;
+}
+
+.footer-logo-cont {
+  background-color: var(--white-color);
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 12px;
+  max-width: 200px;
+}
+.footer-logo-cont img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 
 .copy-right {
@@ -2414,4 +2430,66 @@ textarea.form-input {
 .contact-btns a:hover {
   color: var(--white-color);
   background-color: var(--sec-color);
+}
+
+/* ===== 4 selects row ===== */
+.product-select-filter.selects-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* ===== shadcn SelectTrigger as "button" ===== */
+.filter-select {
+  height: 64px !important;
+  border-radius: 14px !important;
+  border: 2px solid #e9e9e9 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  /* RTL look like screenshot */
+  direction: rtl;
+  justify-content: space-between !important;
+  padding: 0 18px !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  color: #1f2a3a !important;
+}
+.filter-select span {
+  overflow: unset !important;
+}
+
+/* arrow icon (SelectTrigger has svg) */
+.filter-select svg {
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+  color: #111;
+  /* سهم أسود */
+}
+
+/* placeholder/text alignment */
+.filter-select [data-placeholder] {
+  color: #1f2a3a;
+}
+
+/* remove focus glow if your shadcn adds it */
+.filter-select:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+/* ===== Responsive (mobile) ===== */
+@media (max-width: 768px) {
+  .product-btn-filter.pills {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .filter-btn,
+  .filter-select {
+    height: 56px !important;
+    font-size: 18px !important;
+    border-radius: 12px !important;
+  }
+  .product-select-filter.selects-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }/*# sourceMappingURL=main.css.map */

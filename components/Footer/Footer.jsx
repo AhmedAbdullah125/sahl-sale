@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronUp } from "lucide-react";
 import rayanLogo from "@/src/images/rayan.png";
+import logo from "@/src/images/logo.png";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -17,13 +18,22 @@ export default function Footer() {
       <footer>
         <div className="container">
           <div className="copy-flex">
+            <Link href="/" className="footer-logo-cont">
+              <Image
+                src={logo}
+                alt="logo"
+                width={70}
+                height={70}
+                className="object-contain"
+              />
+            </Link>
             <div className="copy-right">
               جميع الحقوق محفوظة © <span>sahl sale</span>
             </div>
 
             <div className="design-text">
               صنع تصميم وتطوير{" "}
-              <Link href="#">
+              <Link href="/">
                 <Image
                   src={rayanLogo}
                   alt="rayan"
