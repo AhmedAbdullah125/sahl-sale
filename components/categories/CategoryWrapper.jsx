@@ -12,11 +12,11 @@ import buySell from "@/src/images/category/Buy&sell.png";
 import contracting from "@/src/images/category/Contracting.png";
 
 const gridItems = [
-    { id: "1", label: "محركات", img: vehicles, href: "#" },
-    { id: "2", label: "عقارات", img: estate, href: "#" },
-    { id: "3", label: "الكترونيات", img: electronics, href: "#" },
-    { id: "4", label: "بيع وشراء", img: buySell, href: "#" },
-    { id: "5", label: "مقاولات وحرف", img: contracting, href: "#" },
+    { id: "1", label: "محركات", img: vehicles, href: "/sub-category/1" },
+    { id: "2", label: "عقارات", img: estate, href: "/sub-category/2" },
+    { id: "3", label: "الكترونيات", img: electronics, href: "/sub-category/3" },
+    { id: "4", label: "بيع وشراء", img: buySell, href: "/sub-category/4" },
+    { id: "5", label: "مقاولات وحرف", img: contracting, href: "/sub-category/5" },
 ];
 
 function CategoryGrid() {

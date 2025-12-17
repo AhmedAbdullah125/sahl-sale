@@ -31,7 +31,7 @@ export default function Header() {
             <div className="container">
               <div className="nav-header">
                 <figure className="img-logo relative w-[150px] h-[50px]">
-                  <Link href="#">
+                  <Link href="/">
                     <Image
                       src={logo}
                       alt="Logo"
@@ -61,12 +61,12 @@ export default function Header() {
                 </div>
 
                 <div className="header-icons flex items-center gap-4">
-                  <Link href="#" className="add-to flex items-center gap-2">
+                  <Link href="/favorite" className="add-to flex items-center gap-2">
                     <Bookmark className="h-5 w-5" />
                     <span className="user-anc">المفضلة</span>
                   </Link>
 
-                  <Link href="#" className="add-to flex items-center gap-2 relative">
+                  <Link href="/notification" className="add-to flex items-center gap-2 relative">
                     <Bell className="h-5 w-5" />
                     <span className="user-anc">نبهني</span>
                     <span className="counter absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -74,7 +74,7 @@ export default function Header() {
                     </span>
                   </Link>
 
-                  <Link href="#" className="add-to hide-sm flex items-center gap-2">
+                  <Link href="/profile" className="add-to hide-sm flex items-center gap-2">
                     <User className="h-5 w-5" />
                     <span className="user-anc">الحساب</span>
                   </Link>
@@ -159,7 +159,7 @@ export default function Header() {
               <div className="navgition">
                 <ul className="big-menu list-unstyled flex gap-4">
                   <li className="cat-li">
-                    <Link href="#" className="cat-anchor">الرئيسية</Link>
+                    <Link href="/" className="cat-anchor">الرئيسية</Link>
                   </li>
                   <li className="cat-li">
                     <Link href="/categories" className="cat-anchor">الأقسام</Link>
@@ -183,7 +183,7 @@ export default function Header() {
       {/* bottom menu (unchanged) */}
       <div className="menu-bar">
         <div>
-          <Link href="#" className="active">
+          <Link href="/" className="active">
             <i className="fa-solid fa-house"></i>
             <span>الرئيسية</span>
           </Link>
