@@ -56,7 +56,7 @@ export default function SideData() {
                 </li>
 
                 <li>
-                    <Link href="/profile/bids">
+                    <Link href="/profile/my-auctions">
                         <span>
                             <i className="fa-solid fa-gavel" aria-hidden="true"></i> مزايداتي
                         </span>

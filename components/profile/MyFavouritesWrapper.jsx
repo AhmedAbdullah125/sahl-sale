@@ -57,31 +57,29 @@ export default function MyFavouritesWrapper() {
 
     return (
         <section className="content-section" dir="rtl">
-            <div className="container">
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => router.back()}
-                        aria-label="رجوع"
-                    >
-                        <i className="fa-regular fa-arrow-right" aria-hidden="true"></i>
-                    </button>
+            <div className="upper-header">
+                <button
+                    type="button"
+                    className="back-btn"
+                    onClick={() => router.back()}
+                    aria-label="رجوع"
+                >
+                    <i className="fa-regular fa-arrow-right" aria-hidden="true"></i>
+                </button>
 
-                    <h3 className="page-title">المفضلة</h3>
-                    <div className="empty"></div>
-                </div>
+                <h3 className="page-title">المفضلة</h3>
+                <div className="empty"></div>
+            </div>
 
-                <div className="product-cont">
-                    <div className="product-grid">
-                        {favItems.length ? (
-                            favItems.map((p) => (
-                                <ProductCard key={p.id} product={p} />
-                            ))
-                        ) : (
-                            <div style={{ padding: 12 }}>لا توجد عناصر في المفضلة</div>
-                        )}
-                    </div>
+            <div className="product-cont">
+                <div className="product-grid">
+                    {favItems.length ? (
+                        favItems.map((p) => (
+                            <ProductCard key={p.id} product={p} />
+                        ))
+                    ) : (
+                        <div style={{ padding: 12 }}>لا توجد عناصر في المفضلة</div>
+                    )}
                 </div>
             </div>
         </section>

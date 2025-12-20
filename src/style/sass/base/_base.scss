@@ -68,9 +68,11 @@ body {
   font-weight: 400;
   background-color: $back;
 }
+
 .overflow {
   overflow: hidden;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -84,8 +86,10 @@ img {
   image-rendering: -webkit-optimize-contrast !important;
   max-width: 100%;
 }
+
 a {
   text-decoration: none;
+
   &:hover {
     text-decoration: none;
   }
@@ -114,6 +118,7 @@ a {
 }
 
 @include max-767 {
+
   .container,
   .container-fluid,
   .container-lg,
@@ -124,7 +129,9 @@ a {
     padding-left: 20px;
   }
 }
+
 @include min-1200 {
+
   .container,
   .container-lg,
   .container-md,
@@ -135,6 +142,7 @@ a {
 }
 
 @include min-1440 {
+
   .container,
   .container-lg,
   .container-md,
@@ -152,10 +160,12 @@ a {
   cursor: pointer;
   display: none;
 }
+
 .darkmode-toggle {
   @include flexCenter;
   cursor: pointer;
 }
+
 .dark-mode-toggle__icon {
   transform: translateY(0);
   width: 32px;
@@ -219,18 +229,21 @@ a {
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   @include tr;
+
   &:hover,
   &:focus {
     background-color: $secondary;
     color: $white;
   }
 }
+
 @include max-767 {
   .arrow-top {
     bottom: 90px;
     inset-inline-start: 15px;
   }
 }
+
 .custom-pagention {
   display: flex;
   align-items: center;
@@ -242,6 +255,7 @@ a {
   gap: 8px;
   flex-wrap: wrap;
 }
+
 .custom-pagention a,
 .custom-pagention span {
   @include flexCenter;
@@ -252,7 +266,7 @@ a {
   width: 50px;
   height: 50px;
   line-height: 40px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   border: none;
   text-decoration: none !important;
   outline: none !important;
@@ -265,6 +279,7 @@ a {
   color: $white;
   background-color: $main;
 }
+
 .custom-pagention a:hover {
   color: $white;
   background-color: $main;
@@ -275,6 +290,7 @@ a {
   @include flexCenter;
   padding: 40px 0;
 }
+
 // .page-head {
 //   font-size: 24px;
 //   color: $white;
@@ -295,6 +311,7 @@ ul.breadcrumb {
   align-items: center;
   justify-content: flex-start;
 }
+
 ul.breadcrumb li a,
 ul.breadcrumb li span,
 ul.breadcrumb li {
@@ -305,24 +322,30 @@ ul.breadcrumb li {
   font-weight: 400;
   text-decoration: none !important;
 }
+
 ul.breadcrumb li span {
   color: $black;
+
   &::after {
     display: none;
   }
 }
+
 ul.breadcrumb li a:hover {
   color: $secondary;
 }
-.breadcrumb li ~ li::before {
+
+.breadcrumb li~li::before {
   content: "/";
   padding: 0 5px;
   font-size: 14px;
 }
+
 @media (max-width: 991px) {
   .breadcrumb-sec {
     padding: 30px 0;
   }
+
   // .breadcrumb-sec .page-head {
   //   color: $main;
   // }

@@ -270,7 +270,7 @@ a:hover {
   width: 50px;
   height: 50px;
   line-height: 40px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   border: none;
   text-decoration: none !important;
   outline: none !important;
@@ -947,7 +947,7 @@ header nav {
   max-width: 100%;
   aspect-ratio: 1;
   border-radius: 14px;
-  background: #d9d9d9;
+  background: #f0f0f0;
   margin: 0;
   transition: all 0.3s ease-in-out;
 }
@@ -1408,7 +1408,7 @@ html[dir=ltr] .back-btn {
   width: 100%;
   height: 10px;
   margin: 0 auto 10px;
-  background-color: rgba(217, 217, 217, 0.8);
+  background-color: rgba(240, 240, 240, 0.8);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -2101,7 +2101,7 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   color: var(--main-color);
   height: 56px;
   border-radius: 15px;
@@ -2216,7 +2216,7 @@ textarea.form-input {
   justify-content: center;
   flex: 1;
   margin: 0 auto 20px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   color: var(--sec-color);
   height: 40px;
   border-radius: 7px;
@@ -2714,13 +2714,14 @@ html[dir=rtl] .auction-action input {
 
 .profile-page {
   border-radius: 20px;
-  padding: 16px;
+  padding: 0px;
 }
 @media only screen and (min-width: 992px) {
   .profile-page {
     display: grid;
     grid-template-columns: 1fr 3fr;
     gap: 16px;
+    padding: 16px;
   }
 }
 
@@ -2746,7 +2747,7 @@ html[dir=rtl] .auction-action input {
   justify-content: center;
   flex-direction: column;
   gap: 8px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   padding: 16px 20px;
   border-radius: 15px;
   padding-top: 63.5px;
@@ -2764,7 +2765,7 @@ html[dir=rtl] .auction-action input {
   border-radius: 50%;
   overflow: hidden;
   background: rgba(217, 217, 217, 0.6);
-  color: #d9d9d9;
+  color: #f0f0f0;
   border: 2px solid #233d58;
   display: flex;
   align-items: center;
@@ -2834,7 +2835,7 @@ html[dir=rtl] .auction-action input {
 }
 
 .profile-menu li {
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   padding: 16px 20px;
   border-radius: 15px;
   height: 50px;
