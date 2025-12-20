@@ -170,9 +170,7 @@ export default function Header() {
                   <li className="cat-li">
                     <Link href="#" className="cat-anchor">المزادات</Link>
                   </li>
-                  <li className="cat-li">
-                    <Link href="#" className="cat-anchor">الحساب</Link>
-                  </li>
+
                 </ul>
               </div>
             </div>
@@ -209,7 +207,7 @@ export default function Header() {
           </Link>
         </div>
         <div>
-          <Link href="#">
+          <Link href="/profile">
             <i className="fa-solid fa-circle-user"></i>
             <span>الحساب</span>
           </Link>

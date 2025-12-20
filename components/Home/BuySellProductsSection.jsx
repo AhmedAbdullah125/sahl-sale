@@ -15,6 +15,7 @@ import { Bookmark } from "lucide-react";
 import img1 from "@/src/images/2.png";
 import img2 from "@/src/images/01.jpg";
 import img3 from "@/src/images/4.jpg";
+import ProductCard from "../General/ProductCard";
 
 
 const buySellProducts = [
@@ -95,51 +96,7 @@ export default function BuySellProductsSection() {
           >
             {buySellProducts.map((item) => (
               <SwiperSlide key={item.id} className="swiper-slide">
-                <Link href={`product/${item.id}`} className="product-item">
-                  <div className="product-img">
-                    <figure>
-                      <Image
-                        src={item.img}
-                        alt="product"
-                        width={700}
-                        height={500}
-                        className="h-auto w-full object-cover"
-                      />
-                    </figure>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="add-fav"
-                      aria-label="Add to favorites"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setFav((p) => ({ ...p, [item.id]: !p[item.id] }));
-                      }}
-                    >
-                      <Bookmark
-                        className={
-                          fav[item.id] ? "h-5 w-5 fill-current" : "h-5 w-5"
-                        }
-                      />
-                    </Button>
-                  </div>
-
-                  <div className="product-content">
-                    <div className="product-type">
-                      <span>{item.typeA}</span> - <span>{item.typeB}</span>
-                    </div>
-
-                    <h3 className="product-name">{item.name}</h3>
-
-                    <div className="product-info">
-                      <span>{item.price}</span>
-                      <div className="date">{item.dateText}</div>
-                    </div>
-                  </div>
-                </Link>
+                <ProductCard product={item} />
               </SwiperSlide>
             ))}
           </Swiper>
