@@ -2606,7 +2606,7 @@ textarea.form-input {
   max-width: 500px;
   margin: 30px auto 0;
 }
-.auction-action .position-relative {
+.auction-action .relative {
   width: 100%;
 }
 .auction-action input {

@@ -17,6 +17,7 @@ import {
 
 import logo from "@/src/images/logo.svg";
 import img1 from "@/src/images/01.jpg";
+import ProductCard from "../General/ProductCard";
 
 const PRODUCTS = [
     {
@@ -287,67 +288,7 @@ export default function CompanyWrapper() {
                             </div>
                         ) : (
                             filtered.map((p) => (
-                                <Link key={p.id} href={`/product/${p.id}`} className="product-item">
-                                    <div className="product-img">
-                                        <figure>
-                                            <Image
-                                                src={p.img}
-                                                alt="product"
-                                                width={700}
-                                                height={500}
-                                                className="h-auto w-full object-cover"
-                                            />
-                                        </figure>
-
-                                        {/* auction UI */}
-                                        {p.kind === "auction" ? (
-                                            <>
-                                                <div className="timer">{p.timer}</div>
-                                                <div className="live-dot" />
-                                            </>
-                                        ) : (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="add-fav"
-                                                aria-label="Add to favorites"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setFav((prev) => ({ ...prev, [p.id]: !prev[p.id] }));
-                                                }}
-                                            >
-                                                <Bookmark
-                                                    className={
-                                                        fav[p.id]
-                                                            ? "h-5 w-5 fill-current"
-                                                            : "h-5 w-5"
-                                                    }
-                                                />
-                                            </Button>
-                                        )}
-                                    </div>
-
-                                    <div className="product-content">
-                                        <div className="product-type">
-                                            <span>{p.typeA}</span> - <span>{p.typeB}</span>
-                                        </div>
-
-                                        <h3 className="product-name">{p.name}</h3>
-
-                                        {p.kind === "auction" ? (
-                                            <div className="product-status">
-                                                السوم واصل : <span>{p.currentBid}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="product-info">
-                                                <span>{p.price}</span>
-                                                <div className="date">{p.dateText}</div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </Link>
+                                <ProductCard key={p.id} product={p} />
                             ))
                         )}
                     </div>

@@ -11,7 +11,7 @@ export default function ProductCard({ product }) {
     const [fav, setFav] = useState({});
 
     return (
-        <Link href={`/product/${product.id}`} className="product-item">
+        <Link key={product.id} href={product.href} className="product-item">
             <div className="product-img">
                 <figure>
                     <Image
@@ -23,25 +23,34 @@ export default function ProductCard({ product }) {
                     />
                 </figure>
 
-                {/* Favorite */}
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="add-fav"
-                    aria-label="Add to favorites"
-                    onClick={(e) => {
-                        e.preventDefault(); // don't open the Link
-                        e.stopPropagation();
-                        setFav((p) => ({ ...p, [product.id]: !p[product.id] }));
-                    }}
-                >
-                    <Bookmark
-                        className={
-                            fav[product.id] ? "h-5 w-5 fill-current" : "h-5 w-5"
-                        }
-                    />
-                </Button>
+                {/* auction UI */}
+                {product.kind === "auction" ? (
+                    <>
+                        <div className="timer">{product.timer}</div>
+                        <div className="live-dot" />
+                    </>
+                ) : (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="add-fav"
+                        aria-label="Add to favorites"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setFav((prev) => ({ ...prev, [product.id]: !prev[product.id] }));
+                        }}
+                    >
+                        <Bookmark
+                            className={
+                                fav[product.id] || product.isFav
+                                    ? "h-5 w-5 fill-current"
+                                    : "h-5 w-5"
+                            }
+                        />
+                    </Button>
+                )}
 
                 {/* Pinned */}
                 {product.pinned ? (
@@ -64,10 +73,16 @@ export default function ProductCard({ product }) {
 
                 <h3 className="product-name">{product.name}</h3>
 
-                <div className="product-info">
-                    <span>{product.price}</span>
-                    <div className="date">{product.dateText}</div>
-                </div>
+                {product.kind === "auction" ? (
+                    <div className="product-status">
+                        السوم واصل : <span>{product.currentBid}</span>
+                    </div>
+                ) : (
+                    <div className="product-info">
+                        <span>{product.price}</span>
+                        <div className="date">{product.dateText}</div>
+                    </div>
+                )}
             </div>
         </Link>
     );

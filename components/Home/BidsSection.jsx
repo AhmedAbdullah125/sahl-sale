@@ -13,11 +13,25 @@ import "swiper/css/pagination";
 import { Card } from "@/components/ui/card";
 
 import img1 from '@/src/images/01.jpg'
+import AuctionCard from "../Auctions/AuctionCard";
 
 const auctions = [
     {
+        id: 1,
         href: "#",
-        img: img1,
+        imageUrl: img1,
+        typeA: "يباني",
+        typeB: "لكزس",
+        name: "سيارة لكزس RX 2025",
+        currentBid: "2100 د.ك",
+        timer: "00:15:30",
+        isLive: true,
+        isPinned: false,
+    },
+    {
+        id: 2,
+        href: "#",
+        imageUrl: img1,
         timer: "00:15:30",
         typeA: "يباني",
         typeB: "لكزس",
@@ -26,8 +40,9 @@ const auctions = [
         isLive: true,
     },
     {
+        id: 3,
         href: "#",
-        img: img1,
+        imageUrl: img1,
         timer: "00:15:30",
         typeA: "يباني",
         typeB: "لكزس",
@@ -36,8 +51,9 @@ const auctions = [
         isLive: true,
     },
     {
+        id: 4,
         href: "#",
-        img: img1,
+        imageUrl: img1,
         timer: "00:15:30",
         typeA: "يباني",
         typeB: "لكزس",
@@ -46,18 +62,9 @@ const auctions = [
         isLive: true,
     },
     {
+        id: 5,
         href: "#",
-        img: img1,
-        timer: "00:15:30",
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        isLive: true,
-    },
-    {
-        href: "#",
-        img: img1,
+        imageUrl: img1,
         timer: "00:15:30",
         typeA: "يباني",
         typeB: "لكزس",
@@ -98,34 +105,7 @@ export default function BidsSection() {
                         >
                             {auctions.map((item, idx) => (
                                 <SwiperSlide key={idx} className="swiper-slide">
-                                    <Link href={`/product/${item.id}`} className="product-item">
-                                        <div className="product-img">
-                                            <figure>
-                                                <Image
-                                                    src={item.img}
-                                                    alt="product"
-                                                    width={600}
-                                                    height={400}
-                                                    className="h-auto w-full object-cover"
-                                                />
-                                            </figure>
-
-                                            <div className="timer">{item.timer}</div>
-                                            {item.isLive ? <div className="live-dot" /> : null}
-                                        </div>
-
-                                        <div className="product-content">
-                                            <div className="product-type">
-                                                <span>{item.typeA}</span> - <span>{item.typeB}</span>
-                                            </div>
-
-                                            <h3 className="product-name">{item.name}</h3>
-
-                                            <div className="product-status">
-                                                السوم واصل : <span>{item.currentBid}</span>
-                                            </div>
-                                        </div>
-                                    </Link>
+                                    <AuctionCard auction={item} />
                                 </SwiperSlide>
                             ))}
                         </Swiper>
