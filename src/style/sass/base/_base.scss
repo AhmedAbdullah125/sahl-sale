@@ -109,12 +109,87 @@ a {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: $secondary;
+  background: $sec;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: $secondary;
+  background: $sec;
+}
+
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: $main #fff;
+  scroll-behavior: smooth !important;
+}
+
+/*style scroll bar*/
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 1px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: $white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $main;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: $sec;
+}
+
+
+
+/* Hide scrollbar for .disabled-scroll */
+.disabled-scroll {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  overflow: hidden;
+  /* Prevent scrolling */
+}
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+.disabled-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure .sub-ticket-cont-container inside .disabled-scroll has a scrollbar */
+.sub-ticket-cont-container {
+  overflow: auto;
+  /* Ensure it can scroll */
+  scrollbar-width: thin;
+
+  /* Firefox - makes scrollbar visible */
+  ::-webkit-scrollbar-track {
+    background: $main;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: $sec;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: $sec;
+  }
+}
+
+/* Visible scrollbar for Chrome, Safari, and Edge */
+.sub-ticket-cont-container::-webkit-scrollbar {
+  width: 4px;
+  /* Adjust scrollbar width */
+  background-color: $main;
 }
 
 @include max-767 {
@@ -266,7 +341,7 @@ a {
   width: 50px;
   height: 50px;
   line-height: 40px;
-  background-color: #f0f0f0;
+  background-color: $sidebar;
   border: none;
   text-decoration: none !important;
   outline: none !important;

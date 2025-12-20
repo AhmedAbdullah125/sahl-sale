@@ -13,6 +13,7 @@
   --black-color: #000;
   --white-color: #fff;
   --border-color: #e8e8e8;
+  --sidebar-color: #f0f0f0;
 }
 
 body.dark-mode {
@@ -20,6 +21,7 @@ body.dark-mode {
   --secondary-color: #0a0a0a;
   --back-color: #0a0a0a;
   --background-color: #000;
+  --sec-color: #ffffff;
   --text-color: #fff;
   --text-sec: #fff;
   --input-text: #233D58;
@@ -27,6 +29,7 @@ body.dark-mode {
   --line-color: #C2C2C2;
   --black-color: #000;
   --white-color: #fff;
+  --sidebar-color: #1e1e1e;
   --border-color: #ffffffe1;
 }
 
@@ -119,12 +122,81 @@ a:hover {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary-color);
+  background: var(--sec-color);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);
+  background: var(--sec-color);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--main-color) #fff;
+  scroll-behavior: smooth !important;
+}
+
+/*style scroll bar*/
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 1px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--white-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--main-color);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sec-color);
+}
+
+/* Hide scrollbar for .disabled-scroll */
+.disabled-scroll {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  overflow: hidden;
+  /* Prevent scrolling */
+}
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+.disabled-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure .sub-ticket-cont-container inside .disabled-scroll has a scrollbar */
+.sub-ticket-cont-container {
+  overflow: auto;
+  /* Ensure it can scroll */
+  scrollbar-width: thin;
+  /* Firefox - makes scrollbar visible */
+  /* Handle */
+  /* Handle on hover */
+}
+.sub-ticket-cont-container ::-webkit-scrollbar-track {
+  background: var(--main-color);
+}
+.sub-ticket-cont-container ::-webkit-scrollbar-thumb {
+  background: var(--sec-color);
+}
+.sub-ticket-cont-container ::-webkit-scrollbar-thumb:hover {
+  background: var(--sec-color);
+}
+
+/* Visible scrollbar for Chrome, Safari, and Edge */
+.sub-ticket-cont-container::-webkit-scrollbar {
+  width: 4px;
+  /* Adjust scrollbar width */
+  background-color: var(--main-color);
 }
 
 @media only screen and (max-width: 767px) {
@@ -270,7 +342,7 @@ a:hover {
   width: 50px;
   height: 50px;
   line-height: 40px;
-  background-color: #f0f0f0;
+  background-color: var(--sidebar-color);
   border: none;
   text-decoration: none !important;
   outline: none !important;
@@ -2747,7 +2819,7 @@ html[dir=rtl] .auction-action input {
   justify-content: center;
   flex-direction: column;
   gap: 8px;
-  background-color: #f0f0f0;
+  background-color: var(--sidebar-color);
   padding: 16px 20px;
   border-radius: 15px;
   padding-top: 63.5px;
@@ -2835,7 +2907,7 @@ html[dir=rtl] .auction-action input {
 }
 
 .profile-menu li {
-  background-color: #f0f0f0;
+  background-color: var(--sidebar-color);
   padding: 16px 20px;
   border-radius: 15px;
   height: 50px;
@@ -2843,7 +2915,8 @@ html[dir=rtl] .auction-action input {
   align-items: center;
   gap: 10px;
 }
-.profile-menu li a {
+.profile-menu li a,
+.profile-menu li button {
   width: 100%;
   height: 50px;
   display: flex;
@@ -2852,7 +2925,8 @@ html[dir=rtl] .auction-action input {
   gap: 5px;
   transition: all 0.3s ease-in-out;
 }
-.profile-menu li a span {
+.profile-menu li a span,
+.profile-menu li button span {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2860,15 +2934,18 @@ html[dir=rtl] .auction-action input {
   font-weight: 500;
   font-size: 18px;
 }
-.profile-menu li a span i {
+.profile-menu li a span i,
+.profile-menu li button span i {
   font-size: 20px;
   color: var(--sec-color);
 }
-.profile-menu li a > i {
+.profile-menu li a > i,
+.profile-menu li button > i {
   color: #1e1e1e;
   font-size: 12px;
 }
-html[dir=ltr] .profile-menu li a > i {
+html[dir=ltr] .profile-menu li a > i,
+html[dir=ltr] .profile-menu li button > i {
   transform: scaleX(-1);
 }
 .profile-menu li:hover {

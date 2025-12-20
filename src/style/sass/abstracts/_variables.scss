@@ -16,13 +16,15 @@
   --black-color: #000;
   --white-color: #fff;
   --border-color: #e8e8e8;
+  --sidebar-color: #f0f0f0;
 }
+
 body.dark-mode {
   --primary-color: #fff;
   --secondary-color: #0a0a0a;
   --back-color: #0a0a0a;
   --background-color: #000;
-
+  --sec-color: #ffffff;
   --text-color: #fff;
   --text-sec: #fff;
   --input-text: #233D58;
@@ -30,9 +32,11 @@ body.dark-mode {
   --line-color: #C2C2C2;
   --black-color: #000;
   --white-color: #fff;
+  --sidebar-color: #1e1e1e;
   --border-color: #ffffffe1;
-  
+
 }
+
 $main: var(--main-color);
 $primary: var(--primary-color);
 $secondary: var(--secondary-color);
@@ -48,5 +52,6 @@ $white: var(--white-color);
 $back: var(--back-color);
 $background: var(--background-color);
 $border: var(--border-color);
+$sidebar: var(--sidebar-color);
 
 $radius: var(--border-radius);
