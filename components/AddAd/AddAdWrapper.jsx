@@ -2,16 +2,13 @@
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-
 import AddAdStepOne from "./steps/AddAdStepOne";
 import AddAdStepTwo from "./steps/AddAdStepTwo";
 import AddAdStepThree from "./steps/AddAdStepThree";
 import AddAdStepFour from "./steps/AddAdStepFour";
 import AddAdStepFive from "./steps/AddAdStepFive";
-
 import vehicles from "@/src/images/category/vehicles.png";
 import estate from "@/src/images/category/estate.png";
 import electronics from "@/src/images/category/electronics.png";

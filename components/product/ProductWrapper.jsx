@@ -1,74 +1,72 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
-import {
-    ArrowRight,
-    Bookmark,
-    Link as LinkIcon,
-    AlertCircle,
-    BadgeCheck,
-    PhoneCall,
-} from "lucide-react";
-
-// ✅ Swiper
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowRight, Bookmark, Link as LinkIcon, AlertCircle, BadgeCheck, PhoneCall, PenLine, Trash2, } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-
 import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
-
 export default function ProductWrapper({ id }) {
+    const router = useRouter();
+    const pathname = usePathname()
+    const isMyProduct = pathname.includes("my-products");
     const [isFav, setIsFav] = useState(false);
+    const phone = "55558718";
+    const whatsapp = "55558718";
+    const expireText = "ينتهي في 11 يوليو 2026";
 
-    // بدلها بالصور اللي جاية من API حسب id
+    // بدلها بصور API حسب id
     const images = useMemo(() => [mainImg, mainImg], [id]);
 
+    const handleShare = async () => {
+        try {
+            const url = window.location.href;
+            if (navigator.share) {
+                await navigator.share({ title: "إعلان", url });
+            } else {
+                await navigator.clipboard.writeText(url);
+                alert("تم نسخ الرابط");
+            }
+        } catch {
+            // ignore
+        }
+    };
+
     return (
-        <section className="content-section">
+        <section className="content-section" dir="rtl">
             <div className="container">
                 {/* Header */}
                 <div className="upper-header">
                     <button
                         type="button"
                         className="back-btn"
-                        onClick={() => window.history.back()}
+                        onClick={() => router.back()}
                         aria-label="Back"
                     >
                         <ArrowRight />
                     </button>
 
                     <div className="product-center">
-                        <Link href="#" className="report-link">
-                            <AlertCircle />
-                            <span>تبليغ</span>
-                        </Link>
+                        {
+                            !isMyProduct && (
+                                <Link href="#" className="report-link">
+                                    <AlertCircle />
+                                    <span>تبليغ</span>
+                                </Link>
+                            )
+                        }
 
-                        <button
-                            type="button"
-                            onClick={async () => {
-                                try {
-                                    if (navigator.share) {
-                                        await navigator.share({
-                                            title: "إعلان",
-                                            url: window.location.href,
-                                        });
-                                    } else {
-                                        await navigator.clipboard.writeText(window.location.href);
-                                        alert("تم نسخ الرابط");
-                                    }
-                                } catch {
-                                    // ignore
-                                }
-                            }}
-                        >
+                        <button type="button" onClick={handleShare}>
                             <LinkIcon />
                             <span>مشاركة</span>
                         </button>
                     </div>
+
                 </div>
 
                 {/* Detail */}
@@ -101,14 +99,40 @@ export default function ProductWrapper({ id }) {
                                 </Swiper>
                             </main>
 
-                            <button
-                                type="button"
-                                className="add-fav"
-                                aria-label="Add to favorites"
-                                onClick={() => setIsFav((v) => !v)}
-                            >
-                                <Bookmark className={isFav ? "fill-current" : ""} />
-                            </button>
+                            {/* ✅ Overlay buttons differ by mode */}
+                            {!isMyProduct ? (
+                                // Normal product -> fav
+                                <button
+                                    type="button"
+                                    className="add-fav"
+                                    aria-label="Add to favorites"
+                                    onClick={() => setIsFav((v) => !v)}
+                                >
+                                    <Bookmark className={isFav ? "fill-current" : ""} />
+                                </button>
+                            ) : (
+                                <>
+                                    {/* My product -> edit/delete + expire */}
+                                    <Link
+                                        className="edit-btn"
+                                        aria-label="Edit"
+                                        href={`/edit-product/${id}`}
+                                    >
+                                        <PenLine />
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        className="delete-btn"
+
+                                        aria-label="Delete"
+                                    >
+                                        <Trash2 />
+                                    </button>
+
+                                    <div className="detail-expire">{expireText}</div>
+                                </>
+                            )}
                         </div>
 
                         {/* Main Info */}
@@ -118,18 +142,21 @@ export default function ProductWrapper({ id }) {
                             <div className="price">2100 د.ك</div>
                             <div className="detail-date">نشر بتاريخ : 12 / 5 / 2025 - 10:32 PM</div>
 
-                            <div className="company-item">
-                                <figure>
-                                    <Image src={logo} alt="logo" />
-                                </figure>
+                            {
+                                !isMyProduct &&
+                                <div className="company-item">
+                                    <figure>
+                                        <Image src={logo} alt="logo" />
+                                    </figure>
 
-                                <div className="company-info">
-                                    <span className="company-num">نشر بواسطة</span>
-                                    <span className="company-name">
-                                        شركة الخليج العربي <BadgeCheck className="inline-block h-4 w-4" />
-                                    </span>
+                                    <div className="company-info">
+                                        <span className="company-num">نشر بواسطة</span>
+                                        <span className="company-name">
+                                            شركة الخليج العربي <BadgeCheck className="inline-block h-4 w-4" />
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
 
                         {/* Details box */}
@@ -182,14 +209,32 @@ export default function ProductWrapper({ id }) {
 
                     {/* Contact Buttons */}
                     <div className="contact-btns">
-                        <Link href="tel:+" className="phone-link">
-                            <PhoneCall className="inline-block" /> اتصال
+                        <Link href={`tel:${phone}`} className="phone-link">
+                            <PhoneCall className="inline-block" />
+                            {/* ✅ لو CSS بتعتمد على span داخل span زي الـ HTML بتاعك */}
+                            <span>
+                                اتصال <span>{phone}</span>
+                            </span>
                         </Link>
 
-                        <Link href="#" className="whats-link">
-                            واتساب
+                        <Link
+                            href={`https://wa.me/${whatsapp}`}
+                            className="whats-link"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            <span>
+                                واتساب <span>{whatsapp}</span>
+                            </span>
                         </Link>
                     </div>
+
+                    {/* ✅ My product only: Sold button */}
+                    {isMyProduct ? (
+                        <button type="button" className="form-btn">
+                            تم البيع
+                        </button>
+                    ) : null}
                 </div>
             </div>
         </section>

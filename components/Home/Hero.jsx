@@ -27,7 +27,7 @@ export default function Hero() {
 
     return (
         <main className="w-full py-6">
-            <div className="mx-auto max-w-7xl px-4">
+            <div className="container">
                 <div className="relative">
                     {/* Slider */}
                     <Swiper

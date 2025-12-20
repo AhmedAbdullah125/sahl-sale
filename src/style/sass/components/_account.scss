@@ -1,0 +1,217 @@
+.logOut {
+  color: #e20000;
+}
+
+.profile-page {
+  border-radius: 20px;
+  padding: 16px;
+
+  @include min-992 {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 16px;
+  }
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+}
+
+.not-the-main-page {
+  @media screen and (max-width: 992px) {
+    display: none;
+  }
+}
+
+/* Header */
+.profile-header {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #d9d9d9;
+  padding: 16px 20px;
+  border-radius: 15px;
+  padding-top: 63.5px;
+  margin-top: 47.5px;
+  position: relative;
+}
+
+.avatar-wrap {
+  position: absolute;
+  top: -47.5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(217, 217, 217, 0.6);
+  color: #d9d9d9;
+  border: 2px solid #233d58;
+  @include flexCenter;
+
+  img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+  }
+
+  i {
+    font-size: 32px;
+  }
+}
+
+.profile-name,
+.profile-id {
+  font-weight: 700;
+  font-size: 18px;
+  color: $sec;
+  margin: 0;
+}
+
+.verify-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid $sec;
+  height: 44px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  color: $sec;
+  @include tr;
+  @include flexCenter;
+
+  &:hover {
+    background-color: $sec;
+    color: $white;
+  }
+}
+
+.profile-edit {
+  background: transparent;
+  display: inline-block;
+  font-size: 22px;
+  color: $sec;
+  @include tr;
+  position: absolute;
+  top: 17px;
+  inset-inline-end: 20px;
+
+  &:hover {
+    color: $main;
+  }
+}
+
+/* Menu */
+.profile-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-menu li {
+  background-color: #d9d9d9;
+  padding: 16px 20px;
+  border-radius: 15px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  a {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    @include tr;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: $sec;
+      font-weight: 500;
+      font-size: 18px;
+
+      i {
+        font-size: 20px;
+        color: $sec;
+      }
+    }
+
+    >i {
+      color: #1e1e1e;
+      font-size: 12px;
+
+      html[dir="ltr"] & {
+        transform: scaleX(-1);
+      }
+    }
+  }
+
+  &:hover {
+    background-color: $main;
+  }
+}
+
+/* Edit page */
+// .edit-profile {
+//   max-width: 360px;
+//   margin: auto;
+//   padding: 20px;
+// }
+.verified {
+  background-color: #233d581a;
+  border-radius: 15px;
+  @include flexCenter;
+  gap: 6px;
+  height: 44px;
+  font-weight: 700;
+  font-size: 14px;
+  color: $sec;
+  padding: 0 35px;
+
+  i {
+    color: $main;
+    font-size: 18px;
+  }
+}
+
+.avatar-upload {
+  position: relative;
+  width: 120px;
+  margin: auto;
+  display: block;
+  cursor: pointer;
+}
+
+.avatar-upload input {
+  display: none;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ccc;
+}

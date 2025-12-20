@@ -3,9 +3,15 @@
   position: relative;
   display: inline-block;
 }
-.container{
+
+.container {
   margin: 0 auto;
 }
+
+.hide {
+  display: none !important;
+}
+
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
   /* display: none; */
@@ -25,6 +31,7 @@
   padding: 7px 0;
   transition: all 0.3s ease-in-out;
 }
+
 .lang-ancor {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -40,9 +47,11 @@
   font-weight: 600;
   transition: all 0.3s ease-in-out;
 }
+
 .lang-ancor:hover {
   color: $main;
 }
+
 .dropdown-content::before {
   content: "";
   display: block;
@@ -69,6 +78,7 @@
   font-size: 12px;
   transition: all 0.3s ease-in-out;
 }
+
 .dropdown-content a:hover {
   color: $main;
 }
@@ -79,6 +89,7 @@
   visibility: visible;
   opacity: 1;
 }
+
 .chevron-down {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -93,6 +104,7 @@
   font-weight: 600;
   transition: all 0.3s ease-in-out;
 }
+
 .chevron-down::after,
 .dropdown .hide-txt:after {
   content: "";
@@ -101,9 +113,11 @@
   margin-inline-start: 4px;
   font-weight: 700;
 }
+
 .chevron-down:hover {
   color: var(--main-hover);
 }
+
 /*                          dropdown                            */
 /*fixed nav*/
 
@@ -118,20 +132,25 @@ header {
   background-color: $back;
   transition: all 0.3s ease-in-out;
 }
+
 header nav {
   box-shadow: 0px 4px 8px 0px #bbbbbb1f;
   background-color: $main;
 }
+
 .top-header a {
   text-decoration: none;
 }
+
 .top-header {
   position: relative;
 }
+
 .top-header .img-logo img {
   width: 120px;
   image-rendering: -webkit-optimize-contrast;
 }
+
 .nav-header {
   display: flex;
   justify-content: space-between;
@@ -139,10 +158,12 @@ header nav {
   padding: 10px 0;
   gap: 10px;
   transition: all 0.3s ease-in-out;
+
   @include max-991 {
     flex-wrap: wrap;
   }
 }
+
 .cat-anchor {
   color: $white;
   font-size: 14px;
@@ -150,9 +171,11 @@ header nav {
   text-transform: capitalize;
   transition: all 0.3s ease-in-out;
 }
+
 .cat-anchor:hover {
   color: $black;
 }
+
 .big-menu {
   display: flex;
   align-items: center;
@@ -161,6 +184,7 @@ header nav {
   margin: 0;
   padding: 17px 0;
 }
+
 .nav-head {
   width: 100%;
   display: none;
@@ -168,12 +192,15 @@ header nav {
   justify-content: space-between;
   padding: 0 15px;
 }
+
 .hide-big {
   display: none;
 }
+
 .hide-txt {
   display: block;
 }
+
 .header-icons {
   display: flex;
   align-items: flex-start;
@@ -184,6 +211,7 @@ header nav {
 .dropdown .add-to {
   cursor: pointer;
 }
+
 .add-to {
   position: relative;
   font-size: 14px;
@@ -198,8 +226,10 @@ header nav {
   align-items: center;
   color: $main;
   transition: all 0.3s ease-in-out;
+
   i {
     font-size: 24px;
+
     @include max-991 {
       font-size: 20px;
     }
@@ -209,6 +239,7 @@ header nav {
     color: $primary;
   }
 }
+
 .counter {
   position: absolute;
   top: -3px;
@@ -221,6 +252,7 @@ header nav {
   font-size: 10px;
   font-weight: 400;
   border-radius: 50%;
+
   @include max-991 {
     width: 12px;
     height: 12px;
@@ -228,9 +260,11 @@ header nav {
     inset-inline-start: 0px;
   }
 }
+
 .show-icons {
   display: none;
 }
+
 .show-icons a {
   font-size: 24px;
   position: relative;
@@ -238,31 +272,38 @@ header nav {
   color: var(--main-color);
   transition: all 0.3s ease-in-out;
 }
+
 .show-icons:hover a {
   color: var(--main-hover);
 }
+
 .lang-word img {
   margin-inline-end: 4px;
   image-rendering: -webkit-optimize-contrast;
 }
+
 .search-form {
   width: 100%;
   position: relative;
 }
+
 .search-section {
   width: 48%;
   position: relative;
 }
+
 @include max-991 {
   .search-section {
     width: 100%;
     order: 3;
   }
+
   .big-menu,
   .hide-sm {
     display: none;
   }
 }
+
 .search-input {
   position: relative;
   background-color: $secondary;
@@ -279,13 +320,16 @@ header nav {
   outline: none;
   transition: all 0.3s ease-in-out;
 }
+
 .search-input:focus {
   outline: none;
   border-color: $main;
 }
+
 .search-input::placeholder {
   color: $sec;
 }
+
 .search-button {
   position: absolute;
   top: 50%;
@@ -300,9 +344,11 @@ header nav {
   outline: none !important;
   transition: 0.3s;
 }
+
 .search-button:hover {
   color: $main;
 }
+
 .user-info {
   display: flex;
   flex-direction: column;
@@ -310,15 +356,18 @@ header nav {
   justify-content: space-between;
   gap: 5px;
 }
+
 /*             top header     */
 .lang-section {
   display: flex;
   align-items: center;
   gap: 14px;
+
   .line {
     color: $secondary;
   }
 }
+
 .menu-bar {
   display: none;
   background-color: $sec;
@@ -332,18 +381,22 @@ header nav {
   right: 20px;
   height: 64px;
   border-radius: 20px;
+
   @include max-991 {
     display: grid;
   }
+
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   padding: 0 15px;
-  & > div {
+
+  &>div {
     width: 100%;
     // overflow: hidden;
     @include flexCenter;
     text-align: center;
   }
+
   a {
     display: flex;
     flex-direction: column;
@@ -353,20 +406,24 @@ header nav {
     color: $white;
     opacity: 0.4;
     @include tr;
+
     i {
       font-size: 20px;
     }
+
     &.active {
       opacity: 1;
       font-weight: 700;
     }
   }
+
   .add-icon {
     transform: translateY(-15px);
     height: 37px;
     width: 37px;
     opacity: 1;
     @include flexCenter;
+
     .add-plus {
       width: 52px;
       aspect-ratio: 1;
@@ -375,6 +432,7 @@ header nav {
       color: $white;
       @include flexCenter;
     }
+
     i {
       font-size: 22px;
     }
