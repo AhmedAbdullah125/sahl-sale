@@ -1,10 +1,8 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -14,12 +12,14 @@ import "swiper/css/pagination";
 // Assets (بدّلهم حسب مشروعك)
 import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
+import VerificationModal from "./VerificationModal";
 
 export default function AuctionDetailsWrapper({ id }) {
     const router = useRouter();
 
     const [notifyBids, setNotifyBids] = useState(false);
     const [bidValue, setBidValue] = useState("");
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
 
     // صور المزاد (بدّلها بصور API حسب id)
     const images = useMemo(() => [mainImg, mainImg], [id]);
@@ -74,13 +74,16 @@ export default function AuctionDetailsWrapper({ id }) {
     };
 
     const onBidSubmit = (extra = 0) => {
+        // Check if user account is verified (replace with actual verification check)
+        const isVerified = false; // TODO: Replace with actual user verification status from API/context
+
+        if (!isVerified) {
+            setShowVerificationModal(true);
+            return;
+        }
+
         const n = Number(bidValue || 0) + Number(extra || 0);
-
-        // TODO: call your API bid here
-        // await fetch(...)
-
         setBidValue(String(n));
-        // مثال UX بسيط:
         alert(`تم إرسال السوم: ${n}`);
     };
 
@@ -134,12 +137,7 @@ export default function AuctionDetailsWrapper({ id }) {
                                         <SwiperSlide key={idx} className="swiper-slide">
                                             <div className="main">
                                                 <Link href="#!" className="pro-img" aria-label={`image-${idx + 1}`}>
-                                                    <Image
-                                                        src={img}
-                                                        alt={`main-${idx + 1}`}
-                                                        priority={idx === 0}
-                                                        style={{ width: "100%", height: "auto" }}
-                                                    />
+                                                    <Image src={img} alt={`main-${idx + 1}`} priority={idx === 0} style={{ width: "100%", height: "auto" }} />
                                                 </Link>
                                             </div>
                                         </SwiperSlide>
@@ -268,31 +266,22 @@ export default function AuctionDetailsWrapper({ id }) {
                             ) : null}
                         </div>
                     </div>
-
                     {/* Action */}
                     <div className="auction-action">
                         <div className="relative ">
-                            <input
-                                type="number"
-                                placeholder="ادخل قيمة للمزايدة +"
-                                value={bidValue}
-                                onChange={(e) => setBidValue(e.target.value)}
-                            />
-                            <button
-                                type="button"
-                                className="auction-btn"
-                                onClick={() => onBidSubmit(0)}
-                            >
-                                سوم
-                            </button>
+                            <input type="number" placeholder="ادخل قيمة للمزايدة +" value={bidValue} onChange={(e) => setBidValue(e.target.value)} />
+                            <button type="button" className="auction-btn" onClick={() => onBidSubmit(0)}>سوم</button>
                         </div>
-
-                        <button type="button" className="add" onClick={() => onBidSubmit(50)}>
-                            +50
-                        </button>
+                        <button type="button" className="add" onClick={() => onBidSubmit(50)}>+50</button>
                     </div>
                 </div>
             </div>
+
+            {/* Verification Modal */}
+            <VerificationModal
+                isOpen={showVerificationModal}
+                onClose={() => setShowVerificationModal(false)}
+            />
         </section>
     );
 }

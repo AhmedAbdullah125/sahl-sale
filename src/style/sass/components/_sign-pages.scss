@@ -7,6 +7,7 @@
   align-items: center;
   justify-content: center;
 }
+
 .sign-container {
   text-align: center;
   width: 100%;
@@ -16,30 +17,38 @@
   border-radius: 10px;
   border: 1px solid $border;
   padding: 50px 30px;
+
   @include max-991 {
     padding: 20px;
     border: none;
     background-color: transparent;
   }
+
   margin: 20px;
 }
+
 .form-cont {
   text-align: center;
 }
+
 .upper-head {
   @include flexCenter;
   margin-bottom: 40px;
 }
+
 .logo-ancor {
   display: inline-block;
 }
+
 .logo-img {
   margin-bottom: 40px;
+
   img {
     width: 271px;
     max-width: 100%;
   }
 }
+
 .form-head {
   font-weight: 700;
   font-size: 22px;
@@ -47,18 +56,22 @@
   text-align: center;
   margin-bottom: 15px;
 }
+
 .form-pargh {
   font-weight: 400;
   font-size: 16px;
   color: $sec;
   text-align: center;
   margin-bottom: 40px;
+
   .dark-mode & {
     color: $primary;
   }
 }
+
 .login-form {
   max-width: 100%;
+
   .form-group {
     width: 100%;
     text-align: start;
@@ -66,6 +79,7 @@
     margin-bottom: 20px;
   }
 }
+
 .link-escape {
   color: $main;
   display: inline-block;
@@ -74,69 +88,112 @@
   font-size: 18px;
   margin: 40px auto 0;
   @include tr;
+
   &:hover {
     color: $sec;
   }
 }
+
 .register-btn {
   font-size: 18px;
   font-weight: 400;
   color: $main;
   text-decoration: none !important;
   @include tr;
+
   &:hover {
     color: $main;
   }
+
   margin-top: 40px;
   display: inline-block;
 }
+
 .register-span {
   font-size: 18px;
   font-weight: 400;
   color: $text;
 }
+
 .form-number {
   font-weight: 700;
   font-size: 18px;
   color: $sec;
   text-align: center;
   margin-bottom: 35px;
+
   .dark-mode & {
     color: $primary;
   }
 }
+
+.form-group {
+
+  .react-international-phone-input-container {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+    padding: 0;
+
+    .phone-country {
+      height: 100%;
+
+      button {
+        height: 100%;
+        width: 70px;
+        border: none;
+        background-color: transparent;
+      }
+    }
+
+    .phone-input {
+      height: 100%;
+      width: 100%;
+      border: none;
+      background-color: transparent;
+    }
+  }
+}
+
 .digit-group {
   margin: 0 auto;
   direction: ltr;
   margin-bottom: 30px;
   text-align: center;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   justify-content: center;
   width: 100%;
 }
-.digit-group input {
-  width: 100%;
-  overflow: hidden;
-  max-width: 100%;
-  aspect-ratio: 1;
-  height: auto;
-  // line-height: 95px;
-  outline: none;
-  border: 1px solid $border;
-  background-color: $secondary;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 800;
-  color: $main;
-  border-radius: 15px;
-  transition: all 0.3s ease-in-out;
-  &:focus {
-    border-color: $main;
+
+.digit-group {
+  margin: 0 auto;
+
+  input,
+  .otp-field {
+    width: 100%;
+    overflow: hidden;
+    max-width: 100%;
+    aspect-ratio: 1;
+    height: auto;
+    // line-height: 95px;
     outline: none;
+    border: 1px solid $border;
+    background-color: $secondary;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: $main;
+    border-radius: 15px;
+    transition: all 0.3s ease-in-out;
+    min-width: 80px;
+
+    &:focus {
+      border-color: $main;
+      outline: none;
+    }
   }
 }
+
 .check-label {
   /* min-width: 25%; */
   text-align: start;
@@ -147,13 +204,16 @@
   color: $text;
   padding-inline-start: 25px;
   transition: all 0.3s ease-in-out;
+
   a {
     color: $main;
   }
 }
+
 .check-label:has(input:checked) {
   border-color: $main;
 }
+
 .check-group input[type="checkbox"],
 .check-group input[type="radio"] {
   position: absolute;
@@ -162,6 +222,7 @@
   height: 0;
   width: 0;
 }
+
 .check-group .checkmark {
   border: none;
   border-radius: 0;
@@ -177,35 +238,44 @@
   justify-content: center;
   cursor: pointer;
 }
+
 .check-group .custom-checkmark {
   border-radius: 4px;
 }
-.check-group input[type="checkbox"] ~ .checkmark {
+
+.check-group input[type="checkbox"]~.checkmark {
   border-radius: 4px;
 }
-.check-group:hover input ~ .checkmark {
+
+.check-group:hover input~.checkmark {
   background-color: #fff;
   transition: all 0.3s ease-in-out;
 }
-.check-group input:checked ~ .checkmark {
+
+.check-group input:checked~.checkmark {
   background-color: $main;
 }
+
 .checkmark:after {
   content: "";
   position: absolute;
   opacity: 0;
   visibility: visible;
 }
-.check-group input:checked ~ .checkmark:after {
+
+.check-group input:checked~.checkmark:after {
   opacity: 1;
   visibility: visible;
 }
-.check-group input:checked ~ .checkmark {
+
+.check-group input:checked~.checkmark {
   background-color: #fff;
 }
-.check-group input:checked ~ .custom-checkmark {
+
+.check-group input:checked~.custom-checkmark {
   background-color: $main;
 }
+
 .check-group .checkmark:after {
   content: "";
   border-radius: 50%;
@@ -213,6 +283,7 @@
   height: 16px;
   background-color: $main;
 }
+
 .check-group .custom-checkmark:after {
   content: "\f00c";
   font-family: "Font Awesome 6 pro";
