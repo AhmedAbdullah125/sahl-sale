@@ -114,8 +114,7 @@ export default function SideData() {
 }
 
 async function shareApp() {
-    const url =
-        typeof window !== "undefined" ? window.location.origin : "https://example.com";
+    const url = typeof window !== "undefined" ? window.location.origin : "https://example.com";
     const text = "جرّب التطبيق ده 👇";
 
     try {
