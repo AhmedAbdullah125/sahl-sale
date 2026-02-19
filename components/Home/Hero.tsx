@@ -13,15 +13,13 @@ import "swiper/css/pagination";
 
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import img1 from "@/src/images/main.png";
-import img2 from "@/src/images/main.png";
+import { Banner } from "@/types/home";
 
-const slides = [
-    { href: "#!", src: img1, alt: "Main slide 1" },
-    { href: "#!", src: img2, alt: "Main slide 2" },
-];
+interface HeroProps {
+    banners: Banner[];
+}
 
-export default function Hero() {
+export default function Hero({ banners }: HeroProps) {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
 
@@ -40,7 +38,6 @@ export default function Hero() {
                             nextEl: nextRef.current,
                         }}
                         onBeforeInit={(swiper) => {
-                            // Attach shadcn buttons to Swiper navigation
                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             swiper.params.navigation.prevEl = prevRef.current;
@@ -50,16 +47,16 @@ export default function Hero() {
                         }}
                         className="rounded-2xl"
                     >
-                        {slides.map((s, idx) => (
-                            <SwiperSlide key={idx}>
+                        {banners.map((banner) => (
+                            <SwiperSlide key={banner.id}>
                                 <div className="relative overflow-hidden rounded-2xl">
-                                    <Link href={s.href} className="block">
+                                    <Link href={banner.url} className="block" target="_blank" rel="noopener noreferrer">
                                         <div className="relative h-[240px] w-full sm:h-[360px] md:h-[460px]">
                                             <Image
-                                                src={s.src}
-                                                alt={s.alt}
+                                                src={banner.image}
+                                                alt={banner.title}
                                                 fill
-                                                priority={idx === 0}
+                                                priority={banner.id === banners[0]?.id}
                                                 className="object-cover"
                                                 sizes="(max-width: 768px) 100vw, 1200px"
                                             />
@@ -70,7 +67,7 @@ export default function Hero() {
                         ))}
                     </Swiper>
 
-                    {/* Prev / Next (shadcn) */}
+                    {/* Prev / Next */}
                     <Button
                         ref={prevRef}
                         type="button"

@@ -10,23 +10,13 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 
 import { Card } from "@/components/ui/card";
+import { Category } from "@/types/home";
 
-import img1 from "@/src/images/category/vehicles.png";
-import img2 from "@/src/images/category/estate.png";
-import img3 from "@/src/images/category/electronics.png";
-import img4 from "@/src/images/category/Buy&sell.png";
-import img5 from "@/src/images/category/Contracting.png";
+interface HomeCategoriesProps {
+    categories: Category[];
+}
 
-
-const categories = [
-    { title: "محركات", href: "#", img: img1, alt: "vehicles" },
-    { title: "عقارات", href: "#", img: img2, alt: "estate" },
-    { title: "الكترونيات", href: "#", img: img3, alt: "electronics" },
-    { title: "بيع وشراء", href: "#", img: img4, alt: "buy and sell" },
-    { title: "مقاولات وحرف", href: "#", img: img5, alt: "contracting" },
-];
-
-export default function HomeCategories() {
+export default function HomeCategories({ categories }: HomeCategoriesProps) {
     return (
         <section className="category-section">
             <div className="container">
@@ -46,18 +36,18 @@ export default function HomeCategories() {
                             className="swiper"
                         >
                             {categories.map((cat) => (
-                                <SwiperSlide key={cat.title} className="swiper-slide">
-                                    <Link href={cat.href} className="category-ancor">
+                                <SwiperSlide key={cat.id} className="swiper-slide">
+                                    <Link href={`/categories/${cat.id}`} className="category-ancor">
                                         <figure className="category-figure">
                                             <Image
-                                                src={cat.img}
-                                                alt={cat.alt}
+                                                src={cat.image}
+                                                alt={cat.name}
                                                 width={120}
                                                 height={120}
                                                 className="h-auto w-full object-contain"
                                             />
                                         </figure>
-                                        <span>{cat.title}</span>
+                                        <span>{cat.name}</span>
                                     </Link>
                                 </SwiperSlide>
                             ))}

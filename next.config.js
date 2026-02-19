@@ -13,6 +13,12 @@ const nextConfig = {
         hostname: "www.sahlsale.com",
         pathname: "/**",
       },
+      //https://new.sahlsale.work
+      {
+        protocol: "https",
+        hostname: "new.sahlsale.work",
+        pathname: "/**",
+      }
     ],
   },
 };
