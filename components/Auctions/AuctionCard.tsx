@@ -2,12 +2,25 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import pinImg from "@/src/images/pin.png";
+
+interface Auction {
+    id: number | string;
+    href?: string;
+    imageUrl: StaticImageData | string;
+    typeA?: string;
+    typeB?: string;
+    name: string;
+    currentBid?: string;
+    timer?: string;
+    isLive?: boolean;
+    isPinned?: boolean;
+}
 
 export default function AuctionCard({
     auction
-}) {
+}: { auction: Auction }) {
     return (
         <Link href={`/auction/${auction.id}`} className="product-item" aria-label={auction.name}>
             <div className="product-img">

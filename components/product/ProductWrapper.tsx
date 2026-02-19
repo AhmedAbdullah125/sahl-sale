@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowRight, Bookmark, Link as LinkIcon, AlertCircle, BadgeCheck, PhoneCall, PenLine, Trash2, } from "lucide-react";
@@ -11,7 +11,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
-export default function ProductWrapper({ id }) {
+export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
     const pathname = usePathname()
     const isMyProduct = pathname.includes("my-products");

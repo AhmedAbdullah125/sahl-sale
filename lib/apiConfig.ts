@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://jsonplaceholder.typicode.com';
+const API_BASE_URL = 'https://new.sahlsale.work/api';
 
 const API_ENDPOINTS = {
   REGISTER: '/auth/register',

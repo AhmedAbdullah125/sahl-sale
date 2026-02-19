@@ -1,13 +1,27 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Bookmark } from "lucide-react";
 import pin from "@/src/images/pin.png";
 
+interface Product {
+    id: string;
+    href: string;
+    img: StaticImageData | string;
+    typeA?: string;
+    typeB?: string;
+    name: string;
+    kind?: string;
+    timer?: string;
+    currentBid?: string;
+    price?: string;
+    dateText?: string;
+    pinned?: boolean;
+    isFav?: boolean;
+}
 
-
-export default function ProductCard({ product }) {
+export default function ProductCard({ product }: { product: Product }) {
     const [fav, setFav] = useState({});
 
     return (

@@ -66,7 +66,7 @@ const PRODUCTS = [
     },
 ];
 
-export default function SubCategoryWrapper({ id }) {
+export default function SubCategoryWrapper({ id }: { id: string }) {
     const [q, setQ] = useState("");
     const [tab, setTab] = useState("all");
     const [fav, setFav] = useState({}); // { [id]: boolean }

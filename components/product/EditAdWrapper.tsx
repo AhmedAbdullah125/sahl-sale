@@ -58,7 +58,7 @@ export const SUBSECTIONS_BY_SECTION = {
     ],
 };
 
-export default function EditAdWrapper({ id }) {
+export default function EditAdWrapper({ id }: { id: string }) {
     const router = useRouter();
     const initialAd = {
         // ✅ New selects

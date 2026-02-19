@@ -40,7 +40,7 @@ function CategoryGrid() {
     );
 }
 
-export default function CategoryWrapper({ id }) {
+export default function CategoryWrapper({ id }: { id: string }) {
     return (
         <section className="content-section">
             <div className="container">

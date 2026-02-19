@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 
-export default function VerificationModal({ isOpen, onClose }) {
+export default function VerificationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     if (!isOpen) return null;
 
     return (

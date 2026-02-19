@@ -179,14 +179,18 @@ html {
   /* Ensure it can scroll */
   scrollbar-width: thin;
   /* Firefox - makes scrollbar visible */
-  /* Handle */
-  /* Handle on hover */
 }
 .sub-ticket-cont-container ::-webkit-scrollbar-track {
   background: var(--main-color);
 }
+.sub-ticket-cont-container {
+  /* Handle */
+}
 .sub-ticket-cont-container ::-webkit-scrollbar-thumb {
   background: var(--sec-color);
+}
+.sub-ticket-cont-container {
+  /* Handle on hover */
 }
 .sub-ticket-cont-container ::-webkit-scrollbar-thumb:hover {
   background: var(--sec-color);
@@ -792,14 +796,16 @@ header nav {
   right: 20px;
   height: 64px;
   border-radius: 20px;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  padding: 0 15px;
 }
 @media only screen and (max-width: 991px) {
   .menu-bar {
     display: grid;
   }
+}
+.menu-bar {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 0 15px;
 }
 .menu-bar > div {
   width: 100%;
@@ -1564,15 +1570,17 @@ label.category-ancor input {
   font-weight: 400;
   font-size: 14px;
   gap: 8px;
+}
+.upload-btn i {
+  font-size: 16px;
+  color: var(--main-color);
+}
+.upload-btn {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
   pointer-events: none;
   background-color: var(--secondary-color);
-}
-.upload-btn i {
-  font-size: 16px;
-  color: var(--main-color);
 }
 
 .upload-logo {
@@ -1927,7 +1935,6 @@ textarea.form-input {
   border-radius: 10px;
   border: 1px solid var(--border-color);
   padding: 50px 30px;
-  margin: 20px;
 }
 @media only screen and (max-width: 991px) {
   .sign-container {
@@ -1935,6 +1942,9 @@ textarea.form-input {
     border: none;
     background-color: transparent;
   }
+}
+.sign-container {
+  margin: 20px;
 }
 
 .form-cont {
@@ -2008,11 +2018,13 @@ textarea.form-input {
   color: var(--main-color);
   text-decoration: none !important;
   transition: all 0.3s ease-in-out;
-  margin-top: 40px;
-  display: inline-block;
 }
 .register-btn:hover {
   color: var(--main-color);
+}
+.register-btn {
+  margin-top: 40px;
+  display: inline-block;
 }
 
 .register-span {
@@ -2297,15 +2309,17 @@ textarea.form-input {
 .product-btn-filter {
   margin: 20px auto;
   gap: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 @media only screen and (min-width: 992px) {
   .product-btn-filter {
     max-width: 50%;
     gap: 12px;
   }
+}
+.product-btn-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .filter-btn {

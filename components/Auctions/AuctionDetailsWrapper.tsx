@@ -14,7 +14,7 @@ import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
 import VerificationModal from "./VerificationModal";
 
-export default function AuctionDetailsWrapper({ id }) {
+export default function AuctionDetailsWrapper({ id }: { id: string | number }) {
     const router = useRouter();
 
     const [notifyBids, setNotifyBids] = useState(false);
