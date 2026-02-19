@@ -3,23 +3,44 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import logo from "@/src/images/logo.svg";
 
-export default function Verifiy({ phone, onBack, onResend, onConfirm }) {
+interface VerifiyProps {
+    phone: string;
+    countryCode: string;
+    onBack: () => void;
+    onResend: () => void;
+    onConfirm: (otp: string) => Promise<void>;
+}
+
+export default function Verifiy({ phone, countryCode, onBack, onResend, onConfirm }: VerifiyProps) {
     const [otp, setOtp] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const formattedPhone = useMemo(() => {
         if (!phone) return "";
-        // عرض بسيط — عدّل لو عندك format معين
-        return phone.startsWith("+") ? phone.slice(1) : phone;
-    }, [phone]);
+        return `+${countryCode} ${phone}`;
+    }, [phone, countryCode]);
 
-    const submit = async (e) => {
-        e?.preventDefault?.();
-        if (otp.length !== 4) return;
-        await onConfirm?.(otp);
+    const submit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+        if (otp.length !== 4 || loading) return;
+
+        setLoading(true);
+        try {
+            await onConfirm(otp);
+        } catch (err: unknown) {
+            const msg =
+                (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+                "الرمز غير صحيح، يرجى المحاولة مجدداً";
+            toast.error(msg);
+            setOtp("");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -56,15 +77,10 @@ export default function Verifiy({ phone, onBack, onResend, onConfirm }) {
                                 maxLength={4}
                                 value={otp}
                                 onChange={(v) => setOtp(v)}
-                                onComplete={(v) => {
-                                    // optional auto submit
-                                    // submit()  // لو عايز أول ما يكمل يبعت
-                                    setOtp(v);
-                                }}
+                                onComplete={(v) => setOtp(v)}
                                 containerClassName="w-full justify-center"
                             >
                                 <InputOTPGroup className="gap-2 justify-center">
-                                    {/* نفس شكل input بتاع UI dev: otp-field */}
                                     {[0, 1, 2, 3].map((i) => (
                                         <InputOTPSlot
                                             key={i}
@@ -77,8 +93,12 @@ export default function Verifiy({ phone, onBack, onResend, onConfirm }) {
                         </div>
 
                         <div className="form-btn-cont">
-                            <Button type="submit" className="form-btn" disabled={otp.length !== 4}>
-                                تأكيد
+                            <Button
+                                type="submit"
+                                className="form-btn"
+                                disabled={otp.length !== 4 || loading}
+                            >
+                                {loading ? "جاري التحقق..." : "تأكيد"}
                             </Button>
                         </div>
 
@@ -88,6 +108,7 @@ export default function Verifiy({ phone, onBack, onResend, onConfirm }) {
                                 type="button"
                                 className="register-btn"
                                 onClick={() => onResend?.()}
+                                disabled={loading}
                             >
                                 إعادة إرسال
                             </button>

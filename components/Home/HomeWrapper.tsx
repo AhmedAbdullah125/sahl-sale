@@ -27,7 +27,9 @@ export default function HomeWrapper() {
         <div className="container py-8 text-center text-red-500">حدث خطأ أثناء تحميل البيانات</div>
       )}
       {categories_with_ads.map((category) => (
-        <CategoryProducts key={category.id} category={category} />
+        category.ads.length > 0 && (
+          <CategoryProducts key={category.id} category={category} />
+        )
       ))}
     </div>
   );

@@ -5,41 +5,71 @@ import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import logo from "@/src/images/logo.svg";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { z } from "zod";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneField from "./PhoneField";
+import { loginUser } from "@/src/services/authService";
 
-// عدّل الشروط براحتك
 const loginSchema = z.object({
     fullName: z
         .string()
         .min(1, "الاسم مطلوب")
         .transform((v) => v.trim().replace(/\s+/g, " "))
-        .refine((v) => v.split(" ").filter(Boolean).length >= 2, "اكتب اسمك بالكامل (كلمتين على الأقل)"),
-
+        .refine(
+            (v) => v.split(" ").filter(Boolean).length >= 2,
+            "اكتب اسمك بالكامل (كلمتين على الأقل)"
+        ),
     phone: z
         .string()
         .min(1, "رقم الهاتف مطلوب")
-        .refine((val) => {
-            const phone = parsePhoneNumberFromString(val || "");
-            return !!phone && phone.isValid();
-        }, "رقم الهاتف غير صحيح"),
+        .refine(
+            (val) => isValidPhoneNumber(val || ""),
+            "رقم الهاتف غير صحيح"
+        ),
 });
-export default function LoginForm({ onSuccess, onSkip }) {
-    const form = useForm({
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
+interface LoginFormProps {
+    fcmToken: string;
+    onSuccess: (data: { phone: string; country_code: string; name: string }) => void;
+    onSkip: () => void;
+}
+
+export default function LoginForm({ fcmToken, onSuccess, onSkip }: LoginFormProps) {
+    const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { fullName: "", phone: "", },
+        defaultValues: { fullName: "", phone: "" },
         mode: "onSubmit",
     });
 
-    const onSubmit = async (values) => {
-        // TODO: call login request -> send otp
-        // await fetch("/api/auth/login", { method: "POST", body: JSON.stringify(values) })
-        onSuccess?.(values);
+    const onSubmit = async (values: LoginFormValues) => {
+        try {
+            // Parse the E.164 phone (e.g. "+96526102xxx") into phone + country_code
+            const parsed = parsePhoneNumber(values.phone);
+            const country_code = parsed.countryCallingCode; // e.g. "965"
+            const phone = parsed.nationalNumber;              // e.g. "26102xxx"
+
+            await loginUser({
+                phone,
+                country_code,
+                fcm_token: fcmToken || "no-token",
+                name: values.fullName,
+            });
+
+            onSuccess({ phone, country_code, name: values.fullName });
+        } catch (err: unknown) {
+            const msg =
+                (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+                "حدث خطأ، يرجى المحاولة مجدداً";
+            toast.error(msg);
+        }
     };
 
     return (
@@ -59,7 +89,6 @@ export default function LoginForm({ onSuccess, onSkip }) {
                 <div className="upper-head">
                     <Link href="/" className="logo-ancor" aria-label="Home">
                         <figure className="logo-img">
-                            {/* عدّل المسار حسب مشروعك */}
                             <Image src={logo} alt="logo" width={140} height={60} className="img-fluid" />
                         </figure>
                     </Link>
@@ -110,13 +139,24 @@ export default function LoginForm({ onSuccess, onSkip }) {
                                     </FormItem>
                                 )}
                             />
+
                             <div className="form-btn-cont">
-                                <Button type="submit" className="form-btn" disabled={form.formState.isSubmitting} >
-                                    تسجيل دخول
+                                <Button
+                                    type="submit"
+                                    className="form-btn"
+                                    disabled={form.formState.isSubmitting}
+                                >
+                                    {form.formState.isSubmitting ? "جاري الإرسال..." : "تسجيل دخول"}
                                 </Button>
                             </div>
-                            {/* تخطي */}
-                            <Link href="/" className="link-escape"> تخطي </Link>
+
+                            <button
+                                type="button"
+                                onClick={onSkip}
+                                className="link-escape"
+                            >
+                                تخطي
+                            </button>
                         </div>
                     </form>
                 </Form>

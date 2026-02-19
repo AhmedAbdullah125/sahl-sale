@@ -1,7 +1,7 @@
 import SubCategoryWrapper from '@/components/categories/SubCategoryWrapper'
-import React from 'react'
-export default function Page({ params }) {
+export default async function Page({ params }) {
+    const id = await params.id;
     return (
-        <SubCategoryWrapper id={params.id} />
+        <SubCategoryWrapper id={id} />
     )
 }
