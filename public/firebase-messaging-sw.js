@@ -9,12 +9,12 @@ importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-com
 // NOTE: Service workers cannot access NEXT_PUBLIC_ env vars directly.
 // Fill in the same values as your .env.local here.
 firebase.initializeApp({
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
+    apiKey: "AIzaSyDXK6A5faFH1iganJFn87RT5NjLvzrlSkA",
+    authDomain: "sahlsale-9ae7a.firebaseapp.com",
+    projectId: "sahlsale-9ae7a",
+    storageBucket: "sahlsale-9ae7a.appspot.com",
+    messagingSenderId: "125311735751",
+    appId: "1:125311735751:ios:93badf49eb160fd8c66be2",
 });
 
 const messaging = firebase.messaging();

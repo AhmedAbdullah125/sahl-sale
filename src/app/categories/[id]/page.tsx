@@ -1,7 +1,12 @@
 import CategoryWrapper from '@/components/categories/CategoryWrapper'
-import React from 'react'
-export default function Page({ params }) {
+
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+    const { id } = await params;
     return (
-        <CategoryWrapper id={params.id} />
+        <CategoryWrapper id={id} />
     )
 }

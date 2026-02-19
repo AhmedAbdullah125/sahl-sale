@@ -1,46 +1,66 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { API_BASE_URL } from "@/lib/apiConfig";
 
-import vehicles from "@/src/images/category/vehicles.png";
-import estate from "@/src/images/category/estate.png";
-import electronics from "@/src/images/category/electronics.png";
-import buySell from "@/src/images/category/Buy&sell.png";
-import contracting from "@/src/images/category/Contracting.png";
+interface SubCategory {
+    id: number;
+    name: string;
+    image: string;
+    sub_categories_count: number;
+    has_children: boolean;
+    ad_form: string;
+    company_allowed: boolean;
+    supports_auction: boolean;
+    has_city: boolean;
+}
 
-const gridItems = [
-    { id: "1", label: "محركات", img: vehicles, href: "/sub-category/1" },
-    { id: "2", label: "عقارات", img: estate, href: "/sub-category/2" },
-    { id: "3", label: "الكترونيات", img: electronics, href: "/sub-category/3" },
-    { id: "4", label: "بيع وشراء", img: buySell, href: "/sub-category/4" },
-    { id: "5", label: "مقاولات وحرف", img: contracting, href: "/sub-category/5" },
-];
-
-function CategoryGrid() {
-    return (
-        <div className="category-grid">
-            {gridItems.map((item) => (
-                <Link key={item.id} href={item.href} className="category-ancor">
-                    <figure className="category-figure">
-                        <Image
-                            src={item.img}
-                            alt={item.label}
-                            width={220}
-                            height={160}
-                            className="h-auto w-full object-contain"
-                        />
-                    </figure>
-                    <span>{item.label}</span>
-                </Link>
-            ))}
-        </div>
-    );
+interface ApiResponse {
+    status: boolean;
+    data: SubCategory[];
 }
 
 export default function CategoryWrapper({ id }: { id: string }) {
+    const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchSubCategories = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem("token");
+                const headers: Record<string, string> = {
+                    "accept-language": "ar",
+                    "Content-Type": "application/json",
+                };
+                if (token) headers.Authorization = `Bearer ${token}`;
+
+                const res = await fetch(`${API_BASE_URL}/sub-categories/${id}`, { headers });
+                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+                const json: ApiResponse = await res.json();
+                if (json.status) {
+                    setSubCategories(json.data);
+                } else {
+                    setError("فشل تحميل البيانات");
+                }
+            } catch (err) {
+                setError("حدث خطأ أثناء تحميل البيانات");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSubCategories();
+    }, [id]);
+
+    const getHref = (item: SubCategory) =>
+        item.has_children ? `/categories/${item.id}` : `/sub-category/${item.id}`;
+
     return (
         <section className="content-section">
             <div className="container">
@@ -53,8 +73,7 @@ export default function CategoryWrapper({ id }: { id: string }) {
                     >
                         <ArrowRight />
                     </button>
-
-                    <h3 className="page-title">محركات</h3>
+                    <h3 className="page-title">الفئات</h3>
                     <div className="empty" />
                 </div>
 
@@ -62,11 +81,42 @@ export default function CategoryWrapper({ id }: { id: string }) {
                     الشركات
                 </Link>
 
-                <h3 className="category-title">المركبات</h3>
-                <CategoryGrid />
+                {loading && (
+                    <div className="flex justify-center items-center py-10">
+                        <span className="text-gray-500">جاري التحميل...</span>
+                    </div>
+                )}
 
-                <h3 className="category-title">الدراجات النارية</h3>
-                <CategoryGrid />
+                {error && (
+                    <div className="flex justify-center items-center py-10">
+                        <span className="text-red-500">{error}</span>
+                    </div>
+                )}
+
+                {!loading && !error && subCategories.length === 0 && (
+                    <div className="flex justify-center items-center py-10">
+                        <span className="text-gray-500">لا توجد فئات</span>
+                    </div>
+                )}
+
+                {!loading && !error && subCategories.length > 0 && (
+                    <div className="category-grid">
+                        {subCategories.map((item) => (
+                            <Link key={item.id} href={getHref(item)} className="category-ancor">
+                                <figure className="category-figure">
+                                    <Image
+                                        src={item.image}
+                                        alt={item.name}
+                                        width={220}
+                                        height={160}
+                                        className="h-auto w-full object-contain"
+                                    />
+                                </figure>
+                                <span>{item.name}</span>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );

@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Search, BadgeCheck, Bookmark } from "lucide-react";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,132 +11,152 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-
-import logo from "@/src/images/logo.svg";
-import img1 from "@/src/images/01.jpg";
 import ProductCard from "../General/ProductCard";
+import { API_BASE_URL } from "@/lib/apiConfig";
 
-const PRODUCTS = [
-    {
-        id: "1",
-        href: "/product/1",
-        img: img1,
-        typeA: "ياباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        kind: "auction",
-        timer: "00:15:30",
-        currentBid: "2100 د.ك",
-    },
-    {
-        id: "2",
-        href: "/product/2",
-        img: img1,
-        typeA: "ياباني",
-        typeB: "تويوتا",
-        name: "سيارة تويوتا كامري 2024",
-        kind: "sale",
-        price: "950 د.ك",
-        dateText: "منذ 1 يوم",
-    },
-    {
-        id: "3",
-        href: "/product/3",
-        img: img1,
-        typeA: "ياباني",
-        typeB: "تويوتا",
-        name: "سيارة تويوتا لاندكروزر 2025",
-        kind: "sale",
-        price: "2800 د.ك",
-        dateText: "منذ 3 أيام",
-    },
-    {
-        id: "4",
-        href: "/product/4",
-        img: img1,
-        typeA: "ياباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس كامري 2023",
-        kind: "sale",
-        price: "1200 د.ك",
-        dateText: "منذ 5 أيام",
-    },
-];
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface CarDetails {
+    brand: string;
+    model: string;
+    year: string;
+}
+
+interface AdItem {
+    id: number;
+    title: string;
+    price: string;
+    ad_form: string;
+    type: "ad" | "auction";
+    parent_category: string;
+    category: string;
+    is_pinned: boolean;
+    car: CarDetails | null;
+    image: string;
+    created_at: string;
+    ended_at: string;
+    status: string;
+    is_favorite: boolean;
+}
+
+interface Paginate {
+    total: number;
+    count: number;
+    per_page: number;
+    next_page_url: string;
+    prev_page_url: string;
+    current_page: number;
+    total_pages: number;
+}
+
+interface AdsResponse {
+    status: boolean;
+    data: {
+        items: AdItem[];
+        paginate: Paginate;
+        extra: unknown;
+    };
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function adToProductCard(ad: AdItem) {
+    return {
+        id: String(ad.id),
+        href: `/product/${ad.id}`,
+        img: ad.image,
+        typeA: ad.car?.brand ?? ad.parent_category,
+        typeB: ad.car?.model ?? ad.category,
+        name: ad.title,
+        kind: ad.type === "auction" ? "auction" : "sale",
+        price: ad.type === "ad" ? ad.price : undefined,
+        currentBid: ad.type === "auction" ? ad.price : undefined,
+        dateText: ad.created_at,
+        pinned: ad.is_pinned,
+        isFav: ad.is_favorite,
+    };
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SubCategoryWrapper({ id }: { id: string }) {
+    // filter state
+    const [tab, setTab] = useState<"all" | "ad" | "auction">("all");
     const [q, setQ] = useState("");
-    const [tab, setTab] = useState("all");
-    const [fav, setFav] = useState({}); // { [id]: boolean }
+    const [sBrand, setSBrand] = useState("");
+    const [sModel, setSModel] = useState("");
+    const [sYearFrom, setSYearFrom] = useState("");
+    const [sYearTo, setSYearTo] = useState("");
+    const [sPriceFrom, setSPriceFrom] = useState("");
+    const [sPriceTo, setSPriceTo] = useState("");
+    const [page, setPage] = useState(1);
 
-    // 4 selects
-    const [sBrand, setSBrand] = useState(""); // الماركة
-    const [sModel, setSModel] = useState(""); // الموديل
-    const [sYear, setSYear] = useState(""); // سنة الصنع
-    const [sPrice, setSPrice] = useState(""); // السعر range
+    // data state
+    const [items, setItems] = useState<AdItem[]>([]);
+    const [paginate, setPaginate] = useState<Paginate | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchAds = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem("token");
+            const headers: Record<string, string> = { "accept-language": "ar" };
+            if (token) headers.Authorization = `Bearer ${token}`;
+
+            const params = new URLSearchParams();
+            params.set("page", String(page));
+            params.set("category_id", id);
+            if (tab !== "all") params.set("type", tab);
+            if (sBrand) params.set("brand_id", sBrand);
+            if (sModel) params.set("model_id", sModel);
+            if (sYearFrom) params.set("year_from", sYearFrom);
+            if (sYearTo) params.set("year_to", sYearTo);
+            if (sPriceFrom) params.set("price_from", sPriceFrom);
+            if (sPriceTo) params.set("price_to", sPriceTo);
+
+            const res = await fetch(`${API_BASE_URL}/ads?${params.toString()}`, { headers });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json: AdsResponse = await res.json();
+            if (json.status) {
+                setItems(json.data.items);
+                setPaginate(json.data.paginate);
+            } else {
+                setError("فشل تحميل الإعلانات");
+            }
+        } catch {
+            setError("حدث خطأ أثناء تحميل البيانات");
+        } finally {
+            setLoading(false);
+        }
+    }, [id, tab, sBrand, sModel, sYearFrom, sYearTo, sPriceFrom, sPriceTo, page]);
+
+    useEffect(() => {
+        fetchAds();
+    }, [fetchAds]);
+
+    // reset to page 1 whenever filters change
+    const applyFilter = (setter: (v: string) => void) => (v: string) => {
+        setter(v);
+        setPage(1);
+    };
 
     const clearFilters = () => {
         setTab("all");
         setQ("");
         setSBrand("");
         setSModel("");
-        setSYear("");
-        setSPrice("");
+        setSYearFrom("");
+        setSYearTo("");
+        setSPriceFrom("");
+        setSPriceTo("");
+        setPage(1);
     };
 
-    const filtered = useMemo(() => {
-        const parseYear = (name) => {
-            const m = String(name).match(/\b(19|20)\d{2}\b/);
-            return m ? m[0] : "";
-        };
-
-        const parsePriceNumber = (p) => {
-            const raw = p.kind === "auction" ? p.currentBid : p.price;
-            if (!raw) return null;
-            const num = Number(String(raw).replace(/[^\d.]/g, "")); // "2100 د.ك" -> 2100
-            return Number.isFinite(num) ? num : null;
-        };
-
-        const parseRange = (rangeStr) => {
-            if (!rangeStr) return null;
-            const [a, b] = rangeStr.split("-").map((x) => Number(x));
-            if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
-            return { min: a, max: b };
-        };
-
-        let list = PRODUCTS;
-
-        // tab
-        if (tab !== "all") {
-            list = list.filter((p) =>
-                tab === "auction" ? p.kind === "auction" : p.kind === "sale"
-            );
-        }
-
-        // search
-        const search = q.trim();
-        if (search) list = list.filter((p) => String(p.name).includes(search));
-
-        // brand (compare with typeB)
-        if (sBrand) list = list.filter((p) => p.typeB === sBrand);
-
-        // model (simple contains)
-        if (sModel) list = list.filter((p) => String(p.name).includes(sModel));
-
-        // year (from name)
-        if (sYear) list = list.filter((p) => parseYear(p.name) === sYear);
-
-        // price range
-        const range = parseRange(sPrice);
-        if (range) {
-            list = list.filter((p) => {
-                const priceNum = parsePriceNumber(p);
-                if (priceNum == null) return false;
-                return priceNum >= range.min && priceNum <= range.max;
-            });
-        }
-
-        return list;
-    }, [q, tab, sBrand, sModel, sYear, sPrice]);
+    const displayedItems = q.trim()
+        ? items.filter((item) => item.title.includes(q.trim()))
+        : items;
 
     return (
         <section className="content-section">
@@ -154,11 +171,9 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                     >
                         <ArrowRight />
                     </button>
-                    <h3 className="page-title">سيارات للبيع</h3>
+                    <h3 className="page-title">الإعلانات</h3>
                     <div className="empty" />
                 </div>
-
-
 
                 {/* search */}
                 <div className="search-custom">
@@ -169,12 +184,7 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                         />
-                        <Button
-                            type="submit"
-                            size="icon"
-                            className="search-button"
-                            aria-label="Search"
-                        >
+                        <Button type="submit" size="icon" className="search-button" aria-label="Search">
                             <Search className="h-4 w-4" />
                         </Button>
                     </form>
@@ -182,78 +192,82 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
 
                 {/* filters */}
                 <form className="product-filters" onSubmit={(e) => e.preventDefault()}>
-                    {/* tabs */}
+                    {/* type tabs */}
                     <div className="product-btn-filter pills">
-                        <button
-                            type="button"
-                            className={`filter-btn ${tab === "all" ? "active" : ""}`}
-                            onClick={() => setTab("all")}
-                        >
-                            الكل
-                        </button>
-                        <button
-                            type="button"
-                            className={`filter-btn ${tab === "sale" ? "active" : ""}`}
-                            onClick={() => setTab("sale")}
-                        >
-                            بيع
-                        </button>
-                        <button
-                            type="button"
-                            className={`filter-btn ${tab === "auction" ? "active" : ""}`}
-                            onClick={() => setTab("auction")}
-                        >
-                            مزاد
-                        </button>
+                        {(["all", "ad", "auction"] as const).map((t) => (
+                            <button
+                                key={t}
+                                type="button"
+                                className={`filter-btn ${tab === t ? "active" : ""}`}
+                                onClick={() => { setTab(t); setPage(1); }}
+                            >
+                                {t === "all" ? "الكل" : t === "ad" ? "بيع" : "مزاد"}
+                            </button>
+                        ))}
                     </div>
 
-                    {/* 4 selects */}
+                    {/* selects */}
                     <div className="product-select-filter selects-row">
-                        <Select value={sBrand} onValueChange={setSBrand}>
+                        <Select value={sBrand} onValueChange={applyFilter(setSBrand)}>
                             <SelectTrigger className="filter-select">
                                 <SelectValue placeholder="الماركة" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="تويوتا">تويوتا</SelectItem>
-                                <SelectItem value="لكزس">لكزس</SelectItem>
+                                <SelectItem value="1">تويوتا</SelectItem>
+                                <SelectItem value="2">لكزس</SelectItem>
                             </SelectContent>
                         </Select>
 
-                        <Select value={sModel} onValueChange={setSModel}>
+                        <Select value={sModel} onValueChange={applyFilter(setSModel)}>
                             <SelectTrigger className="filter-select">
                                 <SelectValue placeholder="الموديل" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="كامري">كامري</SelectItem>
-                                <SelectItem value="RX">RX</SelectItem>
-                                <SelectItem value="لاندكروزر">لاندكروزر</SelectItem>
+                                <SelectItem value="1">كامري</SelectItem>
+                                <SelectItem value="2">RX</SelectItem>
+                                <SelectItem value="3">لاندكروزر</SelectItem>
                             </SelectContent>
                         </Select>
 
-                        <Select value={sYear} onValueChange={setSYear}>
+                        <Select value={sYearFrom} onValueChange={applyFilter(setSYearFrom)}>
                             <SelectTrigger className="filter-select">
-                                <SelectValue placeholder="سنة الصنع" />
+                                <SelectValue placeholder="سنة من" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="2025">2025</SelectItem>
-                                <SelectItem value="2024">2024</SelectItem>
-                                <SelectItem value="2023">2023</SelectItem>
+                                {Array.from({ length: 10 }, (_, i) => String(2025 - i)).map((y) => (
+                                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
 
-                        <Select value={sPrice} onValueChange={setSPrice}>
+                        <Select value={sYearTo} onValueChange={applyFilter(setSYearTo)}>
                             <SelectTrigger className="filter-select">
-                                <SelectValue placeholder="السعر" />
+                                <SelectValue placeholder="سنة إلى" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="0-1000">0 - 1000</SelectItem>
-                                <SelectItem value="1000-2000">1000 - 2000</SelectItem>
-                                <SelectItem value="2000-3000">2000 - 3000</SelectItem>
+                                {Array.from({ length: 10 }, (_, i) => String(2025 - i)).map((y) => (
+                                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
+
+                        <Input
+                            className="filter-select"
+                            placeholder="السعر من"
+                            type="number"
+                            value={sPriceFrom}
+                            onChange={(e) => { setSPriceFrom(e.target.value); setPage(1); }}
+                        />
+
+                        <Input
+                            className="filter-select"
+                            placeholder="السعر إلى"
+                            type="number"
+                            value={sPriceTo}
+                            onChange={(e) => { setSPriceTo(e.target.value); setPage(1); }}
+                        />
                     </div>
 
-                    {/* optional: clear */}
                     <div style={{ marginTop: 10 }}>
                         <Button type="button" variant="ghost" onClick={clearFilters}>
                             مسح الفلاتر
@@ -263,17 +277,56 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
 
                 {/* products */}
                 <div className="product-cont">
-                    <div className="product-grid">
-                        {filtered.length === 0 ? (
-                            <div className="rounded-lg border p-4 text-center">
-                                لا توجد نتائج مطابقة
+                    {loading && (
+                        <div className="flex justify-center py-10">
+                            <span className="text-gray-500">جاري التحميل...</span>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="flex justify-center py-10">
+                            <span className="text-red-500">{error}</span>
+                        </div>
+                    )}
+                    {!loading && !error && (
+                        <>
+                            <div className="product-grid">
+                                {displayedItems.length === 0 ? (
+                                    <div className="rounded-lg border p-4 text-center col-span-full">
+                                        لا توجد نتائج مطابقة
+                                    </div>
+                                ) : (
+                                    displayedItems.map((ad) => (
+                                        <ProductCard key={ad.id} product={adToProductCard(ad)} />
+                                    ))
+                                )}
                             </div>
-                        ) : (
-                            filtered.map((p) => (
-                                <ProductCard key={p.id} product={p} />
-                            ))
-                        )}
-                    </div>
+
+                            {/* pagination */}
+                            {paginate && paginate.total_pages > 1 && (
+                                <div className="flex justify-center gap-2 mt-6">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        disabled={page <= 1}
+                                        onClick={() => setPage((p) => p - 1)}
+                                    >
+                                        السابق
+                                    </Button>
+                                    <span className="flex items-center px-3 text-sm">
+                                        {paginate.current_page} / {paginate.total_pages}
+                                    </span>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        disabled={page >= paginate.total_pages}
+                                        onClick={() => setPage((p) => p + 1)}
+                                    >
+                                        التالي
+                                    </Button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
         </section>

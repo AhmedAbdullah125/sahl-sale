@@ -1,24 +1,56 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import logo from "@/src/images/logo.svg";
+import { API_BASE_URL } from "@/lib/apiConfig";
 
 interface VerifiyProps {
     phone: string;
     countryCode: string;
     onBack: () => void;
-    onResend: () => void;
     onConfirm: (otp: string) => Promise<void>;
 }
 
-export default function Verifiy({ phone, countryCode, onBack, onResend, onConfirm }: VerifiyProps) {
+export default function Verifiy({ phone, countryCode, onBack, onConfirm }: VerifiyProps) {
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const startCooldown = () => {
+        setResendCooldown(40);
+        timerRef.current = setInterval(() => {
+            setResendCooldown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timerRef.current!);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+    const handleResend = async () => {
+        if (resendCooldown > 0 || loading) return;
+        try {
+            const formData = new FormData();
+            formData.append("phone", phone);
+            formData.append("country_code", countryCode);
+            await fetch(`${API_BASE_URL}/auth/resend-code`, { method: "POST", body: formData });
+            toast.success("تم إعادة إرسال الرمز");
+        } catch {
+            toast.error("فشل إعادة الإرسال، حاول مجدداً");
+        } finally {
+            startCooldown();
+        }
+    };
 
     const formattedPhone = useMemo(() => {
         if (!phone) return "";
@@ -107,10 +139,10 @@ export default function Verifiy({ phone, countryCode, onBack, onResend, onConfir
                             <button
                                 type="button"
                                 className="register-btn"
-                                onClick={() => onResend?.()}
-                                disabled={loading}
+                                onClick={handleResend}
+                                disabled={loading || resendCooldown > 0}
                             >
-                                إعادة إرسال
+                                {resendCooldown > 0 ? `إعادة إرسال (${resendCooldown}s)` : "إعادة إرسال"}
                             </button>
                         </div>
                     </div>

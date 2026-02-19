@@ -50,12 +50,6 @@ export default function LoginWrapper() {
         }
     };
 
-    const handleResend = async () => {
-        // Re-trigger login to resend OTP
-        // The LoginForm already handles calling the login API — just go back to it
-        setStep("login");
-    };
-
     return (
         <div className="login-wrapper">
             {step === "login" ? (
@@ -69,7 +63,6 @@ export default function LoginWrapper() {
                     phone={loginData.phone}
                     countryCode={loginData.country_code}
                     onBack={() => setStep("login")}
-                    onResend={handleResend}
                     onConfirm={handleVerify}
                 />
             )}

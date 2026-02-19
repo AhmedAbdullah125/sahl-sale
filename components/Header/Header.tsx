@@ -48,12 +48,7 @@ export default function Header() {
                     className="search-form flex items-center gap-2"
                     onSubmit={(e) => e.preventDefault()}
                   >
-                    <Input
-                      className="search-input"
-                      type="text"
-                      name="search"
-                      placeholder="ابحث"
-                    />
+                    <Input className="search-input" type="text" name="search" placeholder="ابحث" />
                     <Button type="submit" size="icon" className="search-button">
                       <Search className="h-4 w-4" />
                     </Button>

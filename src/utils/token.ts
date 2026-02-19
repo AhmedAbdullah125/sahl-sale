@@ -1,9 +1,12 @@
 const TOKEN_KEY = "auth_token";
 const USER_KEY = "auth_user";
+const COOKIE_NAME = "token";
 
 export function saveToken(token: string): void {
     if (typeof window === "undefined") return;
     localStorage.setItem(TOKEN_KEY, token);
+    // sync to cookie so middleware can read it (localStorage is not accessible in Edge runtime)
+    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
 }
 
 export function getToken(): string | null {
@@ -15,6 +18,8 @@ export function removeToken(): void {
     if (typeof window === "undefined") return;
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    // clear the auth cookie
+    document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 export function saveUser(user: object): void {

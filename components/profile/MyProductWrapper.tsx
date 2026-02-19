@@ -1,162 +1,240 @@
-// components/SideData.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import img1 from "@/src/images/01.jpg";
+import { useRouter } from "next/navigation";
+import { PackageOpen } from "lucide-react";
+import { API_BASE_URL } from "@/lib/apiConfig";
+import { getToken } from "@/src/utils/token";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 
+interface CarDetails {
+    brand: string;
+    model: string;
+    year: string;
+}
 
-export default function MyProductWrapper({ }) {
-    const [activeTab, setActiveTab] = useState("active");
-    const router = useRouter();
-    const fallback = {
-        active: [
-            {
-                id: 1,
-                href: "/my-products/1",
-                imageUrl: img1,
-                typeLeft: "يباني",
-                typeRight: "لكزس",
-                name: "سيارة لكزس RX 2025",
-                price: "2100 د.ك",
-                dateLabel: "منذ 1 يوم",
-            },
-            {
-                id: 2,
-                href: "/my-products/2",
-                imageUrl: img1,
-                typeLeft: "يباني",
-                typeRight: "لكزس",
-                name: "سيارة لكزس RX 2025",
-                price: "2100 د.ك",
-                dateLabel: "منذ 1 يوم",
-            },
-        ],
-        bids: [
-            {
-                id: 3,
-                href: "/my-products/3",
-                imageUrl: img1,
-                typeLeft: "يباني",
-                typeRight: "تويوتا",
-                name: "مزاد تويوتا 2024",
-                price: "1500 د.ك",
-                dateLabel: "منذ 3 أيام",
-            },
-        ],
-        archive: [
-            {
-                id: 4,
-                href: "/my-products/4",
-                imageUrl: img1,
-                typeLeft: "أمريكي",
-                typeRight: "فورد",
-                name: "فورد موستنغ 2020 (مؤرشف)",
-                price: "980 د.ك",
-                dateLabel: "منذ 2 شهر",
-            },
-        ],
+interface AdItem {
+    id: number;
+    title: string;
+    price: string;
+    ad_form: string;
+    type: "ad" | "auction";
+    parent_category: string;
+    category: string;
+    is_pinned: boolean;
+    car: CarDetails | null;
+    image: string;
+    created_at: string;
+    ended_at: string;
+    status: string;
+    is_favorite: boolean;
+}
+
+interface Paginate {
+    total: number;
+    count: number;
+    per_page: number;
+    next_page_url: string;
+    prev_page_url: string;
+    current_page: number;
+    total_pages: number;
+}
+
+interface MyAdsResponse {
+    status: boolean;
+    data: {
+        items: AdItem[];
+        paginate: Paginate;
+        extra: unknown;
     };
+}
+
+type TabKey = "active" | "auction" | "archived";
+
+const TABS: { key: TabKey; label: string }[] = [
+    { key: "active", label: "إعلاناتي الفعالة" },
+    { key: "auction", label: "مزاداتي" },
+    { key: "archived", label: "الأرشيف" },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function MyProductWrapper() {
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState<TabKey>("active");
+    const [items, setItems] = useState<AdItem[]>([]);
+    const [paginate, setPaginate] = useState<Paginate | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+
+    const fetchAds = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = getToken();
+            const headers: Record<string, string> = { "accept-language": "ar" };
+            if (token) headers.Authorization = `Bearer ${token}`;
+
+            const params = new URLSearchParams({ tab: activeTab, page: String(page) });
+            const res = await fetch(`${API_BASE_URL}/my-ads?${params.toString()}`, { headers });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json: MyAdsResponse = await res.json();
+            if (json.status) {
+                setItems(json.data.items);
+                setPaginate(json.data.paginate);
+            } else {
+                setError("فشل تحميل الإعلانات");
+            }
+        } catch {
+            setError("حدث خطأ أثناء تحميل البيانات");
+        } finally {
+            setLoading(false);
+        }
+    }, [activeTab, page]);
+
+    useEffect(() => {
+        fetchAds();
+    }, [fetchAds]);
+
+    const handleTabChange = (tab: TabKey) => {
+        setActiveTab(tab);
+        setPage(1);
+    };
+
     return (
         <section className="my-products-section" dir="rtl">
             <div className="upper-header">
                 <button
                     type="button"
                     className="back-btn"
-                    onClick={() => {
-                        setActiveTab("active")
-                        router.back()
-                    }}
+                    onClick={() => router.back()}
                     aria-label="رجوع"
                 >
                     <i className="fa-regular fa-arrow-right" aria-hidden="true"></i>
                 </button>
-
-                <h3 className="page-title">{"إعلاناتي"}</h3>
-
-                <div className="empty"></div>
+                <h3 className="page-title">إعلاناتي</h3>
+                <div className="empty" />
             </div>
 
             <div className="product-cont">
+                {/* tabs */}
                 <div className="product-btn-filter">
-                    <button
-                        type="button"
-                        className={`filter-btn ${activeTab === "active" ? "active" : ""}`}
-                        onClick={() => setActiveTab("active")}
-                    >
-                        إعلاناتي الفعالة
-                    </button>
-
-                    <button
-                        type="button"
-                        className={`filter-btn ${activeTab === "bids" ? "active" : ""}`}
-                        onClick={() => setActiveTab("bids")}
-                    >
-                        مزاداتي
-                    </button>
-
-                    <button
-                        type="button"
-                        className={`filter-btn ${activeTab === "archive" ? "active" : ""}`}
-                        onClick={() => setActiveTab("archive")}
-                    >
-                        الأرشيف
-                    </button>
+                    {TABS.map((t) => (
+                        <button
+                            key={t.key}
+                            type="button"
+                            className={`filter-btn ${activeTab === t.key ? "active" : ""}`}
+                            onClick={() => handleTabChange(t.key)}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
                 </div>
 
-                <div className="product-grid-2">
-                    {fallback[activeTab]?.length ? (
-                        fallback[activeTab].map((p) => (
-                            <Link
-                                key={p.id}
-                                href={p.href || "#"}
-                                className="product-item"
-                                aria-label={p.name}
-                            >
-                                <div className="product-img">
-                                    <figure>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <Image src={p.imageUrl} alt="product" />
-                                    </figure>
+                {/* states */}
+                {loading && (
+                    <div className="flex justify-center py-10">
+                        <span className="text-gray-500">جاري التحميل...</span>
+                    </div>
+                )}
 
-                                    <button
-                                        type="button"
-                                        className="edit-btn"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            p.onEditClick?.();
-                                        }}
-                                        aria-label="تعديل الإعلان"
+                {error && (
+                    <div className="flex justify-center py-10">
+                        <span className="text-red-500">{error}</span>
+                    </div>
+                )}
+
+                {!loading && !error && (
+                    <>
+                        {items.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                                <PackageOpen className="w-16 h-16 mb-4 text-gray-300" />
+                                <h4 className="text-lg font-semibold mb-2">لا توجد إعلانات</h4>
+                                <p className="text-sm">لم تقم بإضافة أي إعلانات في هذا القسم بعد.</p>
+                            </div>
+                        ) : (
+                            <div className="product-grid-2">
+                                {items.map((ad) => (
+                                    <Link
+                                        key={ad.id}
+                                        href={`/my-products/${ad.id}`}
+                                        className="product-item"
+                                        aria-label={ad.title}
                                     >
-                                        <i className="fa-solid fa-pen-line" aria-hidden="true"></i>
-                                    </button>
-                                </div>
+                                        <div className="product-img">
+                                            <figure>
+                                                <Image
+                                                    src={ad.image}
+                                                    alt={ad.title}
+                                                    width={400}
+                                                    height={300}
+                                                    className="h-auto w-full object-cover"
+                                                />
+                                            </figure>
 
-                                <div className="product-content">
-                                    <div className="product-type">
-                                        <span>{p.typeLeft}</span> - <span>{p.typeRight}</span>
-                                    </div>
+                                            <button
+                                                type="button"
+                                                className="edit-btn"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    router.push(`/edit-product/${ad.id}`);
+                                                }}
+                                                aria-label="تعديل الإعلان"
+                                            >
+                                                <i className="fa-solid fa-pen-line" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
 
-                                    <h3 className="product-name">{p.name}</h3>
+                                        <div className="product-content">
+                                            <div className="product-type">
+                                                <span>{ad.car?.brand ?? ad.parent_category}</span>
+                                                {" - "}
+                                                <span>{ad.car?.model ?? ad.category}</span>
+                                            </div>
 
-                                    <div className="product-info">
-                                        <span>{p.price}</span>
-                                        <div className="date">{p.dateLabel}</div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))
-                    ) : (
-                        // اختياري: لو مفيش بيانات للتاب
-                        <div className="product-grid-2">
-                            <div style={{ padding: 12 }}>لا توجد عناصر</div>
-                        </div>
-                    )}
-                </div>
+                                            <h3 className="product-name">{ad.title}</h3>
+
+                                            <div className="product-info">
+                                                <span>{ad.price}</span>
+                                                <div className="date">{ad.created_at}</div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* pagination */}
+                        {paginate && paginate.total_pages > 1 && (
+                            <div className="flex justify-center gap-2 mt-6">
+                                <button
+                                    type="button"
+                                    className="filter-btn"
+                                    disabled={page <= 1}
+                                    onClick={() => setPage((p) => p - 1)}
+                                >
+                                    السابق
+                                </button>
+                                <span className="flex items-center px-3 text-sm">
+                                    {paginate.current_page} / {paginate.total_pages}
+                                </span>
+                                <button
+                                    type="button"
+                                    className="filter-btn"
+                                    disabled={page >= paginate.total_pages}
+                                    onClick={() => setPage((p) => p + 1)}
+                                >
+                                    التالي
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </section>
     );
