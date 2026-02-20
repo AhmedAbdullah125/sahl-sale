@@ -253,7 +253,7 @@ export default function AddAdWrapper() {
     try {
       if (!leafCategory?.id) throw new Error("Missing final category");
 
-      await publishAd({
+      const response = await publishAd({
         categoryId: leafCategory.id,
         title: ad.title,
         description: ad.description,
@@ -273,9 +273,14 @@ export default function AddAdWrapper() {
         mileage: ad.mileage,
       });
 
-      setShowDone(true);
-      if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
-      doneTimerRef.current = window.setTimeout(() => router.push("/"), 3000);
+      if (response?.data?.payment_url) {
+        window.location.href = response.data.payment_url;
+      } else {
+        setShowDone(true);
+        if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
+        doneTimerRef.current = window.setTimeout(() => router.push("/"), 3000);
+      }
+
     } catch (e) {
       console.error(e);
       toast.error("حدث خطأ أثناء نشر الإعلان");

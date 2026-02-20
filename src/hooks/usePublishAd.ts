@@ -23,7 +23,7 @@ export interface PublishAdPayload {
 
 export function usePublishAd() {
     return useMutation({
-        mutationFn: async (payload: PublishAdPayload): Promise<void> => {
+        mutationFn: async (payload: PublishAdPayload): Promise<any> => {
             const token = localStorage.getItem("auth_token");
 
             const headers: Record<string, string> = {
@@ -78,6 +78,8 @@ export function usePublishAd() {
                 console.error("POST /ads failed:", res.status, txt);
                 throw new Error("Failed to publish ad");
             }
+
+            return res.json();
         }
     });
 }

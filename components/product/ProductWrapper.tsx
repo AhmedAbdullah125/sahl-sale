@@ -11,17 +11,46 @@ import "swiper/css";
 import "swiper/css/pagination";
 import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
+import { useGetAd } from "@/src/hooks/useGetAd";
+import { Loader2 } from "lucide-react";
+
 export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
     const pathname = usePathname()
-    const isMyProduct = pathname.includes("my-products");
+    const { data: ad, isLoading, error } = useGetAd(id);
+
+    // If is_creator is returned from API, use it, otherwise fallback to path check
+    const isMyProduct = ad?.is_creator || pathname.includes("my-products");
     const [isFav, setIsFav] = useState(false);
-    const phone = "55558718";
-    const whatsapp = "55558718";
-    const expireText = "ينتهي في 11 يوليو 2026";
+
+    // Use data from API
+    const phone = ad?.user?.phone || "55558718";
+    const whatsapp = ad?.user?.whatsapp || "55558718";
+    const expireText = ad?.ended_at ? `ينتهي في ${ad.ended_at}` : "ينتهي في 11 يوليو 2026";
 
     // بدلها بصور API حسب id
-    const images = useMemo(() => [mainImg, mainImg], [id]);
+    const images = useMemo(() => {
+        if (ad?.images && ad.images.length > 0) {
+            return ad.images.map(img => img.url);
+        }
+        return [mainImg];
+    }, [ad]);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (error || !ad) {
+        return (
+            <div className="flex h-[400px] items-center justify-center text-red-500">
+                حدث خطأ أثناء تحميل الإعلان
+            </div>
+        );
+    }
 
     const handleShare = async () => {
         try {
@@ -91,6 +120,8 @@ export default function ProductWrapper({ id }: { id: string }) {
                                                         alt={`product-${idx + 1}`}
                                                         priority={idx === 0}
                                                         className="w-full h-auto"
+                                                        width={500}
+                                                        height={500}
                                                     />
                                                 </Link>
                                             </div>
@@ -137,25 +168,28 @@ export default function ProductWrapper({ id }: { id: string }) {
 
                         {/* Main Info */}
                         <div className="detail-content">
-                            <div className="detail-type">سيارات للبيع - ياباني - لكزس - RX</div>
-                            <h3 className="detail-name">سيارة لكزس RX 2025</h3>
-                            <div className="price">2100 د.ك</div>
-                            <div className="detail-date">نشر بتاريخ : 12 / 5 / 2025 - 10:32 PM</div>
+                            <div className="detail-type text-primary/80">
+                                {ad.parent_category && `${ad.parent_category} - `}{ad.category}
+                            </div>
+                            <h3 className="detail-name">{ad.title}</h3>
+                            <div className="price">{Number(ad.price)} د.ك</div>
+                            <div className="detail-date">نشر بتاريخ : {ad.created_at}</div>
 
                             {
-                                !isMyProduct &&
-                                <div className="company-item">
-                                    <figure>
-                                        <Image src={logo} alt="logo" />
-                                    </figure>
+                                !isMyProduct && ad.user && (
+                                    <div className="company-item">
+                                        <figure>
+                                            <Image src={ad.user.image || logo} width={40} height={40} alt={ad.user.name} className="rounded-full object-cover" unoptimized />
+                                        </figure>
 
-                                    <div className="company-info">
-                                        <span className="company-num">نشر بواسطة</span>
-                                        <span className="company-name">
-                                            شركة الخليج العربي <BadgeCheck className="inline-block h-4 w-4" />
-                                        </span>
+                                        <div className="company-info">
+                                            <span className="company-num">نشر بواسطة</span>
+                                            <span className="company-name">
+                                                {ad.user.name} {ad.user.verified_account === 1 && <BadgeCheck className="inline-block h-4 w-4 text-primary" />}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                )
                             }
                         </div>
 
@@ -164,34 +198,15 @@ export default function ProductWrapper({ id }: { id: string }) {
                             <h2 className="title">التفاصيل</h2>
 
                             <div className="row-item">
+                                {ad.city && (
+                                    <div className="detail-item">
+                                        <span className="label">المحافظة :</span>
+                                        <span className="value">{ad.city}</span>
+                                    </div>
+                                )}
                                 <div className="detail-item">
-                                    <span className="label">الماركة :</span>
-                                    <span className="value">لكزس</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="label">بلد الصنع :</span>
-                                    <span className="value">اليابان</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="label">الموديل :</span>
-                                    <span className="value">RX</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="label">الممشى :</span>
-                                    <span className="value">40,000 كم</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="label">سنة الصنع :</span>
-                                    <span className="value">2025</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="label">المحافظة :</span>
-                                    <span className="value">حولي</span>
+                                    <span className="label">القسم :</span>
+                                    <span className="value">{ad.category}</span>
                                 </div>
                             </div>
                         </div>
@@ -199,34 +214,35 @@ export default function ProductWrapper({ id }: { id: string }) {
                         {/* Description */}
                         <div className="detail-box">
                             <h2 className="title">الوصف :</h2>
-                            <p className="desc">
-                                للبيع او للبدل لكزس RX موديل 2011 عداد 180 وارد الساير كامل المواصفات
-                                جلد تان فتحه دخول ذكي بلوثوت خريطه بروجكتر شرط الفحص قير / مكينه /شاصي
-                                البدي يوجد اصباغ متفرقه السعر 3000/ والصامل يبشر بالخير
+                            <p className="desc whitespace-pre-wrap">
+                                {ad.description}
                             </p>
                         </div>
                     </div>
 
                     {/* Contact Buttons */}
                     <div className="contact-btns">
-                        <Link href={`tel:${phone}`} className="phone-link">
-                            <PhoneCall className="inline-block" />
-                            {/* ✅ لو CSS بتعتمد على span داخل span زي الـ HTML بتاعك */}
-                            <span>
-                                اتصال <span>{phone}</span>
-                            </span>
-                        </Link>
+                        {ad.allow_phone === 1 && (
+                            <Link href={`tel:${phone}`} className="phone-link">
+                                <PhoneCall className="inline-block" />
+                                <span>
+                                    اتصال <span>{phone}</span>
+                                </span>
+                            </Link>
+                        )}
 
-                        <Link
-                            href={`https://wa.me/${whatsapp}`}
-                            className="whats-link"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            <span>
-                                واتساب <span>{whatsapp}</span>
-                            </span>
-                        </Link>
+                        {ad.allow_whatsapp === 1 && (
+                            <Link
+                                href={`https://wa.me/${whatsapp}`}
+                                className="whats-link"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                <span>
+                                    واتساب <span>{whatsapp}</span>
+                                </span>
+                            </Link>
+                        )}
                     </div>
 
                     {/* ✅ My product only: Sold button */}
