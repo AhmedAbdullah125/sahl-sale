@@ -1,5 +1,3 @@
-'use client'
-import React, { useEffect } from 'react'
 import Image from 'next/image'
 import logo from '../../images/freeLogo.png'
 export default function Profile() {
