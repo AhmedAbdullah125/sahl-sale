@@ -46,6 +46,7 @@ export interface Category {
     auction_fee: string;
     active_pinning_prices: PinningPrice[];
     ads: Ad[];
+    slug?: string;
 }
 
 export interface HomeData {

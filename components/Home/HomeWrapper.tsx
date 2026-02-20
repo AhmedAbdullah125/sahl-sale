@@ -19,6 +19,7 @@ export default function HomeWrapper() {
       id: 0,
       name: "الاعلانات المميزه",
       ads: data?.pinned_ads ?? [],
+      slug: "pinned",
     } as Category,
     ...categories_with_ads,
   ];

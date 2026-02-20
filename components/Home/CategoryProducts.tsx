@@ -43,7 +43,7 @@ export default function CategoryProducts({ category }: { category: Category }) {
                                         <ProductCard
                                             product={{
                                                 id: String(item.id),
-                                                href: `/ad/${item.id}`,
+                                                href: `/product/${item.id}`,
                                                 img: item.image,
                                                 name: item.title,
                                                 price: item.price,
@@ -53,7 +53,7 @@ export default function CategoryProducts({ category }: { category: Category }) {
                                                 timer: item.ended_at,
                                                 currentBid: item.latest_bid ?? undefined,
                                                 dateText: item.created_at,
-                                                pinned: item.is_pinned,
+                                                pinned: category.slug === "pinned" ? true : item.is_pinned,
                                                 isFav: item.is_favorite,
                                             }}
                                         />
