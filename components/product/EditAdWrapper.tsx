@@ -111,13 +111,13 @@ export default function EditAdWrapper({ id }: { id: string }) {
         contactWhats: initialAd?.contactWhats ?? false,
     });
 
-    const cleanupRef = useRef([]);
+    const cleanupRef = useRef<string[]>([]);
 
     // ✅ add images (append)
-    const onPickImages = (files) => {
+    const onPickImages = (files: FileList | File[]) => {
         if (!files || files.length === 0) return;
 
-        const urls = Array.from(files).map((f) => {
+        const urls = Array.from(files).map((f: File) => {
             const u = URL.createObjectURL(f);
             cleanupRef.current.push(u);
             return u;
@@ -126,7 +126,7 @@ export default function EditAdWrapper({ id }: { id: string }) {
         setImagePreviews((prev) => [...prev, ...urls]);
     };
 
-    const onRemoveImageAt = (index) => {
+    const onRemoveImageAt = (index: number) => {
         setImagePreviews((prev) => {
             const copy = [...prev];
             const url = copy[index];
