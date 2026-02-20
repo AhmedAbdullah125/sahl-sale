@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import vehicles from "@/src/images/category/vehicles.png";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function AddAdStepFive({
   sel,
@@ -18,6 +19,7 @@ export default function AddAdStepFive({
   onPublish,
   termsHref,
   mainCategory,
+  isPublishing,
 }: any) {
   const publishFee = Number(mainCategory?.ad_fee ?? 0);
   const pins = (mainCategory?.active_pinning_prices ?? []) as { id: number; position: string; price: string }[];
@@ -141,8 +143,15 @@ export default function AddAdStepFive({
         </div>
       </div>
 
-      <Button className="form-btn" type="submit" disabled={!agree}>
-        نشر الإعلان
+      <Button className="form-btn" type="submit" disabled={!agree || isPublishing}>
+        {isPublishing ? (
+          <>
+            <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            جاري النشر...
+          </>
+        ) : (
+          "نشر الإعلان"
+        )}
       </Button>
     </form>
   );

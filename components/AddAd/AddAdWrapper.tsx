@@ -22,13 +22,14 @@ import { fetchCities, type City } from "@/src/hooks/useGetCities";
 import { fetchCarBrands, type CarBrand } from "@/src/hooks/useGetCarBrands";
 import { fetchCarModels, type CarModel } from "@/src/hooks/useGetCarModels";
 import { usePublishAd } from "@/src/hooks/usePublishAd";
+import { toast } from "sonner";
 
 const STEP_PROGRESS = [20, 40, 60, 80, 100];
 
 export default function AddAdWrapper() {
   const [step, setStep] = useState(1);
   const router = useRouter();
-  const { publishAd } = usePublishAd();
+  const { mutateAsync: publishAd, isPending: isPublishing } = usePublishAd();
   const { data: mainCategories = [] } = useGetCategories();
   const [subLevel2, setSubLevel2] = useState<SubCategory[]>([]);
   const [subLevel3, setSubLevel3] = useState<SubCategory[]>([]);
@@ -277,7 +278,7 @@ export default function AddAdWrapper() {
       doneTimerRef.current = window.setTimeout(() => router.push("/"), 3000);
     } catch (e) {
       console.error(e);
-      alert("حدث خطأ أثناء نشر الإعلان");
+      toast.error("حدث خطأ أثناء نشر الإعلان");
     }
   };
 
@@ -356,6 +357,7 @@ export default function AddAdWrapper() {
             onPublish={handlePublish}
             termsHref="#"
             mainCategory={selectedMain}
+            isPublishing={isPublishing}
           />
         )}
       </div>
