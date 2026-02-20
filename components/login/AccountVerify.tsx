@@ -104,11 +104,10 @@ export default function AccountVerify() {
                                 <FormField
                                     control={form.control}
                                     name="id_front"
-                                    className="upload-card w-full"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <label className="upload-card">
+                                                <label className="upload-card w-full">
                                                     <input
                                                         type="file"
                                                         accept="image/*"

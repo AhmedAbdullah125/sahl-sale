@@ -149,27 +149,24 @@ export default function Header() {
             <div className="overlay-box2"></div>
           </div>
 
-          <nav>
-            <div className="container">
-              <div className="navgition">
-                <ul className="big-menu list-unstyled flex gap-4">
-                  <li className="cat-li">
-                    <Link href="/" className="cat-anchor">الرئيسية</Link>
-                  </li>
-                  <li className="cat-li">
-                    <Link href="/categories" className="cat-anchor">الأقسام</Link>
-                  </li>
-                  <li className="cat-li">
-                    <Link href="/add-ad" className="cat-anchor">أضف اعلان</Link>
-                  </li>
-                  <li className="cat-li">
-                    <Link href="/auctions" className="cat-anchor">المزادات</Link>
-                  </li>
-
-                </ul>
-              </div>
-            </div>
-          </nav>
+          <div className="container">
+            <nav >
+              <ul className="big-menu list-unstyled flex gap-4">
+                <li className="cat-li">
+                  <Link href="/" className="cat-anchor">الرئيسية</Link>
+                </li>
+                <li className="cat-li">
+                  <Link href="/categories" className="cat-anchor">الأقسام</Link>
+                </li>
+                <li className="cat-li">
+                  <Link href="/add-ad" className="cat-anchor">أضف اعلان</Link>
+                </li>
+                <li className="cat-li">
+                  <Link href="/auctions" className="cat-anchor">المزادات</Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
       </header>
 
