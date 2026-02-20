@@ -1,62 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { API_BASE_URL } from "@/lib/apiConfig";
-
-interface SubCategory {
-    id: number;
-    name: string;
-    image: string;
-    sub_categories_count: number;
-    has_children: boolean;
-    ad_form: string;
-    company_allowed: boolean;
-    supports_auction: boolean;
-    has_city: boolean;
-}
-
-interface ApiResponse {
-    status: boolean;
-    data: SubCategory[];
-}
+import { useGetSubCategories, type SubCategory } from "@/src/hooks/useGetSubCategories";
 
 export default function CategoryWrapper({ id }: { id: string }) {
-    const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchSubCategories = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem("token");
-                const headers: Record<string, string> = {
-                    "accept-language": "ar",
-                    "Content-Type": "application/json",
-                };
-                if (token) headers.Authorization = `Bearer ${token}`;
-
-                const res = await fetch(`${API_BASE_URL}/sub-categories/${id}`, { headers });
-                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-                const json: ApiResponse = await res.json();
-                if (json.status) {
-                    setSubCategories(json.data);
-                } else {
-                    setError("فشل تحميل البيانات");
-                }
-            } catch (err) {
-                setError("حدث خطأ أثناء تحميل البيانات");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSubCategories();
-    }, [id]);
+    const { data: subCategories = [], isLoading: loading, error: queryError } = useGetSubCategories(id);
+    const error = queryError ? (queryError as Error).message || "حدث خطأ أثناء تحميل البيانات" : null;
 
     const getHref = (item: SubCategory) =>
         item.has_children ? `/categories/${item.id}` : `/sub-category/${item.id}`;

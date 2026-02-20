@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/select";
 import ProductCard from "../General/ProductCard";
 import { API_BASE_URL } from "@/lib/apiConfig";
+import { useGetCarBrands } from "@/src/hooks/useGetCarBrands";
+import { useGetCarModels } from "@/src/hooks/useGetCarModels";
+import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,6 +94,11 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
     const [sPriceTo, setSPriceTo] = useState("");
     const [page, setPage] = useState(1);
 
+    // lookup data from hooks
+    const { data: brands = [] } = useGetCarBrands();
+    const { data: models = [] } = useGetCarModels(sBrand);
+    const { data: years = [] } = useGetManufacturingYears();
+
     // data state
     const [items, setItems] = useState<AdItem[]>([]);
     const [paginate, setPaginate] = useState<Paginate | null>(null);
@@ -101,7 +109,7 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             const headers: Record<string, string> = { "accept-language": "ar" };
             if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -208,13 +216,21 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
 
                     {/* selects */}
                     <div className="product-select-filter selects-row">
-                        <Select value={sBrand} onValueChange={applyFilter(setSBrand)}>
+                        <Select
+                            value={sBrand}
+                            onValueChange={(v) => {
+                                setSBrand(v);
+                                setSModel("");
+                                setPage(1);
+                            }}
+                        >
                             <SelectTrigger className="filter-select">
                                 <SelectValue placeholder="الماركة" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">تويوتا</SelectItem>
-                                <SelectItem value="2">لكزس</SelectItem>
+                                {brands.map((b) => (
+                                    <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
 
@@ -223,9 +239,9 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                                 <SelectValue placeholder="الموديل" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">كامري</SelectItem>
-                                <SelectItem value="2">RX</SelectItem>
-                                <SelectItem value="3">لاندكروزر</SelectItem>
+                                {models.map((m) => (
+                                    <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
 
@@ -234,8 +250,8 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                                 <SelectValue placeholder="سنة من" />
                             </SelectTrigger>
                             <SelectContent>
-                                {Array.from({ length: 10 }, (_, i) => String(2025 - i)).map((y) => (
-                                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                                {years.map((y) => (
+                                    <SelectItem key={y.value} value={String(y.value)}>{y.label}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -245,8 +261,8 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                                 <SelectValue placeholder="سنة إلى" />
                             </SelectTrigger>
                             <SelectContent>
-                                {Array.from({ length: 10 }, (_, i) => String(2025 - i)).map((y) => (
-                                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                                {years.map((y) => (
+                                    <SelectItem key={y.value} value={String(y.value)}>{y.label}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

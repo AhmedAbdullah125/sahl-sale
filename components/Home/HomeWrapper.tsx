@@ -14,19 +14,32 @@ export default function HomeWrapper() {
 
   const categories_with_ads: Category[] = data?.categories_with_ads ?? [];
 
+  const allHomePageCategories: Category[] = [
+    {
+      id: 0,
+      name: "الاعلانات المميزه",
+      ads: data?.pinned_ads ?? [],
+    } as Category,
+    ...categories_with_ads,
+  ];
+
+
   return (
     <div className="home-page-content">
       <Hero banners={data?.banners ?? []} />
       <HomeCategories categories={categories_with_ads ?? []} />
       <MyBidsSection />
       <BidsSection />
+
       {isLoading && (
         <div className="container py-8 text-center text-gray-400">جاري التحميل...</div>
       )}
       {isError && (
         <div className="container py-8 text-center text-red-500">حدث خطأ أثناء تحميل البيانات</div>
       )}
-      {categories_with_ads.map((category) => (
+
+
+      {allHomePageCategories.map((category) => (
         category.ads.length > 0 && (
           <CategoryProducts key={category.id} category={category} />
         )

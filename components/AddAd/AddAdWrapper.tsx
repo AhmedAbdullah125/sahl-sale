@@ -1,202 +1,240 @@
-"use client";
+'use client';
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+
 import AddAdStepOne from "./steps/AddAdStepOne";
 import AddAdStepTwo from "./steps/AddAdStepTwo";
 import AddAdStepThree from "./steps/AddAdStepThree";
 import AddAdStepFour from "./steps/AddAdStepFour";
 import AddAdStepFive from "./steps/AddAdStepFive";
-import vehicles from "@/src/images/category/vehicles.png";
-import estate from "@/src/images/category/estate.png";
-import electronics from "@/src/images/category/electronics.png";
-import BuySell from "@/src/images/category/Buy&sell.png";
-import contracting from "@/src/images/category/Contracting.png";
 
 import done from "@/src/images/done.gif";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useGetCategories, type MainCategory } from "@/src/hooks/useGetCategories";
+import { fetchSubCategories, type SubCategory } from "@/src/hooks/useGetSubCategories";
+import { fetchManufacturingCountries, type ManufacturingCountry } from "@/src/hooks/useGetManufacturingCountries";
+import { fetchManufacturingYears, type ManufacturingYear } from "@/src/hooks/useGetManufacturingYears";
+import { fetchCities, type City } from "@/src/hooks/useGetCities";
+import { fetchCarBrands, type CarBrand } from "@/src/hooks/useGetCarBrands";
+import { fetchCarModels, type CarModel } from "@/src/hooks/useGetCarModels";
+import { usePublishAd } from "@/src/hooks/usePublishAd";
 
 const STEP_PROGRESS = [20, 40, 60, 80, 100];
 
-export const LEVEL1 = [
-  { id: "motors", label: "محركات", img: vehicles },
-  { id: "estate", label: "عقارات", img: estate },
-  { id: "electronics", label: "الكترونيات", img: electronics },
-  { id: "buysell", label: "بيع وشراء", img: BuySell },
-  { id: "contracting", label: "مقاولات وحرف", img: contracting },
-];
-
-export const LEVEL2_BY_L1 = {
-  motors: [
-    { id: "vehicles", label: "مركبات", img: vehicles },
-    { id: "bikes", label: "الدراجات النارية", img: estate },
-    { id: "marine", label: "القسم البحري", img: electronics },
-  ],
-  estate: [
-    { id: "sale", label: "للبيع", img: estate },
-    { id: "rent", label: "للإيجار", img: estate },
-    { id: "rooms", label: "غرف/مشاركة", img: estate },
-  ],
-  electronics: [
-    { id: "laptops", label: "لابتوبات", img: electronics },
-    { id: "mobiles", label: "جوالات", img: electronics },
-    { id: "accessories", label: "ملحقات", img: electronics },
-  ],
-  buysell: [
-    { id: "general", label: "بيع وشراء", img: BuySell },
-    { id: "furniture", label: "أثاث", img: BuySell },
-    { id: "animals", label: "حيوانات", img: BuySell },
-  ],
-  contracting: [
-    { id: "services", label: "خدمات", img: contracting },
-    { id: "jobs", label: "وظائف", img: contracting },
-    { id: "handy", label: "حرفيين", img: contracting },
-  ],
-};
-
-export const LEVEL3_BY_L2 = {
-  vehicles: [
-    { id: "cars_sale", label: "سيارات للبيع", img: vehicles },
-    { id: "parts", label: "قطع غيار وإكسسوارات", img: vehicles },
-    { id: "rent", label: "سيارات للإيجار", img: vehicles },
-  ],
-  bikes: [
-    { id: "bikes_sale", label: "دراجات للبيع", img: estate },
-    { id: "bikes_parts", label: "قطع غيار", img: estate },
-    { id: "bikes_rent", label: "للإيجار", img: estate },
-  ],
-  marine: [
-    { id: "boats", label: "قوارب", img: electronics },
-    { id: "jetski", label: "جيت سكي", img: electronics },
-    { id: "marine_parts", label: "قطع بحرية", img: electronics },
-  ],
-};
-
-export const COUNTRIES = ["ياباني", "أمريكي", "ألماني", "كوري"];
-export const BRANDS = ["تويوتا", "لكزس", "نيسان", "هوندا"];
-export const MODELS = ["كامري", "كورولا", "لاندكروزر", "RX"];
-export const YEARS = Array.from({ length: 15 }, (_, i) => String(2025 - i));
-export const GOVERNORATES = ["الكويت", "حولي", "الأحمدي", "الفروانية"];
-
 export default function AddAdWrapper() {
   const [step, setStep] = useState(1);
-  const [sel, setSel] = useState({});
   const router = useRouter();
+  const { publishAd } = usePublishAd();
+  const { data: mainCategories = [] } = useGetCategories();
+  const [subLevel2, setSubLevel2] = useState<SubCategory[]>([]);
+  const [subLevel3, setSubLevel3] = useState<SubCategory[]>([]);
+  const [selectedMain, setSelectedMain] = useState<MainCategory | null>(null);
+  const [selectedL2, setSelectedL2] = useState<SubCategory | null>(null);
+  const [selectedL3, setSelectedL3] = useState<SubCategory | null>(null);
+  const leafCategory = selectedL3 || (selectedL2 && !selectedL2.has_children ? selectedL2 : null);
+  const [manufacturingCountries, setManufacturingCountries] = useState<ManufacturingCountry[]>([]);
+  const [manufacturingYears, setManufacturingYears] = useState<ManufacturingYear[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [carBrands, setCarBrands] = useState<CarBrand[]>([]);
+  const [carModels, setCarModels] = useState<CarModel[]>([]);
 
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [ad, setAd] = useState({
+  const adForm: "default" | "car" = (leafCategory?.ad_form as any) || "default";
+  const hasCity = !!leafCategory?.has_city;
+
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+
+  const [ad, setAd] = useState<any>({
     title: "",
-    country: "",
-    brand: "",
-    model: "",
-    year: "",
-    mileage: "",
-    governorate: "",
-    price: "",
     description: "",
-    contactCall: true,
-    contactWhats: false,
+    ad_price: "",
+    manufacturing_country_id: "",
+    year: "",
+    city_id: "",
+    car_brand_id: "",
+    car_model_id: "",
+    mileage: "",
+    allow_phone: true,
+    allow_whatsapp: false,
+    allow_notification: false,
+    type: "ad",
   });
+
   const [showDone, setShowDone] = useState(false);
-  const doneTimerRef = useRef(null);
+  const doneTimerRef = useRef<number | null>(null);
 
-  const handlePublish = async () => {
-    // TODO: await your API publish here
-    // await fetch(...)
-
-    setShowDone(true);
-
-    if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
-    doneTimerRef.current = window.setTimeout(() => {
-      router.push("/");
-    }, 3000);
-  };
-
-  const [addons, setAddons] = useState({
-    pinHome: false,
-    pinCarsSale: false,
-    pinLandCruiser: false,
-    pinToyota: false,
-  });
+  const [pinSelections, setPinSelections] = useState<Record<number, boolean>>({});
 
   const [agree, setAgree] = useState(false);
+
+
 
   useEffect(() => {
     return () => {
       if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
-
-      imagePreviews.forEach((url) => {
-        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
-      });
+      imagePreviews.forEach((url) => url.startsWith("blob:") && URL.revokeObjectURL(url));
     };
   }, [imagePreviews]);
 
   const progress = STEP_PROGRESS[step - 1] ?? 20;
 
   const pathTitle = useMemo(() => {
-    return [sel.level1?.label, sel.level2?.label, sel.level3?.label]
-      .filter(Boolean)
-      .join(" - ");
-  }, [sel]);
-
-  const step5Title = useMemo(() => {
-    const parts = [
-      sel.level1?.label,
-      sel.level3?.label || sel.level2?.label,
-      ad.country,
-      ad.brand,
-      ad.model,
-      ad.year,
-    ].filter(Boolean);
-    return parts.join(" - ");
-  }, [sel, ad]);
+    return [selectedMain?.name, selectedL2?.name, selectedL3?.name].filter(Boolean).join(" - ");
+  }, [selectedMain, selectedL2, selectedL3]);
 
   const title = useMemo(() => {
     if (step === 1) return "اختر الفئة";
-    if (step === 2) return sel.level1?.label ?? "اختر الفئة";
-    if (step === 3)
-      return `${sel.level1?.label ?? ""} - ${sel.level2?.label ?? ""}`.trim();
+    if (step === 2) return selectedMain?.name ?? "اختر الفئة";
+    if (step === 3) return `${selectedMain?.name ?? ""} - ${selectedL2?.name ?? ""}`.trim();
     if (step === 4) return pathTitle || "بيانات الإعلان";
-    return step5Title || "مراجعة ونشر";
-  }, [step, sel, pathTitle, step5Title]);
+    return ad.title || "مراجعة ونشر";
+  }, [step, selectedMain, selectedL2, pathTitle, ad.title]);
 
   const handleBack = () => {
     setStep((s) => (s === 1 ? 1 : s - 1));
-    setSel((prev) => {
-      if (step === 2) return { level1: undefined };
-      if (step === 3) return { ...prev, level3: undefined };
-      return prev;
-    });
+
+    if (step === 2) {
+      setSelectedMain(null);
+      setSubLevel2([]);
+      setSelectedL2(null);
+      setSubLevel3([]);
+      setSelectedL3(null);
+    } else if (step === 3) {
+      setSelectedL2(null);
+      setSubLevel3([]);
+      setSelectedL3(null);
+    } else if (step === 4) {
+      if (selectedL3) setSelectedL3(null);
+      else setSelectedL2(null);
+    }
   };
 
-  const pickLevel1 = (opt) => {
-    setSel({ level1: opt, level2: undefined, level3: undefined });
-    setStep(2);
-  };
-  const pickLevel2 = (opt) => {
-    setSel((p) => ({ ...p, level2: opt, level3: undefined }));
-    setStep(3);
-  };
-  const pickLevel3 = (opt) => {
-    setSel((p) => ({ ...p, level3: opt }));
-    setStep(4);
+  const pickMain = async (cat: MainCategory) => {
+    setSelectedMain(cat);
+    setSelectedL2(null);
+    setSelectedL3(null);
+    setSubLevel3([]);
+
+    const initialPins: Record<number, boolean> = {};
+    (cat.active_pinning_prices || []).forEach((p) => (initialPins[p.id] = false));
+    setPinSelections(initialPins);
+
+    try {
+      const subs = await fetchSubCategories(cat.id);
+      setSubLevel2(subs);
+      setStep(2);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const onPickImages = (files) => {
+  const pickL2 = async (cat: SubCategory) => {
+    setSelectedL2(cat);
+    setSelectedL3(null);
+
+    if (!cat.has_children) {
+      await preloadStepFour(cat);
+      setStep(4);
+      return;
+    }
+
+    try {
+      const subs = await fetchSubCategories(cat.id);
+      setSubLevel3(subs);
+      setStep(3);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const pickL3 = async (cat: SubCategory) => {
+    setSelectedL3(cat);
+
+    if (!cat.has_children) {
+      await preloadStepFour(cat);
+      setStep(4);
+      return;
+    }
+
+    // support deeper nesting in same step
+    try {
+      const subs = await fetchSubCategories(cat.id);
+      setSubLevel3(subs);
+      setSelectedL2(cat as any);
+      setSelectedL3(null);
+      setStep(3);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const preloadStepFour = async (leaf: SubCategory) => {
+    try {
+      const [countries, years] = await Promise.all([
+        fetchManufacturingCountries(),
+        fetchManufacturingYears(),
+      ]);
+      setManufacturingCountries(countries);
+      setManufacturingYears(years);
+
+      if (leaf.has_city) {
+        const c = await fetchCities();
+        setCities(c);
+      } else {
+        setCities([]);
+        setAd((p: any) => ({ ...p, city_id: "" }));
+      }
+
+      if (leaf.ad_form === "car") {
+        const brands = await fetchCarBrands();
+        setCarBrands(brands);
+      } else {
+        setCarBrands([]);
+        setCarModels([]);
+        setAd((p: any) => ({ ...p, car_brand_id: "", car_model_id: "", mileage: "" }));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onCarBrandChange = async (brandId: string) => {
+    if (!brandId) {
+      setCarModels([]);
+      return;
+    }
+    try {
+      const models = await fetchCarModels(brandId);
+      setCarModels(models);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onPickImages = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const urls = Array.from(files).map((f) => URL.createObjectURL(f));
-    setImagePreviews((prev) => [...prev, ...urls]); // append
+    const list = Array.from(files);
+    const urls = list.map((f) => URL.createObjectURL(f));
+
+    setImageFiles((prev) => [...prev, ...list]);
+    setImagePreviews((prev) => [...prev, ...urls]);
   };
 
-  const removeImageAt = (index) => {
+  const removeImageAt = (index: number) => {
     setImagePreviews((prev) => {
       const copy = [...prev];
       const url = copy[index];
       if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+      copy.splice(index, 1);
+      return copy;
+    });
+    setImageFiles((prev) => {
+      const copy = [...prev];
       copy.splice(index, 1);
       return copy;
     });
@@ -207,29 +245,52 @@ export default function AddAdWrapper() {
       prev.forEach((url) => url.startsWith("blob:") && URL.revokeObjectURL(url));
       return [];
     });
+    setImageFiles([]);
   };
 
+  const handlePublish = async () => {
+    try {
+      if (!leafCategory?.id) throw new Error("Missing final category");
+
+      await publishAd({
+        categoryId: leafCategory.id,
+        title: ad.title,
+        description: ad.description,
+        adPrice: ad.ad_price,
+        imageFiles,
+        allowWhatsapp: ad.allow_whatsapp,
+        allowPhone: ad.allow_phone,
+        allowNotification: ad.allow_notification,
+        manufacturingCountryId: ad.manufacturing_country_id,
+        year: ad.year,
+        cityId: ad.city_id,
+        hasCityField: hasCity,
+        pinSelections,
+        adForm,
+        carBrandId: ad.car_brand_id,
+        carModelId: ad.car_model_id,
+        mileage: ad.mileage,
+      });
+
+      setShowDone(true);
+      if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
+      doneTimerRef.current = window.setTimeout(() => router.push("/"), 3000);
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء نشر الإعلان");
+    }
+  };
 
   return (
     <section className="content-section">
       {showDone && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-          <div
-            dir="rtl"
-            className="w-full max-w-96 rounded-xl bg-white px-6 py-4 text-center shadow-2xl"
-          >
+          <div dir="rtl" className="w-full max-w-96 rounded-xl bg-white px-6 py-4 text-center shadow-2xl">
             <div className="mx-auto mb-6 h-[160px] w-[160px]">
-              <Image
-                src={done}
-                alt="done"
-                className="h-full w-full object-contain"
-                priority
-              />
+              <Image src={done} alt="done" className="h-full w-full object-contain" priority />
             </div>
 
-            <h2 className="text-base font-bold text-zinc-900 md:text-xl">
-              تم نشر إعلانك بنجاح
-            </h2>
+            <h2 className="text-base font-bold text-zinc-900 md:text-xl">تم نشر إعلانك بنجاح</h2>
           </div>
         </div>
       )}
@@ -256,25 +317,11 @@ export default function AddAdWrapper() {
 
         <h4 className="progress-name">{title}</h4>
 
-        {step === 1 && <AddAdStepOne selected={sel.level1} onPick={pickLevel1} ad={ad} setAd={setAd} />}
-        {step === 2 && (
-          <AddAdStepTwo
-            level1={sel.level1}
-            selected={sel.level2}
-            onPick={pickLevel2}
-            ad={ad}
-            setAd={setAd}
-          />
-        )}
-        {step === 3 && (
-          <AddAdStepThree
-            level2={sel.level2}
-            selected={sel.level3}
-            onPick={pickLevel3}
-            ad={ad}
-            setAd={setAd}
-          />
-        )}
+        {step === 1 && <AddAdStepOne options={mainCategories} selectedId={selectedMain?.id ?? null} onPick={pickMain} />}
+
+        {step === 2 && <AddAdStepTwo options={subLevel2} selectedId={selectedL2?.id ?? null} onPick={pickL2} />}
+
+        {step === 3 && <AddAdStepThree options={subLevel3} selectedId={selectedL3?.id ?? null} onPick={pickL3} />}
 
         {step === 4 && (
           <AddAdStepFour
@@ -286,25 +333,29 @@ export default function AddAdWrapper() {
             ad={ad}
             setAd={setAd}
             onNext={() => setStep(5)}
-            COUNTRIES={COUNTRIES}
-            BRANDS={BRANDS}
-            MODELS={MODELS}
-            YEARS={YEARS}
-            GOVERNORATES={GOVERNORATES}
+            adForm={adForm}
+            hasCity={hasCity}
+            manufacturingCountries={manufacturingCountries}
+            manufacturingYears={manufacturingYears}
+            cities={cities}
+            carBrands={carBrands}
+            carModels={carModels}
+            onCarBrandChange={onCarBrandChange}
           />
         )}
 
         {step === 5 && (
           <AddAdStepFive
-            sel={sel}
+            sel={{ level1: selectedMain, level2: selectedL2, level3: selectedL3 }}
             ad={ad}
             imagePreview={imagePreviews[0]}
-            addons={addons}
-            setAddons={setAddons}
+            addons={pinSelections}
+            setAddons={setPinSelections}
             agree={agree}
             setAgree={setAgree}
             onPublish={handlePublish}
             termsHref="#"
+            mainCategory={selectedMain}
           />
         )}
       </div>
