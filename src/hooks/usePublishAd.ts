@@ -24,7 +24,7 @@ export interface PublishAdPayload {
 export function usePublishAd() {
     return useMutation({
         mutationFn: async (payload: PublishAdPayload): Promise<any> => {
-            const token = localStorage.getItem("auth_token");
+            const token = localStorage.getItem("token");
 
             const headers: Record<string, string> = {
                 "accept-language": "ar",

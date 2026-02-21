@@ -58,7 +58,7 @@ interface FetchAdsParams {
 }
 
 const fetchAds = async (params: FetchAdsParams): Promise<AdsResponse['data']> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem("auth_token") : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     const headers: Record<string, string> = { "accept-language": "ar" };
     if (token) headers.Authorization = `Bearer ${token}`;
 

@@ -20,6 +20,7 @@ import { useGetCarBrands } from "@/src/hooks/useGetCarBrands";
 import { useGetCarModels } from "@/src/hooks/useGetCarModels";
 import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
 import { useGetAds, type AdItem } from "@/src/hooks/useGetAds";
+import type { Company } from "@/src/hooks/useGetCompanies";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,24 @@ export default function CompanyWrapper({ id }: { id: string }) {
     const [sPriceFrom, setSPriceFrom] = useState("");
     const [sPriceTo, setSPriceTo] = useState("");
     const [page, setPage] = useState(1);
+    const [cachedCompany, setCachedCompany] = useState<Company | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const cached = sessionStorage.getItem("selectedCompany");
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    // verify it matches the current id
+                    if (String(parsed.id) === id) {
+                        setCachedCompany(parsed);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse cached company", e);
+                }
+            }
+        }
+    }, [id]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -122,20 +141,37 @@ export default function CompanyWrapper({ id }: { id: string }) {
                 {/* company item */}
                 <div className="company-item">
                     <figure>
-                        <Image
-                            src={logo}
-                            alt="logo"
-                            width={70}
-                            height={70}
-                            className="object-contain"
-                        />
+                        {cachedCompany ? (
+                            <Image
+                                src={cachedCompany.image || "http://sahl.test/placeholders/logo.jpg"}
+                                alt={cachedCompany.name}
+                                width={70}
+                                height={70}
+                                className="h-auto w-auto object-contain"
+                                unoptimized
+                            />
+                        ) : (
+                            <Image
+                                src={logo}
+                                alt="logo"
+                                width={70}
+                                height={70}
+                                className="object-contain"
+                            />
+                        )}
                     </figure>
                     <div className="company-info">
                         <span className="company-name">
-                            شركة الخليج العربي{" "}
-                            <BadgeCheck className="inline-block h-4 w-4" />
+                            {cachedCompany ? cachedCompany.name : "شركة الخليج العربي"}{" "}
+                            {cachedCompany ? (
+                                cachedCompany.verified_account && <BadgeCheck className="inline-block h-4 w-4 text-blue-500" />
+                            ) : (
+                                <BadgeCheck className="inline-block h-4 w-4" />
+                            )}
                         </span>
-                        <span className="company-num">12 إعلان فعال</span>
+                        <span className="company-num">
+                            {cachedCompany ? `${cachedCompany.ads_number} إعلان فعال` : "12 إعلان فعال"}
+                        </span>
                     </div>
                 </div>
 

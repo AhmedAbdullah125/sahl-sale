@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { HomeData } from "@/types/home";
 
 const fetchHome = async (lang: string): Promise<HomeData> => {
-  const token = localStorage.getItem("auth_token");
+  const token = localStorage.getItem("token");
   const headers: Record<string, string> = { "accept-language": lang };
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await axios.get(`${API_BASE_URL}/home`, { headers });

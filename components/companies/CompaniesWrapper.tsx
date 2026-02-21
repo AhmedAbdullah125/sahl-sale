@@ -74,7 +74,16 @@ export default function CompaniesWrapper() {
                         </div>
                     ) : (
                         companies.map((c) => (
-                            <Link key={c.id} href={`/companies/${c.id}`} className="company-item">
+                            <Link
+                                key={c.id}
+                                href={`/companies/${c.id}`}
+                                className="company-item"
+                                onClick={() => {
+                                    if (typeof window !== "undefined") {
+                                        sessionStorage.setItem("selectedCompany", JSON.stringify(c));
+                                    }
+                                }}
+                            >
                                 <figure>
                                     <Image
                                         src={c.image || "http://sahl.test/placeholders/logo.jpg"}

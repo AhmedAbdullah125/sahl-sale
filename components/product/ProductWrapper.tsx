@@ -4,14 +4,16 @@ import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowRight, Bookmark, Link as LinkIcon, AlertCircle, BadgeCheck, PhoneCall, PenLine, Trash2, } from "lucide-react";
+import { ArrowRight, Bookmark, Link as LinkIcon, AlertCircle, BadgeCheck, PhoneCall, PenLine, Trash2, X } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import logo from "@/src/images/logo.svg";
 import mainImg from "@/src/images/main.png";
+import done from "@/src/images/done.gif";
 import { useGetAd } from "@/src/hooks/useGetAd";
+import { useReportAd } from "@/src/hooks/useReportAd";
 import { Loader2 } from "lucide-react";
 
 export default function ProductWrapper({ id }: { id: string }) {
@@ -22,6 +24,12 @@ export default function ProductWrapper({ id }: { id: string }) {
     // If is_creator is returned from API, use it, otherwise fallback to path check
     const isMyProduct = ad?.is_creator || pathname.includes("my-products");
     const [isFav, setIsFav] = useState(false);
+
+    // Report states
+    const [isReportOpen, setIsReportOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [showDone, setShowDone] = useState(false);
+    const { mutate: reportAd, isPending: isReporting } = useReportAd();
 
     // Use data from API
     const phone = ad?.user?.phone || "55558718";
@@ -83,10 +91,10 @@ export default function ProductWrapper({ id }: { id: string }) {
                     <div className="product-center">
                         {
                             !isMyProduct && (
-                                <Link href="#" className="report-link">
+                                <button type="button" className="report-link" onClick={() => setIsReportOpen(true)}>
                                     <AlertCircle />
                                     <span>تبليغ</span>
-                                </Link>
+                                </button>
                             )
                         }
 
@@ -246,6 +254,71 @@ export default function ProductWrapper({ id }: { id: string }) {
                     ) : null}
                 </div>
             </div>
+
+            {/* Report Modal */}
+            {isReportOpen && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                    <div dir="rtl" className="w-full max-w-md rounded-2xl bg-[#F8F9FA] p-6 shadow-2xl relative">
+                        <button
+                            type="button"
+                            onClick={() => setIsReportOpen(false)}
+                            className="absolute left-6 top-6 text-gray-500 hover:text-black"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+                        <h2 className="text-xl font-bold text-center mb-6 mt-2">ابلاغ</h2>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium mb-3 pr-2 text-right">
+                                سبب الابلاغ
+                            </label>
+                            <textarea
+                                className="w-full rounded-xl border border-gray-200 bg-white p-4 min-h-[160px] outline-none focus:ring-2 focus:ring-[#37bdf8]"
+                                placeholder="اكتب سبب الابلاغ"
+                                value={reportReason}
+                                onChange={(e) => setReportReason(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            disabled={isReporting || !reportReason.trim()}
+                            onClick={() => {
+                                reportAd(
+                                    { ad_id: id, reason: reportReason.trim() },
+                                    {
+                                        onSuccess: () => {
+                                            setIsReportOpen(false);
+                                            setReportReason("");
+                                            setShowDone(true);
+                                            setTimeout(() => setShowDone(false), 3000);
+                                        },
+                                        onError: (err) => {
+                                            alert(err.message || 'حدث خطأ أثناء إرسال البلاغ');
+                                        }
+                                    }
+                                );
+                            }}
+                            className="w-full rounded-xl bg-[#37bdf8] py-4 text-white font-bold text-lg hover:bg-sky-500 transition-colors disabled:opacity-50 flex items-center justify-center h-14"
+                        >
+                            {isReporting ? <Loader2 className="h-6 w-6 animate-spin" /> : "إرسال"}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Done Modal */}
+            {showDone && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                    <div dir="rtl" className="w-full max-w-96 rounded-xl bg-white px-6 py-4 text-center shadow-2xl">
+                        <div className="mx-auto mb-6 h-[160px] w-[160px]">
+                            <Image src={done} alt="done" className="h-full w-full object-contain" priority />
+                        </div>
+                        <h2 className="text-base font-bold text-zinc-900 md:text-xl">تم إرسال بلاغك بنجاح</h2>
+                    </div>
+                </div>
+            )}
+
         </section>
     );
 }

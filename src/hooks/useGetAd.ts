@@ -35,7 +35,7 @@ export const fetchAd = async (id: string): Promise<AdData> => {
     const headers: Record<string, string> = {
         'accept-language': 'ar',
     };
-    const token = localStorage.getItem("auth_token");
+    const token = localStorage.getItem("token");
     if (token) {
         headers.Authorization = `Bearer ${token}`;
     }
