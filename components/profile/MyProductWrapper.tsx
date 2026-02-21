@@ -147,7 +147,7 @@ export default function MyProductWrapper() {
                                 <p className="text-sm">لم تقم بإضافة أي إعلانات في هذا القسم بعد.</p>
                             </div>
                         ) : (
-                            <div className="product-grid-2">
+                            <div className="product-grid">
                                 {items.map((ad) => (
                                     <Link
                                         key={ad.id}

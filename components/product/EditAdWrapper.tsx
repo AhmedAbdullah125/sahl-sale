@@ -2,9 +2,8 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import UpperHeader from "@/components/General/UpperHeader";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useGetAd } from "@/src/hooks/useGetAd";
 
 import EditAdForm from "./EditAdForm";
 
@@ -59,57 +58,56 @@ export const SUBSECTIONS_BY_SECTION = {
 };
 
 export default function EditAdWrapper({ id }: { id: string }) {
+    console.log(id);
+
     const router = useRouter();
-    const initialAd = {
-        // ✅ New selects
-        section: "motors",     // محركات
-        subSection: "vehicles",// مركبات
 
-        // ✅ Ad data from screenshot
-        title: "سيارة لكزس RX 2025",
-        country: "ياباني",          // لو عندك COUNTRIES فيها "اليابان" بدل "ياباني" غيّرها
-        brand: "لكزس",
-        model: "RX",
-        year: "2025",
-        mileage: "40000",           // أو "40,000" لو بتعرضها كنص
-        governorate: "حولي",
-        price: "2100",
-        description:
-            "للبيع او للبدل لكزس RX موديل 2011 عداد 180 وارد الساير كامل المواصفات جلد تان فتحه دخول ذكي بلوثوت خريطه بروجكتر شرط الفحص قير / مكينه /شاصي البدي يوجد اصباغ متفرقه السعر 3000/ والصامل يبشر بالخير",
-
-        // ✅ Contact
-        contactCall: true,
-        contactWhats: true,
-
-        // ✅ Existing images (placeholder path — عدّلها حسب اللي عندك من API)
-        images: ["/images/main.png"],
-
-        // (اختياري) بيانات مفيدة لو هتحتاجها في UI بتاع "منتجي"
-        phone: "55558718",
-        whatsapp: "55558718",
-        expireText: "ينتهي في 11 يوليو 2025",
-        publishedAtText: "نشر بتاريخ : 12 / 5 / 2025 - 10:32 PM",
-    };
+    const { data: adData, isLoading } = useGetAd(id);
+    console.log(adData);
 
 
-    // previews urls (existing urls + new blob urls)
-    const [imagePreviews, setImagePreviews] = useState(initialAd?.images ?? []);
-
+    // Initial structure matching the form fields
     const [ad, setAd] = useState({
-        section: initialAd?.section ?? "",
-        subSection: initialAd?.subSection ?? "",
-        title: initialAd?.title ?? "",
-        country: initialAd?.country ?? "",
-        brand: initialAd?.brand ?? "",
-        model: initialAd?.model ?? "",
-        year: initialAd?.year ?? "",
-        mileage: initialAd?.mileage ?? "",
-        governorate: initialAd?.governorate ?? "",
-        price: initialAd?.price ?? "",
-        description: initialAd?.description ?? "",
-        contactCall: initialAd?.contactCall ?? true,
-        contactWhats: initialAd?.contactWhats ?? false,
+        section: "motors",
+        subSection: "vehicles",
+        title: "",
+        country: "",
+        brand: "",
+        model: "",
+        year: "",
+        mileage: "",
+        governorate: "",
+        price: "",
+        description: "",
+        contactCall: true,
+        contactWhats: false,
     });
+
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (adData) {
+            setAd({
+                section: adData.category, // TODO: Map properly if your API returns these
+                subSection: "vehicles",
+                title: adData.title || "",
+                country: "", // Map if applicable
+                brand: "",
+                model: "",
+                year: "",
+                mileage: "",
+                governorate: adData.city || "",
+                price: adData.price || "",
+                description: adData.description || "",
+                contactCall: adData.allow_phone === 1,
+                contactWhats: adData.allow_whatsapp === 1,
+            });
+
+            if (adData.images && adData.images.length > 0) {
+                setImagePreviews(adData.images.map(img => img.url));
+            }
+        }
+    }, [adData]);
 
     const cleanupRef = useRef<string[]>([]);
 
