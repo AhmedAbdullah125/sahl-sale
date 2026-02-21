@@ -2618,6 +2618,13 @@ textarea.form-input {
   background: #fff !important;
   box-shadow: none !important;
 }
+@media screen and (max-width: 768px) {
+  .filter-select {
+    height: 48px !important;
+    font-size: 14px !important;
+    padding: 4px !important;
+  }
+}
 
 .delete-btn {
   background-color: #e20000;

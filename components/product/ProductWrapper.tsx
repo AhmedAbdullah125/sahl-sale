@@ -115,14 +115,7 @@ export default function ProductWrapper({ id }: { id: string }) {
                                         <SwiperSlide key={idx}>
                                             <div className="main">
                                                 <Link href="#!" className="pro-img">
-                                                    <Image
-                                                        src={img}
-                                                        alt={`product-${idx + 1}`}
-                                                        priority={idx === 0}
-                                                        className="w-full h-auto"
-                                                        width={500}
-                                                        height={500}
-                                                    />
+                                                    <Image src={img} alt={`product-${idx + 1}`} priority={idx === 0} className="w-full h-auto" width={500} height={500} />
                                                 </Link>
                                             </div>
                                         </SwiperSlide>

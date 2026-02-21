@@ -3,13 +3,29 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, Bookmark, User } from "lucide-react";
+import { Search, Bell, Bookmark, User, Loader2 } from "lucide-react";
+import { useGetAds } from "@/src/hooks/useGetAds";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import logo from "@/src/images/logo.svg";
 
 export default function Header() {
   const [isDark, setIsDark] = useState(false);
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(q), 500);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  const { data, isLoading } = useGetAds({
+    page: 1,
+    search: debouncedQ,
+  });
+
+  const searchResults = data?.items || [];
 
   // Load saved mode
   useEffect(() => {
@@ -32,27 +48,61 @@ export default function Header() {
               <div className="nav-header">
                 <figure className="img-logo relative w-[150px] h-[50px]">
                   <Link href="/">
-                    <Image
-                      src={logo}
-                      alt="Logo"
-                      width={150}
-                      height={50}
-                      className="object-contain"
-                      priority
-                    />
+                    <Image src={logo} alt="Logo" width={150} height={50} className="object-contain" priority />
                   </Link>
                 </figure>
 
-                <div className="search-section">
-                  <form
-                    className="search-form flex items-center gap-2"
-                    onSubmit={(e) => e.preventDefault()}
-                  >
-                    <Input className="search-input" type="text" name="search" placeholder="ابحث" />
+                <div className="search-section relative" style={{ position: "relative" }}>
+                  <form className="search-form flex items-center gap-2 w-full" onSubmit={(e) => e.preventDefault()}>
+                    <Input
+                      className="search-input w-full"
+                      type="text"
+                      name="search"
+                      placeholder="ابحث"
+                      value={q}
+                      onChange={(e) => {
+                        setQ(e.target.value);
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                      autoComplete="off"
+                    />
                     <Button type="submit" size="icon" className="search-button">
                       <Search className="h-4 w-4" />
                     </Button>
                   </form>
+
+                  {/* Search Dropdown */}
+                  {isDropdownOpen && q.trim().length > 0 && (
+                    <div className="absolute top-full right-0 mt-2 bg-background border border-border shadow-lg z-50 max-h-96 overflow-y-auto w-full md:w-[400px] rounded-[10px]">
+                      {isLoading ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        <div className="flex flex-col">
+                          {searchResults.map((item) => (
+                            <Link key={item.id} href={`/product/${item.id}`} className="flex items-center gap-3 p-3 hover:bg-muted border-b border-border last:border-0 transition-colors">
+                              <Image src={item.image || "http://sahl.test/placeholders/logo.jpg"} alt={item.title} width={50} height={50} className="object-cover rounded-md" unoptimized />
+                              <div className="flex flex-col flex-1">
+                                <span className="text-sm font-semibold truncate text-foreground">{item.title}</span>
+                                {item.type === "ad" ? (
+                                  <span className="text-xs text-primary font-bold">{item.price} د.ك</span>
+                                ) : (
+                                  <span className="text-xs text-orange-500 font-bold">بالمزاد: {item.price} د.ك</span>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          لا توجد نتائج مطابقة
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="header-icons flex items-center gap-4">

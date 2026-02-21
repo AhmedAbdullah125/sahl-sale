@@ -424,6 +424,12 @@
   background: #fff !important;
   box-shadow: none !important;
 
+  @media screen and (max-width: 768px) {
+    height: 48px !important;
+    font-size: 14px !important;
+    padding: 4px !important;
+  }
+
 }
 
 .delete-btn {

@@ -1,44 +1,22 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Search, BadgeCheck } from "lucide-react";
+import { ArrowRight, Search, BadgeCheck, Loader2, Building2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import logo from "@/src/images/logo.svg";
-import img1 from "@/src/images/01.jpg";
+import { useGetCompanies } from "@/src/hooks/useGetCompanies";
 
-
-const COMPANIES = [
-    {
-        id: "1",
-        href: "/companies/1",
-        name: "شركة الخليج العربي",
-        activeAds: 12,
-        verified: true,
-        img: logo,
-    },
-    {
-        id: "2",
-        href: "/companies/2",
-        name: "شركة الخليج العربي",
-        activeAds: 12,
-        verified: true,
-        img: img1,
-    },
-];
 
 export default function CompaniesWrapper() {
     const [q, setQ] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const filtered = useMemo(() => {
-        const s = q.trim();
-        if (!s) return COMPANIES;
-        return COMPANIES.filter((c) => c.name.includes(s));
-    }, [q]);
+    const { data, isLoading, error } = useGetCompanies(searchQuery);
+    const companies = data?.items || [];
 
     return (
         <section className="content-section">
@@ -60,7 +38,10 @@ export default function CompaniesWrapper() {
                 <div className="search-custom">
                     <form
                         className="search-form"
-                        onSubmit={(e) => e.preventDefault()}
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setSearchQuery(q);
+                        }}
                     >
                         <Input
                             className="search-input"
@@ -77,29 +58,46 @@ export default function CompaniesWrapper() {
                 </div>
 
                 <div className="company-items">
-                    {filtered.map((c) => (
-                        <Link key={c.id} href={c.href} className="company-item">
-                            <figure>
-                                <Image
-                                    src={c.img}
-                                    alt="logo"
-                                    width={70}
-                                    height={70}
-                                    className="h-auto w-auto object-contain"
-                                />
-                            </figure>
+                    {isLoading ? (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                            <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
+                            <p className="text-lg font-medium">جاري التحميل...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-red-500">
+                            <p className="text-lg font-medium">حدث خطأ أثناء تحميل الشركات</p>
+                        </div>
+                    ) : companies.length === 0 ? (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground w-full">
+                            <Building2 className="h-16 w-16 mb-4 opacity-50" />
+                            <p className="text-lg font-medium">لا توجد شركات مطابقة للبحث</p>
+                        </div>
+                    ) : (
+                        companies.map((c) => (
+                            <Link key={c.id} href={`/companies/${c.id}`} className="company-item">
+                                <figure>
+                                    <Image
+                                        src={c.image || "http://sahl.test/placeholders/logo.jpg"}
+                                        alt={c.name}
+                                        width={70}
+                                        height={70}
+                                        className="h-auto w-auto object-contain"
+                                        unoptimized
+                                    />
+                                </figure>
 
-                            <div className="company-info">
-                                <span className="company-name">
-                                    {c.name}{" "}
-                                    {c.verified ? (
-                                        <BadgeCheck className="inline-block h-4 w-4" />
-                                    ) : null}
-                                </span>
-                                <span className="company-num">{c.activeAds} إعلان فعال</span>
-                            </div>
-                        </Link>
-                    ))}
+                                <div className="company-info">
+                                    <span className="company-name">
+                                        {c.name}{" "}
+                                        {c.verified_account ? (
+                                            <BadgeCheck className="inline-block h-4 w-4 text-blue-500" />
+                                        ) : null}
+                                    </span>
+                                    <span className="company-num">{c.ads_number} إعلان فعال</span>
+                                </div>
+                            </Link>
+                        ))
+                    )}
                 </div>
             </div>
         </section>

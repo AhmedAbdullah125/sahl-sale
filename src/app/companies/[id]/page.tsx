@@ -1,7 +1,8 @@
 import CompanyWrapper from '@/components/companies/CompanyWrapper'
 import React from 'react'
-export default function Page() {
+export default async function Page({ params }: { params: { id: string } }) {
+    const { id } = await params;
     return (
-        <CompanyWrapper />
+        <CompanyWrapper id={id} />
     )
 }

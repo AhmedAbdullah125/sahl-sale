@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { ArrowRight, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Search, Loader2, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,54 +12,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import ProductCard from "../General/ProductCard";
-import { API_BASE_URL } from "@/lib/apiConfig";
 import { useGetCarBrands } from "@/src/hooks/useGetCarBrands";
 import { useGetCarModels } from "@/src/hooks/useGetCarModels";
 import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface CarDetails {
-    brand: string;
-    model: string;
-    year: string;
-}
-
-interface AdItem {
-    id: number;
-    title: string;
-    price: string;
-    ad_form: string;
-    type: "ad" | "auction";
-    parent_category: string;
-    category: string;
-    is_pinned: boolean;
-    car: CarDetails | null;
-    image: string;
-    created_at: string;
-    ended_at: string;
-    status: string;
-    is_favorite: boolean;
-}
-
-interface Paginate {
-    total: number;
-    count: number;
-    per_page: number;
-    next_page_url: string;
-    prev_page_url: string;
-    current_page: number;
-    total_pages: number;
-}
-
-interface AdsResponse {
-    status: boolean;
-    data: {
-        items: AdItem[];
-        paginate: Paginate;
-        extra: unknown;
-    };
-}
+import { useGetAds, type AdItem } from "@/src/hooks/useGetAds";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -86,6 +42,7 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
     // filter state
     const [tab, setTab] = useState<"all" | "ad" | "auction">("all");
     const [q, setQ] = useState("");
+    const [debouncedQ, setDebouncedQ] = useState("");
     const [sBrand, setSBrand] = useState("");
     const [sModel, setSModel] = useState("");
     const [sYearFrom, setSYearFrom] = useState("");
@@ -94,55 +51,36 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
     const [sPriceTo, setSPriceTo] = useState("");
     const [page, setPage] = useState(1);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQ(q);
+            setPage(1); // Reset to page 1 on new search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [q]);
+
     // lookup data from hooks
     const { data: brands = [] } = useGetCarBrands();
     const { data: models = [] } = useGetCarModels(sBrand);
     const { data: years = [] } = useGetManufacturingYears();
 
-    // data state
-    const [items, setItems] = useState<AdItem[]>([]);
-    const [paginate, setPaginate] = useState<Paginate | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    // data query
+    const { data, isLoading: loading, error } = useGetAds({
+        category_id: id,
+        type: tab,
+        brand_id: sBrand,
+        model_id: sModel,
+        year_from: sYearFrom,
+        year_to: sYearTo,
+        price_from: sPriceFrom,
+        price_to: sPriceTo,
+        page,
+        search: debouncedQ,
+    });
 
-    const fetchAds = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const token = localStorage.getItem("auth_token");
-            const headers: Record<string, string> = { "accept-language": "ar" };
-            if (token) headers.Authorization = `Bearer ${token}`;
-
-            const params = new URLSearchParams();
-            params.set("page", String(page));
-            params.set("category_id", id);
-            if (tab !== "all") params.set("type", tab);
-            if (sBrand) params.set("brand_id", sBrand);
-            if (sModel) params.set("model_id", sModel);
-            if (sYearFrom) params.set("year_from", sYearFrom);
-            if (sYearTo) params.set("year_to", sYearTo);
-            if (sPriceFrom) params.set("price_from", sPriceFrom);
-            if (sPriceTo) params.set("price_to", sPriceTo);
-
-            const res = await fetch(`${API_BASE_URL}/ads?${params.toString()}`, { headers });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const json: AdsResponse = await res.json();
-            if (json.status) {
-                setItems(json.data.items);
-                setPaginate(json.data.paginate);
-            } else {
-                setError("فشل تحميل الإعلانات");
-            }
-        } catch {
-            setError("حدث خطأ أثناء تحميل البيانات");
-        } finally {
-            setLoading(false);
-        }
-    }, [id, tab, sBrand, sModel, sYearFrom, sYearTo, sPriceFrom, sPriceTo, page]);
-
-    useEffect(() => {
-        fetchAds();
-    }, [fetchAds]);
+    const items = data?.items || [];
+    const paginate = data?.paginate || null;
+    const errorMessage = error instanceof Error ? error.message : null;
 
     // reset to page 1 whenever filters change
     const applyFilter = (setter: (v: string) => void) => (v: string) => {
@@ -161,10 +99,6 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
         setSPriceTo("");
         setPage(1);
     };
-
-    const displayedItems = q.trim()
-        ? items.filter((item) => item.title.includes(q.trim()))
-        : items;
 
     return (
         <section className="content-section">
@@ -294,24 +228,26 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
                 {/* products */}
                 <div className="product-cont">
                     {loading && (
-                        <div className="flex justify-center py-10">
-                            <span className="text-gray-500">جاري التحميل...</span>
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground w-full">
+                            <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
+                            <p className="text-lg font-medium">جاري التحميل...</p>
                         </div>
                     )}
-                    {error && (
-                        <div className="flex justify-center py-10">
-                            <span className="text-red-500">{error}</span>
+                    {errorMessage && (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-red-500 w-full">
+                            <p className="text-lg font-medium">{errorMessage}</p>
                         </div>
                     )}
-                    {!loading && !error && (
+                    {!loading && !errorMessage && (
                         <>
                             <div className="product-grid">
-                                {displayedItems.length === 0 ? (
-                                    <div className="rounded-lg border p-4 text-center col-span-full">
-                                        لا توجد نتائج مطابقة
+                                {items.length === 0 ? (
+                                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground w-full">
+                                        <SearchX className="h-16 w-16 mb-4 opacity-50" />
+                                        <p className="text-lg font-medium">لا توجد نتائج مطابقة</p>
                                     </div>
                                 ) : (
-                                    displayedItems.map((ad) => (
+                                    items.map((ad) => (
                                         <ProductCard key={ad.id} product={adToProductCard(ad)} />
                                     ))
                                 )}
