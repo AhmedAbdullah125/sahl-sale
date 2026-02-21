@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
 import { useGetSubCategories, type SubCategory } from "@/src/hooks/useGetSubCategories";
 
 export default function CategoryWrapper({ id }: { id: string }) {
@@ -16,18 +16,7 @@ export default function CategoryWrapper({ id }: { id: string }) {
     return (
         <section className="content-section">
             <div className="container">
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => window.history.back()}
-                        aria-label="Back"
-                    >
-                        <ArrowRight />
-                    </button>
-                    <h3 className="page-title">الفئات</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="الفئات" />
 
                 <Link href="/companies" className="page-ancor">
                     الشركات

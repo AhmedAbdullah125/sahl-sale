@@ -106,7 +106,7 @@ export default function Header() {
                 </div>
 
                 <div className="header-icons flex items-center gap-4">
-                  <Link href="/favorite" className="add-to flex items-center gap-2">
+                  <Link href="/favourite" className="add-to flex items-center gap-2">
                     <Bookmark className="h-5 w-5" />
                     <span className="user-anc">المفضلة</span>
                   </Link>

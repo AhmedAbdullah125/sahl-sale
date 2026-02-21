@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
-    "@fancyapps/ui": "^5.0.36",
+    "@fancyapps/ui": "^6.1.6",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-label": "^2.1.8",

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import UpperHeader from "@/components/General/UpperHeader";
 import { PackageOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/apiConfig";
 import { getToken } from "@/src/utils/token";
@@ -107,18 +108,7 @@ export default function MyProductWrapper() {
 
     return (
         <section className="my-products-section" dir="rtl">
-            <div className="upper-header">
-                <button
-                    type="button"
-                    className="back-btn"
-                    onClick={() => router.back()}
-                    aria-label="رجوع"
-                >
-                    <i className="fa-regular fa-arrow-right" aria-hidden="true"></i>
-                </button>
-                <h3 className="page-title">إعلاناتي</h3>
-                <div className="empty" />
-            </div>
+            <UpperHeader title="إعلاناتي" />
 
             <div className="product-cont">
                 {/* tabs */}

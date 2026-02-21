@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Search, Loader2, SearchX } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
+import { Search, Loader2, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,18 +105,7 @@ export default function SubCategoryWrapper({ id }: { id: string }) {
         <section className="content-section">
             <div className="container">
                 {/* header */}
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => window.history.back()}
-                        aria-label="Back"
-                    >
-                        <ArrowRight />
-                    </button>
-                    <h3 className="page-title">الإعلانات</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="الإعلانات" />
 
                 {/* search */}
                 <div className="search-custom">

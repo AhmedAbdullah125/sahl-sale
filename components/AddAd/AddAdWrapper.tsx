@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { ArrowRight } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -301,21 +301,11 @@ export default function AddAdWrapper() {
         </div>
       )}
       <div className="container">
-        <div className="upper-header">
-          <Button
-            type="button"
-            variant="ghost"
-            className="back-btn"
-            onClick={handleBack}
-            disabled={step === 1}
-            aria-label="Back"
-          >
-            <ArrowRight />
-          </Button>
-
-          <h3 className="page-title">إضافة إعلان</h3>
-          <div className="empty" />
-        </div>
+        <UpperHeader
+          title="إضافة إعلان"
+          onBack={handleBack}
+          backDisabled={step === 1}
+        />
 
         <div className="add-progress">
           <Progress value={progress} />

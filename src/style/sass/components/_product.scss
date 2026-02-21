@@ -116,7 +116,7 @@
   @include flexCenter;
   flex: 1;
   margin: 0 auto 20px;
-  background-color: #f0f0f0;
+  background-color: $white;
   color: $sec;
   height: 40px;
   border-radius: 7px;
@@ -414,6 +414,10 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+
+  @include max-991 {
+    gap: 6px;
+  }
 }
 
 /* ===== shadcn SelectTrigger as "button" ===== */
@@ -421,8 +425,9 @@
   height: 64px !important;
   border-radius: 14px !important;
   border: 2px solid #e9e9e9 !important;
-  background: #fff !important;
+  background: $white !important;
   box-shadow: none !important;
+  color: $sec !important;
 
   @media screen and (max-width: 768px) {
     height: 48px !important;
@@ -430,6 +435,10 @@
     padding: 4px !important;
   }
 
+}
+
+.double-space {
+  grid-column: span 2;
 }
 
 .delete-btn {

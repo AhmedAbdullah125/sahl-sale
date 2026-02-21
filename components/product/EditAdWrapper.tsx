@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -169,20 +169,7 @@ export default function EditAdWrapper({ id }: { id: string }) {
     return (
         <section className="content-section" dir="rtl">
             <div className="container">
-                <div className="upper-header">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        className="back-btn"
-                        onClick={() => router.back()}
-                        aria-label="Back"
-                    >
-                        <ArrowRight />
-                    </Button>
-
-                    <h3 className="page-title">تعديل إعلان</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="تعديل إعلان" />
 
                 {/* نفس فكرة عنوان progress-name */}
                 <h4 className="progress-name">بيانات الإعلان</h4>

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Search, BadgeCheck, Loader2, SearchX } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
+import { Search, BadgeCheck, Loader2, SearchX } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -125,18 +126,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
         <section className="content-section">
             <div className="container">
                 {/* header */}
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => window.history.back()}
-                        aria-label="Back"
-                    >
-                        <ArrowRight />
-                    </button>
-                    <h3 className="page-title">تفاصيل الحساب</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="تفاصيل الحساب" />
 
                 {/* company item */}
                 <div className="company-item">
@@ -276,7 +266,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
                         </Select>
 
                         <Input
-                            className="filter-select"
+                            className="filter-select double-space"
                             placeholder="السعر من"
                             type="number"
                             value={sPriceFrom}
@@ -284,7 +274,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
                         />
 
                         <Input
-                            className="filter-select"
+                            className="filter-select double-space"
                             placeholder="السعر إلى"
                             type="number"
                             value={sPriceTo}

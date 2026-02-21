@@ -14,7 +14,9 @@ import mainImg from "@/src/images/main.png";
 import done from "@/src/images/done.gif";
 import { useGetAd } from "@/src/hooks/useGetAd";
 import { useReportAd } from "@/src/hooks/useReportAd";
+import { useToggleFavorite } from "@/src/hooks/useToggleFavorite";
 import { Loader2 } from "lucide-react";
+import FancyboxWrapper from "../ui/FancyboxWrapper";
 
 export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
@@ -24,6 +26,11 @@ export default function ProductWrapper({ id }: { id: string }) {
     // If is_creator is returned from API, use it, otherwise fallback to path check
     const isMyProduct = ad?.is_creator || pathname.includes("my-products");
     const [isFav, setIsFav] = useState(false);
+    const { mutate: toggleFavorite, isPending: isFavPending } = useToggleFavorite();
+
+    React.useEffect(() => {
+        if (ad) setIsFav(ad.is_favorite);
+    }, [ad]);
 
     // Report states
     const [isReportOpen, setIsReportOpen] = useState(false);
@@ -32,17 +39,9 @@ export default function ProductWrapper({ id }: { id: string }) {
     const { mutate: reportAd, isPending: isReporting } = useReportAd();
 
     // Use data from API
-    const phone = ad?.user?.phone || "55558718";
-    const whatsapp = ad?.user?.whatsapp || "55558718";
-    const expireText = ad?.ended_at ? `ينتهي في ${ad.ended_at}` : "ينتهي في 11 يوليو 2026";
-
-    // بدلها بصور API حسب id
-    const images = useMemo(() => {
-        if (ad?.images && ad.images.length > 0) {
-            return ad.images.map(img => img.url);
-        }
-        return [mainImg];
-    }, [ad]);
+    const phone = ad?.user?.phone;
+    const whatsapp = ad?.user?.whatsapp;
+    const expireText = ad?.ended_at ? `ينتهي في ${ad.ended_at}` : "";
 
     if (isLoading) {
         return (
@@ -112,23 +111,27 @@ export default function ProductWrapper({ id }: { id: string }) {
                         {/* Slider */}
                         <div className="slider-cont">
                             <main className="main-slider">
-                                <Swiper
-                                    modules={[Pagination]}
-                                    pagination={{ clickable: true }}
-                                    slidesPerView={1}
-                                    spaceBetween={12}
-                                    className="pro-swiper"
-                                >
-                                    {images.map((img, idx) => (
-                                        <SwiperSlide key={idx}>
-                                            <div className="main">
-                                                <Link href="#!" className="pro-img">
-                                                    <Image src={img} alt={`product-${idx + 1}`} priority={idx === 0} className="w-full h-auto" width={500} height={500} />
-                                                </Link>
-                                            </div>
-                                        </SwiperSlide>
-                                    ))}
-                                </Swiper>
+                                <FancyboxWrapper>
+                                    <Swiper
+                                        modules={[Pagination]}
+                                        pagination={{ clickable: true }}
+                                        slidesPerView={1}
+                                        spaceBetween={12}
+                                        className="pro-swiper"
+                                    >
+                                        {ad.images.map((img, idx) => (
+                                            <SwiperSlide key={idx}>
+                                                <div className="main">
+                                                    <div className="pro-img">
+                                                        <a href={img.url} data-fancybox="gallery" className="w-full h-full">
+                                                            <Image src={img.url} alt={`product-${idx + 1}`} priority={idx === 0} className="w-full h-auto" width={500} height={500} />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
+                                </FancyboxWrapper>
                             </main>
 
                             {/* ✅ Overlay buttons differ by mode */}
@@ -138,9 +141,15 @@ export default function ProductWrapper({ id }: { id: string }) {
                                     type="button"
                                     className="add-fav"
                                     aria-label="Add to favorites"
-                                    onClick={() => setIsFav((v) => !v)}
+                                    disabled={isFavPending}
+                                    onClick={() => {
+                                        setIsFav((v) => !v);
+                                        toggleFavorite(id, {
+                                            onError: () => setIsFav((v) => !v)
+                                        });
+                                    }}
                                 >
-                                    <Bookmark className={isFav ? "fill-current" : ""} />
+                                    <Bookmark className={isFavPending ? "fill-current opacity-50" : isFav ? "fill-current" : ""} />
                                 </button>
                             ) : (
                                 <>
@@ -232,7 +241,7 @@ export default function ProductWrapper({ id }: { id: string }) {
                             </Link>
                         )}
 
-                        {ad.allow_whatsapp === 1 && (
+                        {ad.allow_whatsapp === 1 && whatsapp && (
                             <Link
                                 href={`https://wa.me/${whatsapp}`}
                                 className="whats-link"
@@ -256,69 +265,73 @@ export default function ProductWrapper({ id }: { id: string }) {
             </div>
 
             {/* Report Modal */}
-            {isReportOpen && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-                    <div dir="rtl" className="w-full max-w-md rounded-2xl bg-[#F8F9FA] p-6 shadow-2xl relative">
-                        <button
-                            type="button"
-                            onClick={() => setIsReportOpen(false)}
-                            className="absolute left-6 top-6 text-gray-500 hover:text-black"
-                        >
-                            <X className="h-6 w-6" />
-                        </button>
-                        <h2 className="text-xl font-bold text-center mb-6 mt-2">ابلاغ</h2>
+            {
+                isReportOpen && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                        <div dir="rtl" className="w-full max-w-md rounded-2xl bg-[#F8F9FA] p-6 shadow-2xl relative">
+                            <button
+                                type="button"
+                                onClick={() => setIsReportOpen(false)}
+                                className="absolute left-6 top-6 text-gray-500 hover:text-black"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+                            <h2 className="text-xl font-bold text-center mb-6 mt-2">ابلاغ</h2>
 
-                        <div className="mb-6">
-                            <label className="block text-sm font-medium mb-3 pr-2 text-right">
-                                سبب الابلاغ
-                            </label>
-                            <textarea
-                                className="w-full rounded-xl border border-gray-200 bg-white p-4 min-h-[160px] outline-none focus:ring-2 focus:ring-[#37bdf8]"
-                                placeholder="اكتب سبب الابلاغ"
-                                value={reportReason}
-                                onChange={(e) => setReportReason(e.target.value)}
-                            />
-                        </div>
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium mb-3 pr-2 text-right">
+                                    سبب الابلاغ
+                                </label>
+                                <textarea
+                                    className="w-full rounded-xl border border-gray-200 bg-white p-4 min-h-[160px] outline-none focus:ring-2 focus:ring-[#37bdf8]"
+                                    placeholder="اكتب سبب الابلاغ"
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                />
+                            </div>
 
-                        <button
-                            type="button"
-                            disabled={isReporting || !reportReason.trim()}
-                            onClick={() => {
-                                reportAd(
-                                    { ad_id: id, reason: reportReason.trim() },
-                                    {
-                                        onSuccess: () => {
-                                            setIsReportOpen(false);
-                                            setReportReason("");
-                                            setShowDone(true);
-                                            setTimeout(() => setShowDone(false), 3000);
-                                        },
-                                        onError: (err) => {
-                                            alert(err.message || 'حدث خطأ أثناء إرسال البلاغ');
+                            <button
+                                type="button"
+                                disabled={isReporting || !reportReason.trim()}
+                                onClick={() => {
+                                    reportAd(
+                                        { ad_id: id, reason: reportReason.trim() },
+                                        {
+                                            onSuccess: () => {
+                                                setIsReportOpen(false);
+                                                setReportReason("");
+                                                setShowDone(true);
+                                                setTimeout(() => setShowDone(false), 3000);
+                                            },
+                                            onError: (err) => {
+                                                alert(err.message || 'حدث خطأ أثناء إرسال البلاغ');
+                                            }
                                         }
-                                    }
-                                );
-                            }}
-                            className="w-full rounded-xl bg-[#37bdf8] py-4 text-white font-bold text-lg hover:bg-sky-500 transition-colors disabled:opacity-50 flex items-center justify-center h-14"
-                        >
-                            {isReporting ? <Loader2 className="h-6 w-6 animate-spin" /> : "إرسال"}
-                        </button>
+                                    );
+                                }}
+                                className="w-full rounded-xl bg-[#37bdf8] py-4 text-white font-bold text-lg hover:bg-sky-500 transition-colors disabled:opacity-50 flex items-center justify-center h-14"
+                            >
+                                {isReporting ? <Loader2 className="h-6 w-6 animate-spin" /> : "إرسال"}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Success Done Modal */}
-            {showDone && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-                    <div dir="rtl" className="w-full max-w-96 rounded-xl bg-white px-6 py-4 text-center shadow-2xl">
-                        <div className="mx-auto mb-6 h-[160px] w-[160px]">
-                            <Image src={done} alt="done" className="h-full w-full object-contain" priority />
+            {
+                showDone && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                        <div dir="rtl" className="w-full max-w-96 rounded-xl bg-white px-6 py-4 text-center shadow-2xl">
+                            <div className="mx-auto mb-6 h-[160px] w-[160px]">
+                                <Image src={done} alt="done" className="h-full w-full object-contain" priority />
+                            </div>
+                            <h2 className="text-base font-bold text-zinc-900 md:text-xl">تم إرسال بلاغك بنجاح</h2>
                         </div>
-                        <h2 className="text-base font-bold text-zinc-900 md:text-xl">تم إرسال بلاغك بنجاح</h2>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-        </section>
+        </section >
     );
 }

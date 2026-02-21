@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Search, BadgeCheck, Loader2, Building2 } from "lucide-react";
+import UpperHeader from "@/components/General/UpperHeader";
+import { Search, BadgeCheck, Loader2, Building2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,19 +22,7 @@ export default function CompaniesWrapper() {
     return (
         <section className="content-section">
             <div className="container">
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => window.history.back()}
-                        aria-label="Back"
-                    >
-                        <ArrowRight />
-                    </button>
-
-                    <h3 className="page-title">سيارات للبيع</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="سيارات للبيع" />
 
                 <div className="search-custom">
                     <form

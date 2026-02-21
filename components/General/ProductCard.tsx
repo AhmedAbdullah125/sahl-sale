@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Bookmark } from "lucide-react";
 import pin from "@/src/images/pin.png";
+import { useToggleFavorite } from "@/src/hooks/useToggleFavorite";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface Product {
     id: string;
@@ -22,7 +25,11 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-    const [fav, setFav] = useState({});
+    const [fav, setFav] = useState(product.isFav);
+    const router = useRouter();
+    const token = localStorage.getItem("token");
+
+    const { mutate: toggleFavorite, isPending } = useToggleFavorite();
 
     return (
         <Link key={product.id} href={product.href} className="product-item">
@@ -53,16 +60,29 @@ export default function ProductCard({ product }: { product: Product }) {
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setFav((prev) => ({ ...prev, [product.id]: !prev[product.id] }));
-                        }}
-                    >
-                        <Bookmark
-                            className={
-                                fav[product.id] || product.isFav
-                                    ? "h-5 w-5 fill-current"
-                                    : "h-5 w-5"
+                            if (!token) {
+                                toast.error("الرجاء تسجيل الدخول", {
+                                    action: {
+                                        label: "تسجيل الدخول",
+                                        onClick: () => router.push("/login"),
+
+                                    },
+                                    style: {
+                                        background: "#fef08a",
+                                        color: "#92400e",
+                                        border: "1px solid #fcd34d",
+                                    }
+                                });
+                                return
                             }
-                        />
+                            setFav((prev) => !prev);
+                            toggleFavorite(product.id, {
+                                onError: () => setFav((prev) => !prev), // revert on error
+                            });
+                        }}
+                        disabled={isPending}
+                    >
+                        <Bookmark className={`h-5 w-5 ${isPending ? "fill-current opacity-50" : fav ? "fill-current" : ""}`} />
                     </Button>
                 )}
 
