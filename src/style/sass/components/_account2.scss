@@ -4,16 +4,20 @@
     padding-top: 80px;
     margin-top: 80px;
   }
+
   .avatar-wrap {
     width: 114px;
   }
 }
+
 .avatar-wrap {
   overflow: unset;
+
   img {
     border-radius: 50%;
   }
 }
+
 .edit-upload {
   width: 40px;
   height: 40px;
@@ -28,33 +32,41 @@
   inset-inline-start: 0;
   @include flexCenter;
   @include tr;
+
   &:hover {
     background-color: #3b82f6;
   }
+
   i {
     font-size: 16px;
   }
 }
+
 .edit-upload input {
   display: none;
 }
+
 .account-form {
   max-width: 600px;
   margin: 0 auto;
+
   .form-group {
     margin-bottom: 20px;
   }
 }
+
 .profile-details {
   .item-info {
     flex-direction: column;
     gap: 15px;
   }
-  .setting-item + .setting-item {
+
+  .setting-item+.setting-item {
     padding-top: 15px;
     border-top: 1px solid $sec;
   }
 }
+
 .setting-item {
   display: flex;
   align-items: center;
@@ -64,40 +76,48 @@
   color: $text;
   font-weight: 500;
   font-size: 18px;
+
   i {
     font-size: 13px;
+
     html[dir="ltr"] & {
       transform: scaleX(-1);
     }
   }
 }
+
 .setting-arrow {
   display: flex;
   align-items: center;
   gap: 15px;
 }
+
 .privacy {
   figure {
     margin: 0 auto 35px;
     @include flexCenter;
     max-width: 100%;
+
     img {
       width: 271px;
     }
   }
+
   p {
     font-weight: 400;
     font-size: 18px;
     color: $text;
   }
 }
+
 .add-fav,
 .live-dot {
   flex-shrink: 0;
 }
+
 body {
   background: #f6f6f6;
-  font-family: "Cairo", sans-serif;
+  font-family: "Tajawal", sans-serif;
   direction: rtl;
 }
 
@@ -129,27 +149,32 @@ body {
   color: white;
   cursor: pointer;
   @include tr;
+
   &:hover {
     background-color: $main;
   }
+
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   font-size: 12px;
 }
+
 .notify-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: 10px;
+
   .from {
     font-weight: 500;
     font-size: 12px;
     color: $main;
   }
 }
+
 .notify-content {
   display: flex;
   align-items: center;
@@ -158,7 +183,8 @@ body {
   font-weight: 500;
   font-size: 16px;
   color: $text;
-  p{
+
+  p {
     margin: 0;
   }
 }
@@ -170,6 +196,7 @@ body {
   flex-shrink: 0;
   @include flexCenter;
   overflow: hidden;
+
   img {
     object-fit: cover;
   }
