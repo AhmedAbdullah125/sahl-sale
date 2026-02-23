@@ -1,72 +1,15 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+"use client"; import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { API_BASE_URL } from "@/lib/apiConfig";
-import { getToken } from "@/src/utils/token";
+import { useGetProfile } from "@/src/hooks/useGetProfile";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface ProfileData {
-    id: number;
-    name: string;
-    phone: string;
-    country_code: string;
-    full_phone: string;
-    image: string;
-    language: string;
-    verified_account: boolean;
-    notification_allowed: boolean;
-    whatsapp: string | null;
-    whatsapp_country_code: string | null;
-    full_whatsapp: string | null;
-    type: string | null;
-}
-
-interface ProfileResponse {
-    status: boolean;
-    data: ProfileData;
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SideData() {
     const pathname = usePathname();
-    const [user, setUser] = useState<ProfileData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = getToken();
-                const headers: Record<string, string> = {
-                    "accept-language": "ar",
-                    "Content-Type": "application/json",
-                };
-                if (token) headers.Authorization = `Bearer ${token}`;
-
-                const res = await fetch(`${API_BASE_URL}/auth/profile`, { headers });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const json: ProfileResponse = await res.json();
-                if (json.status) {
-                    setUser(json.data);
-                } else {
-                    setError("فشل تحميل بيانات الملف الشخصي");
-                }
-            } catch {
-                setError("حدث خطأ أثناء تحميل البيانات");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, []);
+    const { data: user, isLoading: loading, isError } = useGetProfile();
 
     return (
         <aside className={`profile-container ${pathname !== "/profile" ? "not-the-main-page" : ""}`} dir="rtl">
@@ -76,13 +19,13 @@ export default function SideData() {
                 </div>
             )}
 
-            {error && (
+            {isError && !loading && (
                 <div className="flex justify-center items-center py-10">
-                    <span className="text-red-500">{error}</span>
+                    <span className="text-red-500">حدث خطأ أثناء تحميل البيانات</span>
                 </div>
             )}
 
-            {!loading && !error && user && (
+            {!loading && !isError && user && (
                 <>
                     <div className="profile-header">
                         <div className="avatar-wrap">
@@ -143,7 +86,7 @@ export default function SideData() {
                         </li>
 
                         <li>
-                            <Link href="/settings">
+                            <Link href="/profile/settings">
                                 <span>
                                     <i className="fa-solid fa-gear" aria-hidden="true"></i> الإعدادات
                                 </span>

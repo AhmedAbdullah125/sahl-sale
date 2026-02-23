@@ -1,59 +1,19 @@
-// components/MyFavouritesWrapper.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import img1 from "@/src/images/01.jpg";
 import ProductCard from "../General/ProductCard";
+import { useGetFavouriteProducts } from "@/src/hooks/useGetFavouriteProducts";
 
 export default function MyFavouritesWrapper() {
     const router = useRouter();
+    const [page, setPage] = useState(1);
 
-    const [items, setItems] = useState([
-        {
-            id: "1",
-            href: "#",
-            img: img1,
-            typeA: "يباني",
-            typeB: "لكزس",
-            name: "سيارة لكزس RX 2025",
-            price: "2100 د.ك",
-            dateText: "منذ 1 يوم",
-            isFav: true,
-        },
-        {
-            id: "2",
-            href: "#",
-            img: img1,
-            typeA: "يباني",
-            typeB: "لكزس",
-            name: "سيارة لكزس RX 2025",
-            price: "2100 د.ك",
-            dateText: "منذ 1 يوم",
-            isFav: true,
-        },
-        {
-            id: "3",
-            href: "#",
-            img: img1,
-            typeA: "يباني",
-            typeB: "لكزس",
-            name: "سيارة لكزس RX 2025",
-            price: "2100 د.ك",
-            dateText: "منذ 1 يوم",
-            isFav: true,
-        }
-    ]);
+    const { data, isLoading, isError } = useGetFavouriteProducts(page);
 
-    const favItems = useMemo(() => items.filter((x) => x.isFav), [items]);
-
-    const toggleFav = (id) => {
-        setItems((prev) =>
-            prev.map((x) => (x.id === id ? { ...x, isFav: !x.isFav } : x))
-        );
-    };
+    const items = data?.items ?? [];
+    const paginate = data?.paginate;
+    const totalPages = paginate?.total_pages ?? 1;
 
     return (
         <section className="content-section" dir="rtl">
@@ -72,15 +32,86 @@ export default function MyFavouritesWrapper() {
             </div>
 
             <div className="product-cont">
-                <div className="product-grid">
-                    {favItems.length ? (
-                        favItems.map((p) => (
-                            <ProductCard key={p.id} product={p} />
-                        ))
-                    ) : (
-                        <div style={{ padding: 12 }}>لا توجد عناصر في المفضلة</div>
-                    )}
-                </div>
+                {/* ── Loading ── */}
+                {isLoading && (
+                    <div className="flex justify-center items-center py-16">
+                        <span className="text-gray-400">جاري التحميل...</span>
+                    </div>
+                )}
+
+                {/* ── Error ── */}
+                {isError && !isLoading && (
+                    <div className="flex justify-center items-center py-16">
+                        <span className="text-red-500">حدث خطأ أثناء تحميل البيانات</span>
+                    </div>
+                )}
+
+                {/* ── Items grid ── */}
+                {!isLoading && !isError && (
+                    <>
+                        {items.length > 0 ? (
+                            <div className="product-grid">
+                                {items.map((p) => (
+                                    <ProductCard
+                                        key={p.id}
+                                        product={{
+                                            id: String(p.id),
+                                            href: `/product/${p.id}`,
+                                            img: p.image,
+                                            typeA: p.parent_category,
+                                            typeB: p.category,
+                                            name: p.title,
+                                            price: p.price,
+                                            dateText: p.created_at,
+                                            pinned: p.is_pinned,
+                                            isFav: p.is_favorite,
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <i className="fa-regular fa-bookmark" aria-hidden="true"></i>
+                                <p>لا توجد عناصر في المفضلة</p>
+                            </div>
+                        )}
+
+                        {/* ── Pagination ── */}
+                        {totalPages > 1 && (
+                            <div className="pagination" dir="rtl">
+                                <button
+                                    className="page-btn"
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    aria-label="الصفحة السابقة"
+                                >
+                                    <i className="fa-regular fa-chevron-right"></i>
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                                    <button
+                                        key={num}
+                                        className={`page-btn ${num === page ? "active" : ""}`}
+                                        onClick={() => setPage(num)}
+                                        aria-label={`صفحة ${num}`}
+                                        aria-current={num === page ? "page" : undefined}
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+
+                                <button
+                                    className="page-btn"
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
+                                    aria-label="الصفحة التالية"
+                                >
+                                    <i className="fa-regular fa-chevron-left"></i>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </section>
     );

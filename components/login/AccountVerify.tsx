@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useVerifyAccount } from "@/src/hooks/useVerifyAccount";
+
 import {
     Form,
     FormControl,
@@ -66,17 +68,10 @@ export default function AccountVerify() {
         };
     }, [backPreview]);
 
-    const onSubmit = async (values) => {
-        const formData = new FormData();
-        formData.append("id_front", values.id_front);
-        formData.append("id_back", values.id_back);
+    const { verifyAccount } = useVerifyAccount();
 
-        // TODO: send to API
-        // const res = await fetch("/api/account/verify", { method: "POST", body: formData });
-        // if (!res.ok) throw new Error("Upload failed");
-
-        console.log("Submitting:", values);
-        alert("تم الإرسال ✅");
+    const onSubmit = async (values: { id_front: File | null; id_back: File | null }) => {
+        await verifyAccount(values);
     };
 
     return (

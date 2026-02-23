@@ -1,0 +1,176 @@
+.profile-details {
+  .profile-header {
+    background-color: transparent;
+    padding-top: 80px;
+    margin-top: 80px;
+  }
+  .avatar-wrap {
+    width: 114px;
+  }
+}
+.avatar-wrap {
+  overflow: unset;
+  img {
+    border-radius: 50%;
+  }
+}
+.edit-upload {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 16px;
+  color: $sec;
+  background: #d9ecff;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  @include flexCenter;
+  @include tr;
+  &:hover {
+    background-color: #3b82f6;
+  }
+  i {
+    font-size: 16px;
+  }
+}
+.edit-upload input {
+  display: none;
+}
+.account-form {
+  max-width: 600px;
+  margin: 0 auto;
+  .form-group {
+    margin-bottom: 20px;
+  }
+}
+.profile-details {
+  .item-info {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .setting-item + .setting-item {
+    padding-top: 15px;
+    border-top: 1px solid $sec;
+  }
+}
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  color: $text;
+  font-weight: 500;
+  font-size: 18px;
+  i {
+    font-size: 13px;
+    html[dir="ltr"] & {
+      transform: scaleX(-1);
+    }
+  }
+}
+.setting-arrow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.privacy {
+  figure {
+    margin: 0 auto 35px;
+    @include flexCenter;
+    max-width: 100%;
+    img {
+      width: 271px;
+    }
+  }
+  p {
+    font-weight: 400;
+    font-size: 18px;
+    color: $text;
+  }
+}
+.add-fav,
+.live-dot {
+  flex-shrink: 0;
+}
+body {
+  background: #f6f6f6;
+  font-family: "Cairo", sans-serif;
+  direction: rtl;
+}
+
+.notifications {
+  max-width: 460px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notify-card {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  background-color: $secondary;
+  border: 1px solid $border;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.notify-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: #e20000;
+  border: none;
+  color: white;
+  cursor: pointer;
+  @include tr;
+  &:hover {
+    background-color: $main;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.notify-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  .from {
+    font-weight: 500;
+    font-size: 12px;
+    color: $main;
+  }
+}
+.notify-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 16px;
+  color: $text;
+  p{
+    margin: 0;
+  }
+}
+
+.notify-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  flex-shrink: 0;
+  @include flexCenter;
+  overflow: hidden;
+  img {
+    object-fit: cover;
+  }
+}
