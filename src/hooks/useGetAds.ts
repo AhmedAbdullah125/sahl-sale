@@ -73,7 +73,7 @@ const fetchAds = async (params: FetchAdsParams): Promise<AdsResponse['data']> =>
     if (params.year_to) urlParams.set("year_to", params.year_to);
     if (params.price_from) urlParams.set("price_from", params.price_from);
     if (params.price_to) urlParams.set("price_to", params.price_to);
-    if (params.search) urlParams.set("search", params.search);
+    if (params.search) urlParams.set("title", params.search);
 
     const res = await fetch(`${API_BASE_URL}/ads?${urlParams.toString()}`, { headers });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
