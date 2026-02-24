@@ -6,10 +6,12 @@ import { useGetFavouriteProducts } from "@/src/hooks/useGetFavouriteProducts";
 type ProductCardProduct = React.ComponentProps<typeof ProductCard>["product"];
 
 export default function FavouriteWrapper() {
-    const { data: FavouriteProducts = [], isLoading: loading, error: queryError } = useGetFavouriteProducts();
+    const { data, isLoading: loading, error: queryError } = useGetFavouriteProducts();
     const error = queryError ? (queryError as Error).message || "حدث خطأ أثناء تحميل البيانات" : null;
 
-    const mappedProducts: ProductCardProduct[] = FavouriteProducts.map((item) => ({
+    const favouriteItems = data?.items || [];
+
+    const mappedProducts: ProductCardProduct[] = favouriteItems.map((item) => ({
         id: item.id.toString(),
         href: `/product/${item.id}`,
         img: item.image,
@@ -39,7 +41,7 @@ export default function FavouriteWrapper() {
                     </div>
                 )}
 
-                {!loading && !error && FavouriteProducts.length === 0 && (
+                {!loading && !error && favouriteItems.length === 0 && (
                     <div className="flex justify-center items-center py-10">
                         <span className="text-gray-500">لا توجد فئات</span>
                     </div>
