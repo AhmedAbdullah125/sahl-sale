@@ -152,7 +152,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
                     </figure>
                     <div className="company-info">
                         <span className="company-name">
-                            {cachedCompany ? cachedCompany.name : "شركة الخليج العربي"}{" "}
+                            {cachedCompany ? cachedCompany.name : ""}{" "}
                             {cachedCompany ? (
                                 cachedCompany.verified_account && <BadgeCheck className="inline-block h-4 w-4 text-blue-500" />
                             ) : (

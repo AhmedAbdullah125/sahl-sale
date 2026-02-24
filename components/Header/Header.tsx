@@ -14,6 +14,7 @@ export default function Header() {
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 500);
@@ -209,7 +210,7 @@ export default function Header() {
                   <Link href="/categories" className="cat-anchor">الأقسام</Link>
                 </li>
                 <li className="cat-li">
-                  <Link href="/add-ad" className="cat-anchor">أضف اعلان</Link>
+                  <button type="button" onClick={() => setIsAddModalOpen(true)} className="cat-anchor font-inherit bg-transparent border-0 cursor-pointer p-0 text-inherit w-full text-right">أضف اعلان</button>
                 </li>
                 <li className="cat-li">
                   <Link href="/auctions" className="cat-anchor">المزادات</Link>
@@ -235,12 +236,12 @@ export default function Header() {
           </Link>
         </div>
         <div>
-          <Link href="/add-ad" className="add-icon">
+          <button type="button" onClick={() => setIsAddModalOpen(true)} className="add-icon bg-transparent border-0 p-0 m-0 w-full flex flex-col items-center justify-center cursor-pointer font-inherit text-inherit">
             <span className="add-plus">
               <i className="fa-solid fa-plus"></i>
             </span>
             <span>أضف</span>
-          </Link>
+          </button>
         </div>
         <div>
           <Link href="/auctions">
@@ -255,6 +256,55 @@ export default function Header() {
           </Link>
         </div>
       </div>
+
+      {/* Add Type Selection Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 transition-opacity">
+          <div dir="rtl" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setIsAddModalOpen(false)}
+              className="absolute top-4 left-4 text-gray-400 hover:text-gray-900 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+            >
+              <i className="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div className="text-center mb-6 mt-2">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">ماذا تريد أن تضيف؟</h3>
+              <p className="text-gray-500 text-sm">اختر نوع الإعلان الذي ترغب في نشره</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Link
+                href="/add-ad"
+                onClick={() => setIsAddModalOpen(false)}
+                className="group flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-primary hover:bg-primary/5 transition-all outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-images"></i>
+                </div>
+                <div className="text-center">
+                  <span className="block font-bold text-base text-gray-900 mb-1">إعلان عادي</span>
+                  <span className="block text-xs text-gray-500 font-medium leading-tight">بيع منتجاتك أو خدماتك بالسعر الذي تحدده</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/add-auction"
+                onClick={() => setIsAddModalOpen(false)}
+                className="group flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-orange-500 hover:bg-orange-50 transition-all outline-none focus:ring-2 focus:ring-orange-500/20"
+              >
+                <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-2xl group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-gavel"></i>
+                </div>
+                <div className="text-center">
+                  <span className="block font-bold text-base text-gray-900 mb-1">مزاد علني</span>
+                  <span className="block text-xs text-gray-500 font-medium leading-tight">اعرض سيارتك في مزاد علني لأعلى سعر</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

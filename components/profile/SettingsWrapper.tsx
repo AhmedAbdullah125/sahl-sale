@@ -84,10 +84,7 @@ export default function SettingsWrapper() {
                         {/* Language */}
                         <div className="setting-item">
                             <span>اللغة</span>
-                            <div className="setting-arrow">
-                                <span>{currentLangLabel}</span>
-                                <i className="fa-solid fa-chevron-left"></i>
-                            </div>
+
                             {/* Transparent select overlaid on entire row */}
                             <select
                                 value={currentLang}
