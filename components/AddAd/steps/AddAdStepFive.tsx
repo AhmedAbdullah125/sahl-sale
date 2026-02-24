@@ -20,8 +20,9 @@ export default function AddAdStepFive({
   termsHref,
   mainCategory,
   isPublishing,
+  isAuction = false,
 }: any) {
-  const publishFee = Number(mainCategory?.ad_fee ?? 0);
+  const publishFee = Number(isAuction ? (mainCategory?.auction_fee ?? 0) : (mainCategory?.ad_fee ?? 0));
   const pins = (mainCategory?.active_pinning_prices ?? []) as { id: number; position: string; price: string }[];
 
   const pinsTotal = useMemo(() => {
@@ -149,9 +150,8 @@ export default function AddAdStepFive({
             <Loader2 className="ml-2 h-4 w-4 animate-spin" />
             جاري النشر...
           </>
-        ) : (
-          "نشر الإعلان"
-        )}
+        ) : isAuction ? "نشر المزاد" : "نشر الإعلان"
+        }
       </Button>
     </form>
   );

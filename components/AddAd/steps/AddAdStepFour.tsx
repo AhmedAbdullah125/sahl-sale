@@ -315,7 +315,7 @@ export default function AddAdStepFour({
               <label className="form-label">
                 الممشى <span>( اختياري )</span>
               </label>
-              <Input className="form-input" placeholder="ادخل الممشى" {...register("mileage")} />
+              <Input className="form-input" type="number" placeholder="ادخل الممشى" {...register("mileage")} />
             </div>
           </>
         ) : null}

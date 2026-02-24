@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/profile", "/add-ad"];
+const PROTECTED_PATHS = ["/profile", "/add-ad", "/add-auction"];
 const AUTH_PAGES = ["/login"]; // add "/register" if you have it
 
 export function middleware(request: NextRequest) {
@@ -36,5 +36,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/profile", "/profile/:path*", "/add-ad", "/add-ad/:path*", "/login"],
+    matcher: ["/profile", "/profile/:path*", "/add-ad", "/add-ad/:path*", "/add-auction", "/add-auction/:path*", "/login"],
 };
