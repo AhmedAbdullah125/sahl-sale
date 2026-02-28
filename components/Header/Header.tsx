@@ -236,7 +236,7 @@ export default function Header() {
           </Link>
         </div>
         <div>
-          <button type="button" onClick={() => setIsAddModalOpen(true)} className="add-icon bg-transparent border-0 p-0 m-0 w-full flex flex-col items-center justify-center cursor-pointer font-inherit text-inherit">
+          <button type="button" onClick={() => setIsAddModalOpen(true)} className="add-icon bg-transparent border-0 p-0 m-0 w-full flex flex-col items-center justify-center cursor-pointer">
             <span className="add-plus">
               <i className="fa-solid fa-plus"></i>
             </span>

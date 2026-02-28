@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,7 +9,6 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import logo from "@/src/images/logo.svg";
-import mainImg from "@/src/images/main.png";
 import done from "@/src/images/done.gif";
 import { useGetAd } from "@/src/hooks/useGetAd";
 import { useReportAd } from "@/src/hooks/useReportAd";
@@ -26,8 +24,10 @@ export default function ProductWrapper({ id }: { id: string }) {
     const pathname = usePathname()
     const { data: ad, isLoading, error } = useGetAd(id);
     console.log(ad);
+
+    const { data: profile } = useGetProfile();
     // If is_creator is returned from API, use it, otherwise fallback to path check
-    const isMyProduct = ad?.is_creator || pathname.includes("my-products");
+    const isMyProduct = ad?.user.id === profile?.id;
     const isAuction = ad?.type === "auction";
     const [isFav, setIsFav] = useState(false);
     const { mutate: toggleFavorite, isPending: isFavPending } = useToggleFavorite();
@@ -48,7 +48,6 @@ export default function ProductWrapper({ id }: { id: string }) {
     const { mutate: reportAd, isPending: isReporting } = useReportAd();
 
     // User profile
-    const { data: profile } = useGetProfile();
 
     const { mutate: placeBid, isPending: isPlacingBid } = usePlaceBid();
 
@@ -281,7 +280,7 @@ export default function ProductWrapper({ id }: { id: string }) {
                                     <span className="value">{ad.category}</span>
                                 </div>
                                 {/* Auction / car details */}
-                                {isAuction && ad.car && (
+                                {ad.ad_form === "car" && (
                                     <>
                                         {ad.car.brand && (
                                             <div className="detail-item">

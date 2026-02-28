@@ -4,15 +4,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import UpperHeader from "@/components/General/UpperHeader";
 import { useRouter } from "next/navigation";
 import { useGetAd } from "@/src/hooks/useGetAd";
+import { useEditAd } from "@/src/hooks/useEditAd";
+import { useGetManufacturingCountries } from "@/src/hooks/useGetManufacturingCountries";
+import { useGetCarBrands } from "@/src/hooks/useGetCarBrands";
+import { useGetCarModels } from "@/src/hooks/useGetCarModels";
+import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
+import { useGetCities } from "@/src/hooks/useGetCities";
+import { Loader2 } from "lucide-react";
 
 import EditAdForm from "./EditAdForm";
-
-// نفس بياناتك (تقدر تنقلهم لملف constants)
-import vehicles from "@/src/images/category/vehicles.png";
-import estate from "@/src/images/category/estate.png";
-import electronics from "@/src/images/category/electronics.png";
-import BuySell from "@/src/images/category/Buy&sell.png";
-import contracting from "@/src/images/category/Contracting.png";
 
 export const COUNTRIES = ["ياباني", "أمريكي", "ألماني", "كوري"];
 export const BRANDS = ["تويوتا", "لكزس", "نيسان", "هوندا"];
@@ -20,94 +20,85 @@ export const MODELS = ["كامري", "كورولا", "لاندكروزر", "RX"]
 export const YEARS = Array.from({ length: 15 }, (_, i) => String(2025 - i));
 export const GOVERNORATES = ["الكويت", "حولي", "الأحمدي", "الفروانية"];
 
-// ✅ الجديد: القسم + القسم الفرعي
-export const SECTIONS = [
-    { id: "motors", label: "محركات", img: vehicles },
-    { id: "estate", label: "عقارات", img: estate },
-    { id: "electronics", label: "الكترونيات", img: electronics },
-    { id: "buysell", label: "بيع وشراء", img: BuySell },
-    { id: "contracting", label: "مقاولات وحرف", img: contracting },
-];
 
-export const SUBSECTIONS_BY_SECTION = {
-    motors: [
-        { id: "vehicles", label: "مركبات" },
-        { id: "bikes", label: "الدراجات النارية" },
-        { id: "marine", label: "القسم البحري" },
-    ],
-    estate: [
-        { id: "sale", label: "للبيع" },
-        { id: "rent", label: "للإيجار" },
-        { id: "rooms", label: "غرف/مشاركة" },
-    ],
-    electronics: [
-        { id: "laptops", label: "لابتوبات" },
-        { id: "mobiles", label: "جوالات" },
-        { id: "accessories", label: "ملحقات" },
-    ],
-    buysell: [
-        { id: "general", label: "بيع وشراء" },
-        { id: "furniture", label: "أثاث" },
-        { id: "animals", label: "حيوانات" },
-    ],
-    contracting: [
-        { id: "services", label: "خدمات" },
-        { id: "jobs", label: "وظائف" },
-        { id: "handy", label: "حرفيين" },
-    ],
-};
+
 
 export default function EditAdWrapper({ id }: { id: string }) {
-    console.log(id);
-
     const router = useRouter();
-
     const { data: adData, isLoading } = useGetAd(id);
-    console.log(adData);
 
+    // Dropdown queries
+    const { data: countries } = useGetManufacturingCountries();
+    const { data: brands } = useGetCarBrands();
+    const { data: years } = useGetManufacturingYears();
+    const { data: cities } = useGetCities();
 
     // Initial structure matching the form fields
-    const [ad, setAd] = useState({
-        section: "motors",
-        subSection: "vehicles",
-        title: "",
-        country: "",
-        brand: "",
-        model: "",
-        year: "",
-        mileage: "",
-        governorate: "",
-        price: "",
-        description: "",
-        contactCall: true,
-        contactWhats: false,
-    });
+    const [ad, setAd] = useState<any>(null);
+    const [isMapping, setIsMapping] = useState(true);
 
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const { mutateAsync: editAd, isPending } = useEditAd();
 
+    // 1. Initial mapping from adData to ad state
     useEffect(() => {
-        if (adData) {
+        if (adData && countries && brands && years && cities && !ad) {
+            const isCar = adData.ad_form === 'car' || adData.type === 'auction';
+
+            let brandId = "";
+            let yearVal = "";
+            let cityId = "";
+
+            if (isCar && adData.car) {
+                brandId = brands.find(b => b.name === adData.car?.brand)?.id?.toString() || "";
+                yearVal = years.find(y => y.label === adData.car?.year || y.value.toString() === adData.car?.year)?.value?.toString() || "";
+            }
+            cityId = cities.find(c => c.name === adData.city)?.id?.toString() || "";
+
             setAd({
-                section: adData.category, // TODO: Map properly if your API returns these
+                section: "motors",
                 subSection: "vehicles",
                 title: adData.title || "",
-                country: "", // Map if applicable
-                brand: "",
-                model: "",
-                year: "",
-                mileage: "",
-                governorate: adData.city || "",
+                country: "", // API doesn't return manufacturing_country, leave empty or map if needed
+                brand: brandId,
+                model: "", // We map this later once models load
+                year: yearVal,
+                mileage: "", // Not returned yet
+                governorate: cityId,
                 price: adData.price || "",
                 description: adData.description || "",
                 contactCall: adData.allow_phone === 1,
                 contactWhats: adData.allow_whatsapp === 1,
+                _originalModelString: adData.car?.model
             });
 
             if (adData.images && adData.images.length > 0) {
                 setImagePreviews(adData.images.map(img => img.url));
             }
+
+            if (!brandId) {
+                setIsMapping(false);
+            }
         }
-    }, [adData]);
+    }, [adData, countries, brands, years, cities, ad]);
+
+    // 2. Load models for the selected brand
+    const { data: models } = useGetCarModels(ad?.brand);
+
+    // 3. Map model string to model ID once models load
+    useEffect(() => {
+        if (ad && isMapping) {
+            if (ad.brand && ad._originalModelString) {
+                if (models) {
+                    const modelId = models.find(m => m.name === ad._originalModelString)?.id?.toString() || "";
+                    setAd(prev => ({ ...prev, model: modelId, _originalModelString: undefined }));
+                    setIsMapping(false);
+                }
+            } else {
+                setIsMapping(false);
+            }
+        }
+    }, [ad, models, isMapping]);
 
     const cleanupRef = useRef<string[]>([]);
 
@@ -149,20 +140,80 @@ export default function EditAdWrapper({ id }: { id: string }) {
         };
     }, []);
 
-    const subSections = useMemo(() => {
-        if (!ad.section) return [];
-        return SUBSECTIONS_BY_SECTION[ad.section] ?? [];
-    }, [ad.section]);
 
-    const handleSave = async (payload) => {
-        // TODO: call your API update here
-        // await fetch(`/api/ads/${adId}`, { method:'PUT', body: ... })
 
-        setAd(payload);
-        // onSaved?.({ ad: payload, images: imagePreviews });
-
-        router.back();
+    const optimizeImage = async (file: File) => {
+        try {
+            const formData = new FormData();
+            formData.append("image", file);
+            const res = await fetch("/api/optimize-image", { method: "POST", body: formData });
+            if (!res.ok) throw new Error("Optimization failed");
+            const blob = await res.blob();
+            return new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
+        } catch (error) {
+            console.error("Image optimization error:", error);
+            return file; // Fallback
+        }
     };
+
+    const handleSave = async (payload: any) => {
+        try {
+            // Optimize new added images
+            const optimizedImages = await Promise.all(
+                (payload.images || []).map(async (img: any) => {
+                    if (img instanceof File) {
+                        return await optimizeImage(img);
+                    }
+                    return img; // Existing URL string
+                })
+            );
+
+            // Need to figure out deleted images comparing adData.images and optimizedImages
+            // Since we know existing URLs, we can check which original URLs are missing
+            const remainingUrls = optimizedImages.filter(img => typeof img === 'string');
+            const deleted_images = adData?.images
+                ?.filter(orig => !remainingUrls.includes(orig.url))
+                .map(orig => orig.id) || [];
+
+            const isCar = adData?.ad_form === 'car' || adData?.type === 'auction';
+
+            await editAd({
+                id,
+                title: payload.title,
+                description: payload.description,
+                ad_price: payload.price || 0,
+                allow_whatsapp: payload.contactWhats ? 1 : 0,
+                allow_phone: payload.contactCall ? 1 : 0,
+                images: optimizedImages,
+                deleted_images,
+
+                // Cars / Auctions specific fields
+                ...(isCar && {
+                    // For demo logic, using 1 as defaults, or values mapped back if we have them
+                    manufacturing_country_id: payload.country ? 1 : undefined, // Needs proper ID mapping
+                    car_brand_id: payload.brand ? 1 : undefined, // Needs proper ID mapping
+                    car_model_id: payload.model ? 1 : undefined, // Needs proper ID mapping
+                    year: payload.year,
+                    mileage: payload.mileage,
+                }),
+
+                // You can add logic for city mapping here
+                // city_id: payload.governorate ? 1 : undefined,
+            });
+
+            router.back();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    if (isLoading || !ad || isMapping) {
+        return (
+            <div className="flex h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <section className="content-section" dir="rtl">
@@ -173,6 +224,7 @@ export default function EditAdWrapper({ id }: { id: string }) {
                 <h4 className="progress-name">بيانات الإعلان</h4>
 
                 <EditAdForm
+                    isCarOrAuction={adData?.ad_form === 'car' || adData?.type === 'auction'}
                     imagePreviews={imagePreviews}
                     onPickImages={onPickImages}
                     onRemoveImageAt={onRemoveImageAt}
@@ -180,13 +232,11 @@ export default function EditAdWrapper({ id }: { id: string }) {
                     ad={ad}
                     setAd={setAd}
                     onSave={handleSave}
-                    SECTIONS={SECTIONS}
-                    subSections={subSections}
-                    COUNTRIES={COUNTRIES}
-                    BRANDS={BRANDS}
-                    MODELS={MODELS}
-                    YEARS={YEARS}
-                    GOVERNORATES={GOVERNORATES}
+                    COUNTRIES={countries || []}
+                    BRANDS={brands || []}
+                    MODELS={models || []}
+                    YEARS={years || []}
+                    GOVERNORATES={cities || []}
                 />
             </div>
         </section>

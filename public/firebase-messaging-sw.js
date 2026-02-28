@@ -20,7 +20,6 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-    console.log("[firebase-messaging-sw.js] Background message:", payload);
     const { title, body, icon } = payload.notification ?? {};
     self.registration.showNotification(title ?? "SahlSale", {
         body: body ?? "",

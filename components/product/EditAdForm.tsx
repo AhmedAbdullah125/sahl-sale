@@ -16,14 +16,12 @@ import phoneIcon from "@/src/images/phone-icon.png";
 import whatsIcon from "@/src/images/whats-icon.png";
 import { EditAdSchema } from "./edit-ad.schema";
 
-export default function EditAdForm({ imagePreviews, onPickImages, onRemoveImageAt, onClearImages, ad, setAd, onSave, SECTIONS, subSections, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, }) {
+export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages, onRemoveImageAt, onClearImages, ad, setAd, onSave, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, }) {
     const titleMax = 27;
     const inputRef = useRef(null);
     const defaultValues = useMemo(() => {
         return {
             images: imagePreviews ?? [],
-            section: ad.section ?? "",
-            subSection: ad.subSection ?? "",
             title: ad.title ?? "",
             country: ad.country ?? "",
             brand: ad.brand ?? "",
@@ -47,18 +45,15 @@ export default function EditAdForm({ imagePreviews, onPickImages, onRemoveImageA
     }, [imagePreviews, setValue]);
 
     useEffect(() => {
-        const sub = watch((v) => {
+        const sub = watch((v, { name, type }) => {
+            if (name === "brand") {
+                setValue("model", "", { shouldValidate: true });
+                v.model = "";
+            }
             setAd((p) => ({ ...p, ...v }));
         });
         return () => sub.unsubscribe();
-    }, [watch, setAd]);
-    useEffect(() => {
-        const section = watch("section");
-        if (section && watch("subSection")) {
-            setValue("subSection", "", { shouldValidate: true });
-        }
-    }, [watch("section")]);
-
+    }, [watch, setAd, setValue]);
     const images = watch("images") || [];
     const title = watch("title") || "";
 
@@ -111,47 +106,6 @@ export default function EditAdForm({ imagePreviews, onPickImages, onRemoveImageA
                 </div>
             </div>
 
-            <div className="form-grid">
-                <div className="form-group">
-                    <label className="form-label">القسم</label>
-                    <Select
-                        value={watch("section")}
-                        onValueChange={(v) => setValue("section", v, { shouldValidate: true })}
-                    >
-                        <SelectTrigger className="form-input"> <SelectValue placeholder="اختر القسم" /> </SelectTrigger>
-                        <SelectContent> {SECTIONS.map((x) => (
-                            <SelectItem key={x.id} value={x.id}> {x.label} </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                    {errors.section?.message ? (
-                        <p className="mt-1 text-sm text-red-500">{String(errors.section.message)}</p>
-                    ) : null}
-                </div>
-
-                <div className="form-group">
-                    <label className="form-label">القسم الفرعي</label>
-                    <Select
-                        value={watch("subSection")}
-                        onValueChange={(v) => setValue("subSection", v, { shouldValidate: true })}
-                        disabled={!watch("section")}
-                    >
-                        <SelectTrigger className="form-input">
-                            <SelectValue placeholder="اختر القسم الفرعي" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {subSections.map((x) => (
-                                <SelectItem key={x.id} value={x.id}>
-                                    {x.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    {errors.subSection?.message ? (
-                        <p className="mt-1 text-sm text-red-500">{String(errors.subSection.message)}</p>
-                    ) : null}
-                </div>
-            </div>
 
             {/* Title */}
             <div className="form-group">
@@ -163,76 +117,80 @@ export default function EditAdForm({ imagePreviews, onPickImages, onRemoveImageA
 
             {/* باقي الفورم زي Step4 */}
             <div className="form-grid">
-                <div className="form-group">
-                    <label className="form-label">بلد الصنع</label>
-                    <Select
-                        value={watch("country")}
-                        onValueChange={(v) => setValue("country", v, { shouldValidate: true })}
-                    >
-                        <SelectTrigger className="form-input">
-                            <SelectValue placeholder="اختر بلد الصنع" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {COUNTRIES.map((x) => (<SelectItem key={x} value={x}> {x} </SelectItem>))}
-                        </SelectContent>
-                    </Select>
-                    {errors.country?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.country.message)}</p>) : null}
-                </div>
+                {isCarOrAuction && (
+                    <>
+                        <div className="form-group">
+                            <label className="form-label">بلد الصنع</label>
+                            <Select
+                                value={watch("country")}
+                                onValueChange={(v) => setValue("country", v, { shouldValidate: true })}
+                            >
+                                <SelectTrigger className="form-input">
+                                    <SelectValue placeholder="اختر بلد الصنع" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {COUNTRIES.map((x: any) => (<SelectItem key={x.id} value={x.id.toString()}> {x.name} </SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            {errors.country?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.country.message)}</p>) : null}
+                        </div>
 
-                <div className="form-group">
-                    <label className="form-label">الماركة</label>
-                    <Select
-                        value={watch("brand")}
-                        onValueChange={(v) => setValue("brand", v, { shouldValidate: true })}
-                    >
-                        <SelectTrigger className="form-input">
-                            <SelectValue placeholder="اختر الماركة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {BRANDS.map((x) => (<SelectItem key={x} value={x}> {x} </SelectItem>))}
-                        </SelectContent>
-                    </Select>
-                    {errors.brand?.message ? (
-                        <p className="mt-1 text-sm text-red-500">{String(errors.brand.message)}</p>
-                    ) : null}
-                </div>
+                        <div className="form-group">
+                            <label className="form-label">الماركة</label>
+                            <Select
+                                value={watch("brand")}
+                                onValueChange={(v) => setValue("brand", v, { shouldValidate: true })}
+                            >
+                                <SelectTrigger className="form-input">
+                                    <SelectValue placeholder="اختر الماركة" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {BRANDS.map((x: any) => (<SelectItem key={x.id} value={x.id.toString()}> {x.name} </SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            {errors.brand?.message ? (
+                                <p className="mt-1 text-sm text-red-500">{String(errors.brand.message)}</p>
+                            ) : null}
+                        </div>
 
-                <div className="form-group">
-                    <label className="form-label">الموديل</label>
-                    <Select
-                        value={watch("model")}
-                        onValueChange={(v) => setValue("model", v, { shouldValidate: true })}
-                    >
-                        <SelectTrigger className="form-input">
-                            <SelectValue placeholder="اختر الموديل" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {MODELS.map((x) => (<SelectItem key={x} value={x}> {x} </SelectItem>))}
-                        </SelectContent>
-                    </Select>
-                    {errors.model?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.model.message)}</p>) : null}
-                </div>
+                        <div className="form-group">
+                            <label className="form-label">الموديل</label>
+                            <Select
+                                value={watch("model")}
+                                onValueChange={(v) => setValue("model", v, { shouldValidate: true })}
+                            >
+                                <SelectTrigger className="form-input">
+                                    <SelectValue placeholder="اختر الموديل" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {MODELS.map((x: any) => (<SelectItem key={x.id} value={x.id.toString()}> {x.name} </SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            {errors.model?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.model.message)}</p>) : null}
+                        </div>
 
-                <div className="form-group">
-                    <label className="form-label">سنة الصنع</label>
-                    <Select
-                        value={watch("year")}
-                        onValueChange={(v) => setValue("year", v, { shouldValidate: true })}
-                    >
-                        <SelectTrigger className="form-input">
-                            <SelectValue placeholder="اختر سنة الصنع" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {YEARS.map((x) => (<SelectItem key={x} value={x}> {x} </SelectItem>))}
-                        </SelectContent>
-                    </Select>
-                    {errors.year?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.year.message)}</p>) : null}
-                </div>
+                        <div className="form-group">
+                            <label className="form-label">سنة الصنع</label>
+                            <Select
+                                value={watch("year")}
+                                onValueChange={(v) => setValue("year", v, { shouldValidate: true })}
+                            >
+                                <SelectTrigger className="form-input">
+                                    <SelectValue placeholder="اختر سنة الصنع" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {YEARS.map((x: any) => (<SelectItem key={x.value} value={x.value.toString()}> {x.label} </SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            {errors.year?.message ? (<p className="mt-1 text-sm text-red-500">{String(errors.year.message)}</p>) : null}
+                        </div>
 
-                <div className="form-group">
-                    <label className="form-label">الممشى <span>( اختياري )</span></label>
-                    <Input className="form-input" placeholder="ادخل الممشى" {...register("mileage")} />
-                </div>
+                        <div className="form-group">
+                            <label className="form-label">الممشى <span>( اختياري )</span></label>
+                            <Input className="form-input" placeholder="ادخل الممشى" {...register("mileage")} />
+                        </div>
+                    </>
+                )}
 
                 <div className="form-group">
                     <label className="form-label">المحافظة <span>( اختياري )</span></label>
@@ -244,7 +202,7 @@ export default function EditAdForm({ imagePreviews, onPickImages, onRemoveImageA
                             <SelectValue placeholder="اختر المحافظة" />
                         </SelectTrigger>
                         <SelectContent>
-                            {GOVERNORATES.map((x) => (<SelectItem key={x} value={x}> {x} </SelectItem>))}
+                            {GOVERNORATES.map((x: any) => (<SelectItem key={x.id} value={x.id.toString()}> {x.name} </SelectItem>))}
                         </SelectContent>
                     </Select>
                 </div>

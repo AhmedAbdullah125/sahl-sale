@@ -14,7 +14,6 @@ const toggleFavorite = async (adId: string | number) => {
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    console.log(json);
     toast.success(json.data, { style: { backgroundColor: "#37b5ff", color: "#fff" } });
     return json;
 };

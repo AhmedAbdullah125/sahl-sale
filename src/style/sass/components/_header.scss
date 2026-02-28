@@ -384,6 +384,7 @@ header nav {
   right: 20px;
   height: 64px;
   border-radius: 20px;
+  color: $white;
 
   @include max-991 {
     display: grid;

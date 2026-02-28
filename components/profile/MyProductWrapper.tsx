@@ -79,19 +79,13 @@ export default function MyProductWrapper() {
                                 {items.map((ad) => (
                                     <Link
                                         key={ad.id}
-                                        href={`/my-products/${ad.id}`}
+                                        href={`/product/${ad.id}`}
                                         className="product-item"
                                         aria-label={ad.title}
                                     >
                                         <div className="product-img">
                                             <figure>
-                                                <Image
-                                                    src={ad.image}
-                                                    alt={ad.title}
-                                                    width={400}
-                                                    height={300}
-                                                    className="h-auto w-full object-cover"
-                                                />
+                                                <Image src={ad.image} alt={ad.title} width={400} height={300} className="h-auto w-full object-cover" />
                                             </figure>
 
                                             <button
