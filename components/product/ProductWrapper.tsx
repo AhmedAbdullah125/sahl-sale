@@ -15,6 +15,7 @@ import done from "@/src/images/done.gif";
 import { useGetAd } from "@/src/hooks/useGetAd";
 import { useReportAd } from "@/src/hooks/useReportAd";
 import { useToggleFavorite } from "@/src/hooks/useToggleFavorite";
+import { useGetProfile } from "@/src/hooks/useGetProfile";
 import { Loader2 } from "lucide-react";
 import FancyboxWrapper from "../ui/FancyboxWrapper";
 import VerificationModal from "../Auctions/VerificationModal";
@@ -45,14 +46,16 @@ export default function ProductWrapper({ id }: { id: string }) {
     const [showDone, setShowDone] = useState(false);
     const { mutate: reportAd, isPending: isReporting } = useReportAd();
 
+    // User profile
+    const { data: profile } = useGetProfile();
+
     // Use data from API
     const phone = ad?.user?.phone;
     const whatsapp = ad?.user?.whatsapp;
     const expireText = ad?.ended_at ? `ينتهي في ${ad.ended_at}` : "";
 
     const onBidSubmit = (extra = 0) => {
-        // TODO: replace with real verification check from auth context
-        const isVerified = false;
+        const isVerified = Boolean(profile?.verified_account);
         if (!isVerified) {
             setShowVerificationModal(true);
             return;
