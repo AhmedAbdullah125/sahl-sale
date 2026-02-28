@@ -46,7 +46,7 @@ export default function LoginWrapper() {
         if (res.status && res.data?.token) {
             saveToken(res.data.token);
             saveUser(res.data);
-            router.push("/");
+            window.location.href = "/";
         }
     };
 

@@ -17,6 +17,13 @@ export interface CarInfo {
     year: string;
 }
 
+export interface LatestBid {
+    id: number;
+    amount: string;
+    user: string | null;
+    created_at: string;
+}
+
 export interface Ad {
     id: number;
     title: string;
@@ -28,7 +35,7 @@ export interface Ad {
     is_pinned: boolean;
     car?: CarInfo;
     image: string;
-    latest_bid?: string | null;
+    latest_bid?: LatestBid | null;
     my_bid?: boolean;
     created_at: string;
     ended_at: string;

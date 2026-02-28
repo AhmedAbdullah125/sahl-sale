@@ -30,6 +30,8 @@ export default function AuctionCard({
                         src={auction.imageUrl}
                         alt="product"
                         className="h-auto w-full"
+                        width={500}
+                        height={500}
                         // لو CSS متحكم في المقاسات، خليها responsive
                         style={{ width: "100%", height: "auto" }}
                     />

@@ -1,15 +1,13 @@
-// middleware.ts
+// proxy.ts
 import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PATHS = ["/profile", "/add-ad", "/add-auction"];
-const AUTH_PAGES = ["/login"]; // add "/register" if you have it
+const AUTH_PAGES = ["/login"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname, search } = request.nextUrl;
 
     const token = request.cookies.get("token")?.value;
-    console.log(token);
-
 
     const isProtected = PROTECTED_PATHS.some(
         (p) => pathname === p || pathname.startsWith(p + "/")
@@ -19,13 +17,10 @@ export function middleware(request: NextRequest) {
         (p) => pathname === p || pathname.startsWith(p + "/")
     );
 
-    // ✅ If user is logged in, block /login (send to home or profile)
     if (token && isAuthPage) {
-        const url = new URL("/profile", request.url); // or "/"
-        return NextResponse.redirect(url);
+        return NextResponse.redirect(new URL("/profile", request.url));
     }
 
-    // ✅ If route is protected and no token => go login + keep redirect
     if (isProtected && !token) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("redirect", pathname + (search || ""));
@@ -36,5 +31,13 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/profile", "/profile/:path*", "/add-ad", "/add-ad/:path*", "/add-auction", "/add-auction/:path*", "/login"],
+    matcher: [
+        "/profile",
+        "/profile/:path*",
+        "/add-ad",
+        "/add-ad/:path*",
+        "/add-auction",
+        "/add-auction/:path*",
+        "/login",
+    ],
 };

@@ -29,8 +29,8 @@ export default function HomeWrapper() {
     <div className="home-page-content">
       <Hero banners={data?.banners ?? []} />
       <HomeCategories categories={categories_with_ads ?? []} />
-      <MyBidsSection />
-      <BidsSection />
+      <MyBidsSection bids={data?.["my-bids"] ?? []} />
+      <BidsSection auctions={data?.auctions ?? []} />
 
       {isLoading && (
         <div className="container py-8 text-center text-gray-400">جاري التحميل...</div>

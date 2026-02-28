@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -11,71 +10,16 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 import { Card } from "@/components/ui/card";
-
-import img1 from '@/src/images/01.jpg'
 import AuctionCard from "../Auctions/AuctionCard";
+import { Ad } from "@/types/home";
 
-const auctions = [
-    {
-        id: 1,
-        href: "#",
-        imageUrl: img1,
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        timer: "00:15:30",
-        isLive: true,
-        isPinned: false,
-    },
-    {
-        id: 2,
-        href: "#",
-        imageUrl: img1,
-        timer: "00:15:30",
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        isLive: true,
-    },
-    {
-        id: 3,
-        href: "#",
-        imageUrl: img1,
-        timer: "00:15:30",
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        isLive: true,
-    },
-    {
-        id: 4,
-        href: "#",
-        imageUrl: img1,
-        timer: "00:15:30",
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        isLive: true,
-    },
-    {
-        id: 5,
-        href: "#",
-        imageUrl: img1,
-        timer: "00:15:30",
-        typeA: "يباني",
-        typeB: "لكزس",
-        name: "سيارة لكزس RX 2025",
-        currentBid: "2100 د.ك",
-        isLive: true,
-    },
+interface BidsSectionProps {
+    auctions: Ad[];
+}
 
-];
+export default function BidsSection({ auctions }: BidsSectionProps) {
+    if (!auctions || auctions.length === 0) return null;
 
-export default function BidsSection() {
     return (
         <section className="bids-section">
             <div className="container">
@@ -103,9 +47,20 @@ export default function BidsSection() {
                             }}
                             className="swiper-container"
                         >
-                            {auctions.map((item, idx) => (
-                                <SwiperSlide key={idx} className="swiper-slide">
-                                    <AuctionCard auction={item} />
+                            {auctions.map((item) => (
+                                <SwiperSlide key={item.id} className="swiper-slide">
+                                    <AuctionCard
+                                        auction={{
+                                            id: item.id,
+                                            imageUrl: item.image || "",
+                                            typeA: item.car?.brand ?? undefined,
+                                            typeB: item.car?.model ?? undefined,
+                                            name: item.title,
+                                            currentBid: item.latest_bid?.amount ?? item.price,
+                                            isLive: item.status === "live",
+                                            isPinned: item.is_pinned,
+                                        }}
+                                    />
                                 </SwiperSlide>
                             ))}
                         </Swiper>

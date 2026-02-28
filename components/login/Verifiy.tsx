@@ -45,6 +45,7 @@ export default function Verifiy({ phone, countryCode, onBack, onConfirm }: Verif
             formData.append("country_code", countryCode);
             await fetch(`${API_BASE_URL}/auth/resend-code`, { method: "POST", body: formData });
             toast.success("تم إعادة إرسال الرمز");
+
         } catch {
             toast.error("فشل إعادة الإرسال، حاول مجدداً");
         } finally {
@@ -100,7 +101,7 @@ export default function Verifiy({ phone, countryCode, onBack, onConfirm }: Verif
                 <h2 className="form-head">تحقق من الهاتف</h2>
                 <p className="form-pargh">من فضلك ادخل الرمز المرسل إلى رقم الهاتف</p>
 
-                <div className="form-number">{formattedPhone}</div>
+                <div className="form-number" dir="ltr">{formattedPhone}</div>
 
                 <form onSubmit={submit} className="login-form">
                     <div className="form-cont">

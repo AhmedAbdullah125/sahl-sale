@@ -1,10 +1,15 @@
 "use client";
-import AuctionDetailsWrapper from '@/components/Auctions/AuctionDetailsWrapper';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function Page() {
     const params = useParams();
+    const router = useRouter();
     const id = params.id as string;
-    return (
-        <AuctionDetailsWrapper id={id} />
-    )
+
+    useEffect(() => {
+        router.replace(`/product/${id}`);
+    }, [id, router]);
+
+    return null;
 }

@@ -17,6 +17,7 @@ import { useReportAd } from "@/src/hooks/useReportAd";
 import { useToggleFavorite } from "@/src/hooks/useToggleFavorite";
 import { Loader2 } from "lucide-react";
 import FancyboxWrapper from "../ui/FancyboxWrapper";
+import VerificationModal from "../Auctions/VerificationModal";
 
 export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
@@ -25,8 +26,14 @@ export default function ProductWrapper({ id }: { id: string }) {
 
     // If is_creator is returned from API, use it, otherwise fallback to path check
     const isMyProduct = ad?.is_creator || pathname.includes("my-products");
+    const isAuction = ad?.type === "auction";
     const [isFav, setIsFav] = useState(false);
     const { mutate: toggleFavorite, isPending: isFavPending } = useToggleFavorite();
+
+    // Auction state
+    const [notifyBids, setNotifyBids] = useState(false);
+    const [bidValue, setBidValue] = useState("");
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
 
     React.useEffect(() => {
         if (ad) setIsFav(ad.is_favorite);
@@ -42,6 +49,17 @@ export default function ProductWrapper({ id }: { id: string }) {
     const phone = ad?.user?.phone;
     const whatsapp = ad?.user?.whatsapp;
     const expireText = ad?.ended_at ? `ينتهي في ${ad.ended_at}` : "";
+
+    const onBidSubmit = (extra = 0) => {
+        // TODO: replace with real verification check from auth context
+        const isVerified = false;
+        if (!isVerified) {
+            setShowVerificationModal(true);
+            return;
+        }
+        const n = Number(bidValue || 0) + Number(extra || 0);
+        setBidValue(String(n));
+    };
 
     if (isLoading) {
         return (
@@ -178,6 +196,39 @@ export default function ProductWrapper({ id }: { id: string }) {
 
                         {/* Main Info */}
                         <div className="detail-content">
+                            {/* Auction: notification toggle */}
+                            {isAuction && (
+                                <div className="item-info">
+                                    <div className="item-content">
+                                        <div className="item-name">تفعيل الاشعارات عند المزايدات</div>
+                                    </div>
+                                    <div className="item-box">
+                                        <label className="pill">
+                                            <input
+                                                type="checkbox"
+                                                checked={notifyBids}
+                                                onChange={(e) => setNotifyBids(e.target.checked)}
+                                            />
+                                            <span className="switch" />
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Auction: current bid & ends */}
+                            {isAuction && (
+                                <div className="product-info">
+                                    <div className="product-status">
+                                        السوم واصل : <span>{ad.latest_bid?.amount ?? ad.price} د.ك</span>
+                                    </div>
+                                    {ad.ended_at && (
+                                        <div className="product-status">
+                                            ينتهي في : <span>{ad.ended_at}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="detail-type text-primary/80">
                                 {ad.parent_category && `${ad.parent_category} - `}{ad.category}
                             </div>
@@ -218,6 +269,29 @@ export default function ProductWrapper({ id }: { id: string }) {
                                     <span className="label">القسم :</span>
                                     <span className="value">{ad.category}</span>
                                 </div>
+                                {/* Auction / car details */}
+                                {isAuction && ad.car && (
+                                    <>
+                                        {ad.car.brand && (
+                                            <div className="detail-item">
+                                                <span className="label">الماركة :</span>
+                                                <span className="value">{ad.car.brand}</span>
+                                            </div>
+                                        )}
+                                        {ad.car.model && (
+                                            <div className="detail-item">
+                                                <span className="label">الموديل :</span>
+                                                <span className="value">{ad.car.model}</span>
+                                            </div>
+                                        )}
+                                        {ad.car.year && (
+                                            <div className="detail-item">
+                                                <span className="label">سنة الصنع :</span>
+                                                <span className="value">{ad.car.year}</span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -228,41 +302,97 @@ export default function ProductWrapper({ id }: { id: string }) {
                                 {ad.description}
                             </p>
                         </div>
+
+                        {/* Auction: bids history */}
+                        {isAuction && ad.bids && ad.bids.length > 0 && (
+                            <div className="detail-box">
+                                <h2 className="title">السومات :</h2>
+                                <div className="contributors-list">
+                                    {ad.bids.map((bid) => (
+                                        <div className="contributor" key={bid.id}>
+                                            <div className="info">
+                                                {bid.user?.image ? (
+                                                    <Image
+                                                        src={bid.user.image}
+                                                        alt={bid.user.name}
+                                                        width={40}
+                                                        height={40}
+                                                        className="rounded-full object-cover"
+                                                        unoptimized
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-gray-200" />
+                                                )}
+                                                <div className="text">
+                                                    <strong>{bid.user?.name ?? "مجهول"}</strong>
+                                                    <small>سوم بـ {bid.amount} د.ك</small>
+                                                </div>
+                                            </div>
+                                            <span className="time">{bid.created_at}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Contact Buttons */}
-                    <div className="contact-btns">
-                        {ad.allow_phone === 1 && (
-                            <Link href={`tel:${phone}`} className="phone-link">
-                                <PhoneCall className="inline-block" />
-                                <span>
-                                    اتصال <span>{phone}</span>
-                                </span>
-                            </Link>
-                        )}
+                    {/* Auction action: bid input */}
+                    {isAuction && !ad.is_ended && (
+                        <div className="auction-action">
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    placeholder="ادخل قيمة للمزايدة +"
+                                    value={bidValue}
+                                    onChange={(e) => setBidValue(e.target.value)}
+                                />
+                                <button type="button" className="auction-btn" onClick={() => onBidSubmit(0)}>سوم</button>
+                            </div>
+                            <button type="button" className="add" onClick={() => onBidSubmit(50)}>+50</button>
+                        </div>
+                    )}
 
-                        {ad.allow_whatsapp === 1 && whatsapp && (
-                            <Link
-                                href={`https://wa.me/${whatsapp}`}
-                                className="whats-link"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                <span>
-                                    واتساب <span>{whatsapp}</span>
-                                </span>
-                            </Link>
-                        )}
-                    </div>
+                    {/* Ad: contact buttons */}
+                    {!isAuction && (
+                        <div className="contact-btns">
+                            {ad.allow_phone === 1 && (
+                                <Link href={`tel:${phone}`} className="phone-link">
+                                    <PhoneCall className="inline-block" />
+                                    <span>
+                                        اتصال <span>{phone}</span>
+                                    </span>
+                                </Link>
+                            )}
 
-                    {/* ✅ My product only: Sold button */}
-                    {isMyProduct ? (
+                            {ad.allow_whatsapp === 1 && whatsapp && (
+                                <Link
+                                    href={`https://wa.me/${whatsapp}`}
+                                    className="whats-link"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    <span>
+                                        واتساب <span>{whatsapp}</span>
+                                    </span>
+                                </Link>
+                            )}
+                        </div>
+                    )}
+
+                    {/* My product only: Sold button */}
+                    {isMyProduct && !isAuction ? (
                         <button type="button" className="form-btn">
                             تم البيع
                         </button>
                     ) : null}
                 </div>
             </div>
+
+            {/* Verification Modal (auction) */}
+            <VerificationModal
+                isOpen={showVerificationModal}
+                onClose={() => setShowVerificationModal(false)}
+            />
 
             {/* Report Modal */}
             {

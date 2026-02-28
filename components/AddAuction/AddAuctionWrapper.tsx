@@ -10,7 +10,7 @@ import AddAdStepFive from "@/components/AddAd/steps/AddAdStepFive";
 
 import done from "@/src/images/done.gif";
 
-import { useGetCategories, type MainCategory } from "@/src/hooks/useGetCategories";
+import { useGetAuctionCategories, type LastLevelCategory } from "@/src/hooks/useGetLastCategories";
 import { fetchManufacturingCountries, type ManufacturingCountry } from "@/src/hooks/useGetManufacturingCountries";
 import { fetchManufacturingYears, type ManufacturingYear } from "@/src/hooks/useGetManufacturingYears";
 import { fetchCities, type City } from "@/src/hooks/useGetCities";
@@ -19,23 +19,36 @@ import { fetchCarModels, type CarModel } from "@/src/hooks/useGetCarModels";
 import { useHandlePublishAuction } from "@/src/hooks/useHandlePublishAuction";
 
 const STEP_PROGRESS = [50, 100];
-const AUCTION_CATEGORY_ID = 3;
 
 export default function AddAuctionWrapper() {
     const { handlePublish, isPublishing, doneTimerRef } = useHandlePublishAuction();
 
     // ── Category ───────────────────────────────────────────────────────────────
-    const { data: mainCategories = [] } = useGetCategories();
-    const [auctionCategory, setAuctionCategory] = useState<MainCategory | null>(null);
+    const { auctionCategories, isLoading: categoriesLoading } = useGetAuctionCategories();
+    const [auctionCategory, setAuctionCategory] = useState<LastLevelCategory | null>(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
 
+    // Auto-select when there is exactly one auction category
     useEffect(() => {
-        if (!mainCategories.length) return;
-        const car = mainCategories[0] ?? null;
-        setAuctionCategory(car);
+        if (!auctionCategories.length) return;
+        if (auctionCategories.length === 1) {
+            const single = auctionCategories[0]!;
+            setAuctionCategory(single);
+            setSelectedCategoryId(single.id);
+            const initialPins: Record<number, boolean> = {};
+            (single.active_pinning_prices ?? []).forEach((p) => (initialPins[p.id] = false));
+            setPinSelections(initialPins);
+        }
+    }, [auctionCategories]);
+
+    const onCategoryChange = (id: number) => {
+        const found = auctionCategories.find((c) => c.id === id) ?? null;
+        setAuctionCategory(found);
+        setSelectedCategoryId(id);
         const initialPins: Record<number, boolean> = {};
-        (car?.active_pinning_prices ?? []).forEach((p) => (initialPins[p.id] = false));
+        (found?.active_pinning_prices ?? []).forEach((p) => (initialPins[p.id] = false));
         setPinSelections(initialPins);
-    }, [mainCategories]);
+    };
 
     // ── Data loading ───────────────────────────────────────────────────────────
     const [manufacturingCountries, setManufacturingCountries] = useState<ManufacturingCountry[]>([]);
@@ -150,6 +163,27 @@ export default function AddAuctionWrapper() {
                     {step === 1 ? "بيانات المزاد" : ad.title || "مراجعة ونشر"}
                 </h4>
 
+                {/* Category Select — only shown when there are multiple auction categories */}
+                {!categoriesLoading && auctionCategories.length > 1 && (
+                    <div className="form-group mb-4">
+                        <label className="form-label block mb-1 font-medium text-sm text-gray-700">
+                            القسم
+                        </label>
+                        <select
+                            className="form-control w-full border rounded-lg px-3 py-2 text-sm"
+                            value={selectedCategoryId}
+                            onChange={(e) => onCategoryChange(Number(e.target.value))}
+                        >
+                            <option value="">اختر القسم</option>
+                            {auctionCategories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
                 {step === 1 && (
                     <AddAdStepFour
                         imagePreviews={imagePreviews}
@@ -184,7 +218,7 @@ export default function AddAuctionWrapper() {
                                 ad,
                                 imageFiles,
                                 pinSelections,
-                                categoryId: AUCTION_CATEGORY_ID,
+                                categoryId: auctionCategory?.id ?? 0,
                                 hasCityField: true,
                                 onSuccess: () => setShowDone(true),
                                 onPaymentRedirect: (url) => { window.location.href = url; },
