@@ -16,9 +16,14 @@ export default function CategoryProducts({ category }: { category: Category }) {
             <div className="container">
                 <div className="section-head">
                     <h3 className="section-title">{category.name}</h3>
-                    <Link href={`/category/${category.id}`} className="products-link">
-                        عرض الكل
-                    </Link>
+                    {
+                        category.id ?
+                            <Link href={`/categories/${category.id}`} className="products-link">
+                                عرض الكل
+                            </Link>
+                            :
+                            null
+                    }
                 </div>
 
                 {

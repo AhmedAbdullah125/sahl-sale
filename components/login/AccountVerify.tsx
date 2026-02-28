@@ -70,8 +70,39 @@ export default function AccountVerify() {
 
     const { verifyAccount } = useVerifyAccount();
 
+    const optimizeImage = async (file: File) => {
+        try {
+            const formData = new FormData();
+            formData.append("image", file);
+            const res = await fetch("/api/optimize-image", {
+                method: "POST",
+                body: formData,
+            });
+            if (!res.ok) throw new Error("Optimization failed");
+
+            const blob = await res.blob();
+            // Convert blob back to File with original name
+            return new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", {
+                type: "image/png"
+            });
+        } catch (error) {
+            console.error("Image optimization error:", error);
+            return file; // Fallback to original
+        }
+    };
+
     const onSubmit = async (values: { id_front: File | null; id_back: File | null }) => {
-        await verifyAccount(values);
+        let front = values.id_front;
+        let back = values.id_back;
+
+        if (front) {
+            front = await optimizeImage(front);
+        }
+        if (back) {
+            back = await optimizeImage(back);
+        }
+
+        await verifyAccount({ id_front: front, id_back: back });
     };
 
     return (

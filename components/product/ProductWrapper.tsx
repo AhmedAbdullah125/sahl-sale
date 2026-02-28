@@ -16,6 +16,7 @@ import { useGetAd } from "@/src/hooks/useGetAd";
 import { useReportAd } from "@/src/hooks/useReportAd";
 import { useToggleFavorite } from "@/src/hooks/useToggleFavorite";
 import { useGetProfile } from "@/src/hooks/useGetProfile";
+import { usePlaceBid } from "@/src/hooks/usePlaceBid";
 import { Loader2 } from "lucide-react";
 import FancyboxWrapper from "../ui/FancyboxWrapper";
 import VerificationModal from "../Auctions/VerificationModal";
@@ -24,7 +25,7 @@ export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
     const pathname = usePathname()
     const { data: ad, isLoading, error } = useGetAd(id);
-
+    console.log(ad);
     // If is_creator is returned from API, use it, otherwise fallback to path check
     const isMyProduct = ad?.is_creator || pathname.includes("my-products");
     const isAuction = ad?.type === "auction";
@@ -49,6 +50,8 @@ export default function ProductWrapper({ id }: { id: string }) {
     // User profile
     const { data: profile } = useGetProfile();
 
+    const { mutate: placeBid, isPending: isPlacingBid } = usePlaceBid();
+
     // Use data from API
     const phone = ad?.user?.phone;
     const whatsapp = ad?.user?.whatsapp;
@@ -61,7 +64,12 @@ export default function ProductWrapper({ id }: { id: string }) {
             return;
         }
         const n = Number(bidValue || 0) + Number(extra || 0);
-        setBidValue(String(n));
+
+        placeBid({ adId: id, amount: n }, {
+            onSuccess: () => {
+                setBidValue("");
+            }
+        });
     };
 
     if (isLoading) {
@@ -340,18 +348,22 @@ export default function ProductWrapper({ id }: { id: string }) {
                     </div>
 
                     {/* Auction action: bid input */}
-                    {isAuction && !ad.is_ended && (
+                    {isAuction && !ad.is_ended && ad.user.id !== profile?.id && (
                         <div className="auction-action">
                             <div className="relative">
                                 <input
                                     type="number"
+                                    className="!pe-14"
                                     placeholder="ادخل قيمة للمزايدة +"
                                     value={bidValue}
                                     onChange={(e) => setBidValue(e.target.value)}
+                                    disabled={isPlacingBid}
                                 />
-                                <button type="button" className="auction-btn" onClick={() => onBidSubmit(0)}>سوم</button>
+                                <button type="button" className="auction-btn" onClick={() => onBidSubmit(0)} disabled={isPlacingBid}>
+                                    {isPlacingBid ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "سوم"}
+                                </button>
                             </div>
-                            <button type="button" className="add" onClick={() => onBidSubmit(50)}>+50</button>
+                            <button type="button" className="add" onClick={() => onBidSubmit(50)} disabled={isPlacingBid}>+50</button>
                         </div>
                     )}
 
