@@ -51,7 +51,7 @@ export default function CategoryProducts({ category }: { category: Category }) {
                                                 typeA: item.parent_category,
                                                 typeB: item.category ?? undefined,
                                                 timer: item.ended_at,
-                                                currentBid: item.latest_bid ?? undefined,
+                                                currentBid: item.latest_bid?.amount ?? undefined,
                                                 dateText: item.created_at,
                                                 pinned: category.slug === "pinned" ? true : item.is_pinned,
                                                 isFav: item.is_favorite,
