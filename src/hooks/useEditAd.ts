@@ -6,27 +6,28 @@ interface EditAdPayload {
     id: string | number;
     title: string;
     description: string;
-    ad_price: string | number;
-    allow_whatsapp: number;
-    allow_phone: number;
+    price: string | number;
+    contactWhats: number;
+    contactCall: number;
     images?: (File | string)[]; // Can be File objects or URLs for existing images
     deleted_images?: number[]; // IDs of images to delete
 
     // Optional parameters for cars
-    manufacturing_country_id?: string | number;
-    car_brand_id?: string | number;
-    car_model_id?: string | number;
+    country?: string | number;
+    brand?: string | number;
+    model?: string | number;
     year?: string | number;
     mileage?: string | number;
 
     // Optional parameter for auctions
     allow_notification?: number;
 
-    city_id?: string | number;
+    governorate?: string | number;
     _method?: string; // Laravel PUT simulation via POST
 }
 
 const editAd = async (payload: EditAdPayload) => {
+
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     const headers: Record<string, string> = { "accept-language": "ar" };
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -36,28 +37,37 @@ const editAd = async (payload: EditAdPayload) => {
     // We use POST with _method=PUT for Laravel to handle multipart/form-data correctly
     formData.append("_method", "PUT");
 
-    formData.append("title", payload.title);
-    formData.append("description", payload.description);
-    formData.append("ad_price", payload.ad_price.toString());
-    formData.append("allow_whatsapp", payload.allow_whatsapp.toString());
-    formData.append("allow_phone", payload.allow_phone.toString());
+    // Helper to add if valid
+    const appendIfValid = (key: string, value: any) => {
+        if (value !== undefined && value !== null && value !== "") {
+            formData.append(key, value.toString());
+        }
+    };
 
-    if (payload.city_id) formData.append("city_id", payload.city_id.toString());
+    appendIfValid("title", payload.title);
+    appendIfValid("description", payload.description);
+    appendIfValid("ad_price", payload.price);
+    appendIfValid("allow_whatsapp", payload.contactWhats);
+    appendIfValid("allow_phone", payload.contactCall);
+
+    appendIfValid("city_id", payload.governorate);
 
     // Optional fields for cars
-    if (payload.manufacturing_country_id) formData.append("manufacturing_country_id", payload.manufacturing_country_id.toString());
-    if (payload.car_brand_id) formData.append("car_brand_id", payload.car_brand_id.toString());
-    if (payload.car_model_id) formData.append("car_model_id", payload.car_model_id.toString());
-    if (payload.year) formData.append("year", payload.year.toString());
-    if (payload.mileage) formData.append("mileage", payload.mileage.toString());
+    appendIfValid("manufacturing_country_id", payload.country);
+    appendIfValid("car_brand_id", payload.brand);
+    appendIfValid("car_model_id", payload.model);
+    appendIfValid("year", payload.year);
+    appendIfValid("mileage", payload.mileage);
 
     // Auction fields
-    if (payload.allow_notification !== undefined) formData.append("allow_notification", payload.allow_notification.toString());
+    appendIfValid("allow_notification", payload.allow_notification);
 
     // Handle images array
     if (payload.images && payload.images.length > 0) {
         payload.images.forEach((img, index) => {
             if (img instanceof File) {
+                formData.append(`images[${index}]`, img);
+            } else if (typeof img === 'string') {
                 formData.append(`images[${index}]`, img);
             }
         });
@@ -95,6 +105,7 @@ export function useEditAd() {
             queryClient.invalidateQueries({ queryKey: ["ad", String(variables.id)] });
             queryClient.invalidateQueries({ queryKey: ["my-products"] });
             queryClient.invalidateQueries({ queryKey: ["myAds"] });
+            queryClient.invalidateQueries({ queryKey: ["my-ads"] });
         },
         onError: (error: any) => {
             toast.error(error.message || "حدث خطأ أثناء تعديل الإعلان");

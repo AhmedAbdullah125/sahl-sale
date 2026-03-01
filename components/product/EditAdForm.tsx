@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { CirclePlus, Trash2 } from "lucide-react";
 
@@ -16,12 +16,20 @@ import phoneIcon from "@/src/images/phone-icon.png";
 import whatsIcon from "@/src/images/whats-icon.png";
 import { EditAdSchema } from "./edit-ad.schema";
 
-export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages, onRemoveImageAt, onClearImages, ad, setAd, onSave, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, }) {
+export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, }: any) {
     const titleMax = 27;
-    const inputRef = useRef(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach(u => URL.revokeObjectURL(u));
+        };
+    }, []);
+
     const defaultValues = useMemo(() => {
         return {
-            images: imagePreviews ?? [],
+            images: [],
             title: ad.title ?? "",
             country: ad.country ?? "",
             brand: ad.brand ?? "",
@@ -40,9 +48,6 @@ export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages
         defaultValues,
         mode: "onSubmit",
     });
-    useEffect(() => {
-        setValue("images", imagePreviews ?? [], { shouldValidate: false });
-    }, [imagePreviews, setValue]);
 
     useEffect(() => {
         const sub = watch((v, { name, type }) => {
@@ -67,10 +72,15 @@ export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages
 
             <div className="image-upload">
                 <label className="upload-box">
-                    <input ref={inputRef} type="file" accept="image/*" multiple onChange={async (e) => {
-                        onPickImages(e.target.files);
+                    <input ref={inputRef} type="file" accept="image/*" multiple onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length === 0) return;
+                        const currentImages = watch("images") || [];
+                        const newFiles = [...currentImages, ...files];
+                        setValue("images", newFiles, { shouldValidate: true });
+                        const urls = files.map(f => URL.createObjectURL(f));
+                        setImagePreviews(prev => [...prev, ...urls]);
                         e.currentTarget.value = "";
-                        setTimeout(() => trigger("images"), 0);
                     }} />
                     <Image src={logo} alt="logo" className="upload-logo" />
                     <div className="upload-btn"> <CirclePlus className="h-5 w-5" /> أضف الصور </div>
@@ -78,15 +88,29 @@ export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages
 
                 {errors.images?.message ? (<p className="mt-2 text-sm text-red-500">{String(errors.images.message)}</p>) : null}
 
+                {(!images || images.length === 0) && (
+                    <p className="mt-2 text-sm text-[#888]">
+                        ملاحظة: سيتم الاحتفاظ بالصور القديمة للإعلان في حال لم تقم بإضافة صور جديدة.
+                    </p>
+                )}
+
                 <div className={images.length ? "mt-3 w-full" : "hidden"}>
                     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-                        {imagePreviews?.map((src, idx) => (
-                            <div key={`${src}-${idx}`} className="relative overflow-hidden rounded-md border">
-                                <Image src={src} alt={`preview-${idx + 1}`} width={200} height={140} className="h-24 w-full object-cover" unoptimized />
-                                <button type="button" className="remove-btn" onClick={async (e) => {
+                        {images.map((file: File, idx: number) => (
+                            <div key={`${file.name}-${idx}`} className="relative overflow-hidden rounded-md border">
+                                <Image src={imagePreviews[idx] || ""} alt={`preview-${idx + 1}`} width={200} height={140} className="h-24 w-full object-cover" unoptimized />
+                                <button type="button" className="remove-btn" onClick={(e) => {
                                     e.preventDefault();
-                                    onRemoveImageAt(idx);
-                                    setTimeout(() => trigger("images"), 0);
+                                    const newImages = [...images];
+                                    newImages.splice(idx, 1);
+                                    setValue("images", newImages, { shouldValidate: true });
+
+                                    setImagePreviews(prev => {
+                                        const p = [...prev];
+                                        if (p[idx]) URL.revokeObjectURL(p[idx]);
+                                        p.splice(idx, 1);
+                                        return p;
+                                    });
                                 }} aria-label="Remove image">
                                     <Trash2 className="h-5 w-5 text-red-500" />
                                 </button>
@@ -94,15 +118,16 @@ export default function EditAdForm({ isCarOrAuction, imagePreviews, onPickImages
                         ))}
                     </div>
 
-                    {typeof onClearImages === "function" && images.length > 1 ? (
-                        <button type="button" className="mt-2 text-sm underline" onClick={async (e) => {
+                    {images.length > 1 && (
+                        <button type="button" className="mt-2 text-sm underline" onClick={(e) => {
                             e.preventDefault();
-                            onClearImages();
-                            setTimeout(() => trigger("images"), 0);
+                            setValue("images", [], { shouldValidate: true });
+                            imagePreviews.forEach(u => URL.revokeObjectURL(u));
+                            setImagePreviews([]);
                         }}
                         > حذف الكل
                         </button>
-                    ) : null}
+                    )}
                 </div>
             </div>
 

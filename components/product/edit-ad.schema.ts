@@ -37,17 +37,30 @@ export const AddAdStepFourSchema = ContactRefine(
     })
 );
 
-/** ✅ Edit: نفس الـ base + section/subSection + (صور) */
-export const EditAdSchema = ContactRefine(
-    BaseAdObject.extend({
-        section: z.string().min(1, "اختر القسم"),
-        subSection: z.string().min(1, "اختر القسم الفرعي"),
+/** ✅ Edit: optional fields to send only what changed */
+export const EditAdSchema = z.object({
+    title: z.string().max(27, "الحد الأقصى 27 حرف").optional().or(z.literal("")),
 
-        // خليها زي ما انت عايز:
-        // 1) لو لازم صورة واحدة على الأقل في التعديل:
-        images: z.array(z.string().min(1)).min(1, "لازم ترفع صورة واحدة على الأقل"),
+    country: z.string().optional(),
+    brand: z.string().optional(),
+    model: z.string().optional(),
+    year: z.string().optional(),
 
-        // 2) أو لو الصور اختيارية في التعديل (بدّل السطر اللي فوق بهذا):
-        // images: z.array(z.string().min(1)).optional().default([]),
-    })
-);
+    mileage: z.string().optional(),
+    governorate: z.string().optional(),
+
+    price: z
+        .string()
+        .optional()
+        .refine((v) => !v || Number(v) >= 0, "السعر غير صالح"),
+
+    description: z.string().max(2000, "الوصف طويل جداً").optional().or(z.literal("")),
+
+    contactCall: z.boolean().optional(),
+    contactWhats: z.boolean().optional(),
+
+    section: z.string().optional(),
+    subSection: z.string().optional(),
+
+    images: z.array(z.any()).optional(),
+});

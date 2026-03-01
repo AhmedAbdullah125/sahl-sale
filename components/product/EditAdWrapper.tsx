@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import UpperHeader from "@/components/General/UpperHeader";
 import { useRouter } from "next/navigation";
 import { useGetAd } from "@/src/hooks/useGetAd";
@@ -11,17 +10,7 @@ import { useGetCarModels } from "@/src/hooks/useGetCarModels";
 import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
 import { useGetCities } from "@/src/hooks/useGetCities";
 import { Loader2 } from "lucide-react";
-
 import EditAdForm from "./EditAdForm";
-
-export const COUNTRIES = ["ياباني", "أمريكي", "ألماني", "كوري"];
-export const BRANDS = ["تويوتا", "لكزس", "نيسان", "هوندا"];
-export const MODELS = ["كامري", "كورولا", "لاندكروزر", "RX"];
-export const YEARS = Array.from({ length: 15 }, (_, i) => String(2025 - i));
-export const GOVERNORATES = ["الكويت", "حولي", "الأحمدي", "الفروانية"];
-
-
-
 
 export default function EditAdWrapper({ id }: { id: string }) {
     const router = useRouter();
@@ -37,7 +26,6 @@ export default function EditAdWrapper({ id }: { id: string }) {
     const [ad, setAd] = useState<any>(null);
     const [isMapping, setIsMapping] = useState(true);
 
-    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const { mutateAsync: editAd, isPending } = useEditAd();
 
     // 1. Initial mapping from adData to ad state
@@ -72,10 +60,6 @@ export default function EditAdWrapper({ id }: { id: string }) {
                 _originalModelString: adData.car?.model
             });
 
-            if (adData.images && adData.images.length > 0) {
-                setImagePreviews(adData.images.map(img => img.url));
-            }
-
             if (!brandId) {
                 setIsMapping(false);
             }
@@ -100,48 +84,6 @@ export default function EditAdWrapper({ id }: { id: string }) {
         }
     }, [ad, models, isMapping]);
 
-    const cleanupRef = useRef<string[]>([]);
-
-    // ✅ add images (append)
-    const onPickImages = (files: FileList | File[]) => {
-        if (!files || files.length === 0) return;
-
-        const urls = Array.from(files).map((f: File) => {
-            const u = URL.createObjectURL(f);
-            cleanupRef.current.push(u);
-            return u;
-        });
-
-        setImagePreviews((prev) => [...prev, ...urls]);
-    };
-
-    const onRemoveImageAt = (index: number) => {
-        setImagePreviews((prev) => {
-            const copy = [...prev];
-            const url = copy[index];
-            // revoke only blob
-            if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
-            copy.splice(index, 1);
-            return copy;
-        });
-    };
-
-    const onClearImages = () => {
-        setImagePreviews((prev) => {
-            prev.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
-            return [];
-        });
-    };
-
-    useEffect(() => {
-        return () => {
-            cleanupRef.current.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
-            cleanupRef.current = [];
-        };
-    }, []);
-
-
-
     const optimizeImage = async (file: File) => {
         try {
             const formData = new FormData();
@@ -157,23 +99,15 @@ export default function EditAdWrapper({ id }: { id: string }) {
     };
 
     const handleSave = async (payload: any) => {
+        console.log(payload);
+
         try {
             // Optimize new added images
             const optimizedImages = await Promise.all(
-                (payload.images || []).map(async (img: any) => {
-                    if (img instanceof File) {
-                        return await optimizeImage(img);
-                    }
-                    return img; // Existing URL string
+                (payload.images || []).map(async (file: File) => {
+                    return await optimizeImage(file);
                 })
             );
-
-            // Need to figure out deleted images comparing adData.images and optimizedImages
-            // Since we know existing URLs, we can check which original URLs are missing
-            const remainingUrls = optimizedImages.filter(img => typeof img === 'string');
-            const deleted_images = adData?.images
-                ?.filter(orig => !remainingUrls.includes(orig.url))
-                .map(orig => orig.id) || [];
 
             const isCar = adData?.ad_form === 'car' || adData?.type === 'auction';
 
@@ -181,24 +115,22 @@ export default function EditAdWrapper({ id }: { id: string }) {
                 id,
                 title: payload.title,
                 description: payload.description,
-                ad_price: payload.price || 0,
-                allow_whatsapp: payload.contactWhats ? 1 : 0,
-                allow_phone: payload.contactCall ? 1 : 0,
+                price: payload.price || 0,
+                contactWhats: payload.contactWhats ? 1 : 0,
+                contactCall: payload.contactCall ? 1 : 0,
                 images: optimizedImages,
-                deleted_images,
+                deleted_images: [],
 
                 // Cars / Auctions specific fields
                 ...(isCar && {
-                    // For demo logic, using 1 as defaults, or values mapped back if we have them
-                    manufacturing_country_id: payload.country ? 1 : undefined, // Needs proper ID mapping
-                    car_brand_id: payload.brand ? 1 : undefined, // Needs proper ID mapping
-                    car_model_id: payload.model ? 1 : undefined, // Needs proper ID mapping
+                    country: payload.country ? payload.country : undefined,
+                    brand: payload.brand ? payload.brand : undefined,
+                    model: payload.model ? payload.model : undefined,
                     year: payload.year,
                     mileage: payload.mileage,
                 }),
 
-                // You can add logic for city mapping here
-                // city_id: payload.governorate ? 1 : undefined,
+                // governorate: payload.governorate ? payload.governorate : undefined,
             });
 
             router.back();
@@ -225,10 +157,6 @@ export default function EditAdWrapper({ id }: { id: string }) {
 
                 <EditAdForm
                     isCarOrAuction={adData?.ad_form === 'car' || adData?.type === 'auction'}
-                    imagePreviews={imagePreviews}
-                    onPickImages={onPickImages}
-                    onRemoveImageAt={onRemoveImageAt}
-                    onClearImages={onClearImages}
                     ad={ad}
                     setAd={setAd}
                     onSave={handleSave}
