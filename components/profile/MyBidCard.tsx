@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function MyBidCard({
-    href = "#",
+    id,
     imageUrl,
     name = "سيارة لكزس RX 2025....",
     price = "2100 د.ك",
@@ -14,13 +14,15 @@ export default function MyBidCard({
     isLive = true,
 }) {
     return (
-        <Link href={href} className="my-bids-item" aria-label={name}>
+        <Link href={`/product/${id}`} className="my-bids-item" aria-label={name}>
             <div className="my-bids-flex">
                 <div className="my-bids-info">
                     <figure>
                         <Image
                             src={imageUrl}
                             alt="product"
+                            width={200}
+                            height={200}
                             style={{ width: "100%", height: "auto" }}
                         />
                     </figure>
