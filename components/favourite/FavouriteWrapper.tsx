@@ -2,6 +2,7 @@
 import UpperHeader from "@/components/General/UpperHeader";
 import ProductCard from "../General/ProductCard";
 import { useGetFavouriteProducts } from "@/src/hooks/useGetFavouriteProducts";
+import Loading from "@/src/app/loading";
 
 type ProductCardProduct = React.ComponentProps<typeof ProductCard>["product"];
 
@@ -30,9 +31,7 @@ export default function FavouriteWrapper() {
                 <UpperHeader title="المفضلة" />
 
                 {loading && (
-                    <div className="flex justify-center items-center py-10">
-                        <span className="text-gray-500">جاري التحميل...</span>
-                    </div>
+                    <Loading />
                 )}
 
                 {error && (

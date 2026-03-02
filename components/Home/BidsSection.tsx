@@ -25,7 +25,7 @@ export default function BidsSection({ auctions }: BidsSectionProps) {
             <div className="container">
                 <div className="section-head">
                     <h3 className="section-title">المزادات</h3>
-                    <Link href="#" className="products-link">
+                    <Link href="/auctions" className="products-link">
                         عرض الكل
                     </Link>
                 </div>
@@ -59,6 +59,7 @@ export default function BidsSection({ auctions }: BidsSectionProps) {
                                             currentBid: item.latest_bid?.amount ?? item.price,
                                             isLive: item.status === "live",
                                             isPinned: item.is_pinned,
+                                            ended_at: item.ended_at,
                                         }}
                                     />
                                 </SwiperSlide>

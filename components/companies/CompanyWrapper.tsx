@@ -7,13 +7,7 @@ import { Search, BadgeCheck, Loader2, SearchX } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 
 import logo from "@/src/images/logo.svg";
 import ProductCard from "../General/ProductCard";
@@ -22,6 +16,8 @@ import { useGetCarModels } from "@/src/hooks/useGetCarModels";
 import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
 import { useGetAds, type AdItem } from "@/src/hooks/useGetAds";
 import type { Company } from "@/src/hooks/useGetCompanies";
+import AuctionCard from "../Auctions/AuctionCard";
+import Loading from "@/src/app/loading";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -30,15 +26,18 @@ function adToProductCard(ad: AdItem) {
         id: String(ad.id),
         href: `/product/${ad.id}`,
         img: ad.image,
+        imageUrl: ad.image,
         typeA: ad.car?.brand ?? ad.parent_category,
         typeB: ad.car?.model ?? ad.category,
         name: ad.title,
         kind: ad.type === "auction" ? "auction" : "sale",
         price: ad.type === "ad" ? ad.price : undefined,
-        currentBid: ad.type === "auction" ? ad.price : undefined,
+        currentBid: ad.type === "auction" ? (ad.latest_bid?.amount ?? ad.price) : undefined,
         dateText: ad.created_at,
-        pinned: ad.is_pinned,
+        isPinned: ad.is_pinned,
+        isLive: ad.status === "live",
         isFav: ad.is_favorite,
+        ended_at: ad.ended_at,
     };
 }
 
@@ -232,7 +231,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
                             </SelectContent>
                         </Select>
 
-                        <Select value={sModel} onValueChange={applyFilter(setSModel)}>
+                        <Select value={sModel} onValueChange={applyFilter(setSModel)} disabled={!sBrand}>
                             <SelectTrigger className="filter-select">
                                 <SelectValue placeholder="الموديل" />
                             </SelectTrigger>
@@ -293,10 +292,7 @@ export default function CompanyWrapper({ id }: { id: string }) {
                 {/* products */}
                 <div className="product-cont">
                     {loading && (
-                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground w-full">
-                            <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
-                            <p className="text-lg font-medium">جاري التحميل...</p>
-                        </div>
+                        <Loading />
                     )}
                     {errorMessage && (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-red-500 w-full">
@@ -312,9 +308,14 @@ export default function CompanyWrapper({ id }: { id: string }) {
                                         <p className="text-lg font-medium">لا توجد نتائج مطابقة</p>
                                     </div>
                                 ) : (
-                                    items.map((p) => (
-                                        <ProductCard key={p.id} product={adToProductCard(p)} />
-                                    ))
+                                    items.map((p) =>
+
+                                        p.type === "auction" ? (
+                                            <AuctionCard key={p.id} auction={adToProductCard(p)} />
+                                        ) : (
+                                            <ProductCard key={p.id} product={adToProductCard(p)} />
+                                        )
+                                    )
                                 )}
                             </div>
 

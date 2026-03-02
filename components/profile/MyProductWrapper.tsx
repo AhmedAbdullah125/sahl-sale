@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import UpperHeader from "@/components/General/UpperHeader";
 import { PackageOpen } from "lucide-react";
 import { useGetMyAds, AdItem } from "@/src/hooks/useGetMyAds";
+import ProductCard from "@/components/General/ProductCard";
+import AuctionCard from "@/components/Auctions/AuctionCard";
+import Loading from "@/src/app/loading";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,9 +56,7 @@ export default function MyProductWrapper() {
 
                 {/* states */}
                 {loading && (
-                    <div className="flex justify-center py-10">
-                        <span className="text-gray-500">جاري التحميل...</span>
-                    </div>
+                    <Loading />
                 )}
 
                 {isError && (
@@ -76,48 +75,43 @@ export default function MyProductWrapper() {
                             </div>
                         ) : (
                             <div className="product-grid">
-                                {items.map((ad) => (
-                                    <Link
-                                        key={ad.id}
-                                        href={`/product/${ad.id}`}
-                                        className="product-item"
-                                        aria-label={ad.title}
-                                    >
-                                        <div className="product-img">
-                                            <figure>
-                                                <Image src={ad.image} alt={ad.title} width={400} height={300} className="h-auto w-full object-cover" />
-                                            </figure>
-
-                                            <button
-                                                type="button"
-                                                className="edit-btn"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    router.push(`/edit-product/${ad.id}`);
-                                                }}
-                                                aria-label="تعديل الإعلان"
-                                            >
-                                                <i className="fa-solid fa-pen-line" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-
-                                        <div className="product-content">
-                                            <div className="product-type">
-                                                <span>{ad.car?.brand ?? ad.parent_category}</span>
-                                                {" - "}
-                                                <span>{ad.car?.model ?? ad.category}</span>
-                                            </div>
-
-                                            <h3 className="product-name">{ad.title}</h3>
-
-                                            <div className="product-info">
-                                                <span>{ad.price}</span>
-                                                <div className="date">{ad.created_at}</div>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
+                                {items.map((ad) =>
+                                    ad.type === "auction" ? (
+                                        <AuctionCard
+                                            key={ad.id}
+                                            auction={{
+                                                id: String(ad.id),
+                                                href: `/auction/${ad.id}`,
+                                                imageUrl: ad.image,
+                                                typeA: ad.car?.brand ?? ad.parent_category,
+                                                typeB: ad.car?.model ?? ad.category,
+                                                name: ad.title,
+                                                currentBid: ad.latest_bid?.amount ?? ad.price,
+                                                ended_at: ad.ended_at,
+                                                isLive: ad.status === "live",
+                                                isPinned: ad.is_pinned,
+                                                onEdit: () => router.push(`/edit-product/${ad.id}`),
+                                            }}
+                                        />
+                                    ) : (
+                                        <ProductCard
+                                            key={ad.id}
+                                            product={{
+                                                id: String(ad.id),
+                                                href: `/product/${ad.id}`,
+                                                img: ad.image,
+                                                typeA: ad.car?.brand ?? ad.parent_category,
+                                                typeB: ad.car?.model ?? ad.category,
+                                                name: ad.title,
+                                                price: ad.price,
+                                                dateText: ad.created_at,
+                                                pinned: ad.is_pinned,
+                                                isFav: ad.is_favorite,
+                                                onEdit: () => router.push(`/edit-product/${ad.id}`),
+                                            }}
+                                        />
+                                    )
+                                )}
                             </div>
                         )}
 

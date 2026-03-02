@@ -22,6 +22,7 @@ interface Product {
     dateText?: string;
     pinned?: boolean;
     isFav?: boolean;
+    onEdit?: () => void;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -43,6 +44,17 @@ export default function ProductCard({ product }: { product: Product }) {
                         className="h-auto w-full object-cover"
                     />
                 </figure>
+
+                {product.onEdit && (
+                    <button
+                        type="button"
+                        className="edit-btn"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); product.onEdit?.(); }}
+                        aria-label="تعديل الإعلان"
+                    >
+                        <i className="fa-solid fa-pen-line" aria-hidden="true" />
+                    </button>
+                )}
 
                 {/* auction UI */}
                 {product.kind === "auction" ? (

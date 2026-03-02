@@ -12,8 +12,11 @@ export interface MainCategory {
     active_pinning_prices?: { id: number; position: string; price: string }[];
 }
 
-const fetchCategories = async (): Promise<MainCategory[]> => {
-    const res = await fetch(`${API_BASE_URL}/categories`, {
+const fetchCategories = async (type?: string): Promise<MainCategory[]> => {
+    const url = type
+        ? `${API_BASE_URL}/categories?type=${type}`
+        : `${API_BASE_URL}/categories`;
+    const res = await fetch(url, {
         headers: { 'accept-language': 'ar' },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -25,7 +28,15 @@ const fetchCategories = async (): Promise<MainCategory[]> => {
 export function useGetCategories() {
     return useQuery<MainCategory[]>({
         queryKey: ['categories'],
-        queryFn: fetchCategories,
+        queryFn: () => fetchCategories(),
         staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+}
+
+export function useGetAuctionTopCategories() {
+    return useQuery<MainCategory[]>({
+        queryKey: ['categories', 'auction'],
+        queryFn: () => fetchCategories('auction'),
+        staleTime: 1000 * 60 * 5,
     });
 }

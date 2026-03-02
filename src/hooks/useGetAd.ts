@@ -17,9 +17,12 @@ export interface BidEntry {
 }
 
 export interface CarInfo {
+    brand_id: number | null;
     brand: string | null;
+    model_id: number | null;
     model: string | null;
     year: string | null;
+    mileage: number | null;
 }
 
 export interface AdData {
@@ -31,7 +34,9 @@ export interface AdData {
     type: "ad" | "auction";
     is_creator: boolean;
     parent_category: string | null;
+    category_id: number;
     category: string;
+    city_id: number | null;
     city: string | null;
     description: string;
     allow_whatsapp: number;

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import UpperHeader from "@/components/General/UpperHeader";
 import { useGetSubCategories, type SubCategory } from "@/src/hooks/useGetSubCategories";
+import Loading from "@/src/app/loading";
 
 export default function CategoryWrapper({ id }: { id: string }) {
     const { data: subCategories = [], isLoading: loading, error: queryError } = useGetSubCategories(id);
@@ -23,9 +24,7 @@ export default function CategoryWrapper({ id }: { id: string }) {
                 </Link>
 
                 {loading && (
-                    <div className="flex justify-center items-center py-10">
-                        <span className="text-gray-500">جاري التحميل...</span>
-                    </div>
+                    <Loading />
                 )}
 
                 {error && (

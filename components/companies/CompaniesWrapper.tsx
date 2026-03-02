@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import { useGetCompanies } from "@/src/hooks/useGetCompanies";
+import Loading from "@/src/app/loading";
 
 
 export default function CompaniesWrapper() {
@@ -48,10 +49,7 @@ export default function CompaniesWrapper() {
 
                 <div className="company-items">
                     {isLoading ? (
-                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                            <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
-                            <p className="text-lg font-medium">جاري التحميل...</p>
-                        </div>
+                        <Loading />
                     ) : error ? (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-red-500">
                             <p className="text-lg font-medium">حدث خطأ أثناء تحميل الشركات</p>

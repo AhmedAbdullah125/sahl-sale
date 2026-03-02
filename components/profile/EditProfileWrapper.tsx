@@ -14,6 +14,7 @@ import { useGetProfile } from '@/src/hooks/useGetProfile';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Loading from '@/src/app/loading';
 
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -78,9 +79,7 @@ export default function EditProfileWrapper() {
 
     if (loadingProfile) {
         return (
-            <div className="flex justify-center items-center py-20">
-                <span className="text-gray-500">جاري التحميل...</span>
-            </div>
+            <Loading />
         );
     }
 

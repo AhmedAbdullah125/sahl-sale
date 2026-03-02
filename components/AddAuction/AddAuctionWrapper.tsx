@@ -1,16 +1,21 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import UpperHeader from "@/components/General/UpperHeader";
 import { Progress } from "@/components/ui/progress";
+import AddAdStepOne from "@/components/AddAd/steps/AddAdStepOne";
+import AddAdStepTwo from "@/components/AddAd/steps/AddAdStepTwo";
+import AddAdStepThree from "@/components/AddAd/steps/AddAdStepThree";
 import AddAdStepFour from "@/components/AddAd/steps/AddAdStepFour";
 import AddAdStepFive from "@/components/AddAd/steps/AddAdStepFive";
 
 import done from "@/src/images/done.gif";
 
-import { useGetAuctionCategories, type LastLevelCategory } from "@/src/hooks/useGetLastCategories";
+import { useGetAuctionTopCategories, type MainCategory } from "@/src/hooks/useGetCategories";
+import { fetchAuctionSubCategories, type SubCategory } from "@/src/hooks/useGetSubCategories";
 import { fetchManufacturingCountries, type ManufacturingCountry } from "@/src/hooks/useGetManufacturingCountries";
 import { fetchManufacturingYears, type ManufacturingYear } from "@/src/hooks/useGetManufacturingYears";
 import { fetchCities, type City } from "@/src/hooks/useGetCities";
@@ -18,37 +23,22 @@ import { fetchCarBrands, type CarBrand } from "@/src/hooks/useGetCarBrands";
 import { fetchCarModels, type CarModel } from "@/src/hooks/useGetCarModels";
 import { useHandlePublishAuction } from "@/src/hooks/useHandlePublishAuction";
 
-const STEP_PROGRESS = [50, 100];
+const STEP_PROGRESS = [20, 40, 60, 80, 100];
 
 export default function AddAuctionWrapper() {
+    const router = useRouter();
     const { handlePublish, isPublishing, doneTimerRef } = useHandlePublishAuction();
 
-    // ── Category ───────────────────────────────────────────────────────────────
-    const { auctionCategories, isLoading: categoriesLoading } = useGetAuctionCategories();
-    const [auctionCategory, setAuctionCategory] = useState<LastLevelCategory | null>(null);
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
+    // ── Categories (cascading) ─────────────────────────────────────────────────
+    const { data: mainCategories = [], isLoading: categoriesLoading } = useGetAuctionTopCategories();
+    const [subLevel2, setSubLevel2] = useState<SubCategory[]>([]);
+    const [subLevel3, setSubLevel3] = useState<SubCategory[]>([]);
+    const [selectedMain, setSelectedMain] = useState<MainCategory | null>(null);
+    const [selectedL2, setSelectedL2] = useState<SubCategory | null>(null);
+    const [selectedL3, setSelectedL3] = useState<SubCategory | null>(null);
 
-    // Auto-select when there is exactly one auction category
-    useEffect(() => {
-        if (!auctionCategories.length) return;
-        if (auctionCategories.length === 1) {
-            const single = auctionCategories[0]!;
-            setAuctionCategory(single);
-            setSelectedCategoryId(single.id);
-            const initialPins: Record<number, boolean> = {};
-            (single.active_pinning_prices ?? []).forEach((p) => (initialPins[p.id] = false));
-            setPinSelections(initialPins);
-        }
-    }, [auctionCategories]);
-
-    const onCategoryChange = (id: number) => {
-        const found = auctionCategories.find((c) => c.id === id) ?? null;
-        setAuctionCategory(found);
-        setSelectedCategoryId(id);
-        const initialPins: Record<number, boolean> = {};
-        (found?.active_pinning_prices ?? []).forEach((p) => (initialPins[p.id] = false));
-        setPinSelections(initialPins);
-    };
+    // The leaf is the deepest selected category that has no more children
+    const leafCategory = selectedL3 || (selectedL2 && !selectedL2.has_children ? selectedL2 : null);
 
     // ── Data loading ───────────────────────────────────────────────────────────
     const [manufacturingCountries, setManufacturingCountries] = useState<ManufacturingCountry[]>([]);
@@ -57,24 +47,157 @@ export default function AddAuctionWrapper() {
     const [carBrands, setCarBrands] = useState<CarBrand[]>([]);
     const [carModels, setCarModels] = useState<CarModel[]>([]);
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const [countries, years, brands, c] = await Promise.all([
-                    fetchManufacturingCountries(),
-                    fetchManufacturingYears(),
-                    fetchCarBrands(),
-                    fetchCities(),
-                ]);
-                setManufacturingCountries(countries);
-                setManufacturingYears(years);
-                setCarBrands(brands);
-                setCities(c);
-            } catch (e) { console.error(e); }
-        };
-        load();
-    }, []);
+    // ── Images ─────────────────────────────────────────────────────────────────
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
 
+    // ── Ad state ───────────────────────────────────────────────────────────────
+    const [ad, setAd] = useState<any>({
+        title: "", description: "", ad_price: "",
+        manufacturing_country_id: "", year: "", city_id: "",
+        car_brand_id: "", car_model_id: "", mileage: "",
+        allow_phone: true, allow_whatsapp: false, allow_notification: false,
+    });
+
+    // ── Step & addons ──────────────────────────────────────────────────────────
+    const [step, setStep] = useState(1);
+    const [pinSelections, setPinSelections] = useState<Record<number, boolean>>({});
+    const [agree, setAgree] = useState(false);
+    const [showDone, setShowDone] = useState(false);
+
+    const progress = STEP_PROGRESS[step - 1] ?? 20;
+
+    // ── Derived display title ──────────────────────────────────────────────────
+    const pathTitle = useMemo(() => {
+        return [selectedMain?.name, selectedL2?.name, selectedL3?.name].filter(Boolean).join(" - ");
+    }, [selectedMain, selectedL2, selectedL3]);
+
+    const title = useMemo(() => {
+        if (step === 1) return "اختر الفئة";
+        if (step === 2) return selectedMain?.name ?? "اختر الفئة";
+        if (step === 3) return `${selectedMain?.name ?? ""} - ${selectedL2?.name ?? ""}`.trim();
+        if (step === 4) return pathTitle || "بيانات المزاد";
+        return ad.title || "مراجعة ونشر";
+    }, [step, selectedMain, selectedL2, pathTitle, ad.title]);
+
+    // ── Cleanup ────────────────────────────────────────────────────────────────
+    useEffect(() => {
+        return () => {
+            if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
+            imagePreviews.forEach((url) => url.startsWith("blob:") && URL.revokeObjectURL(url));
+        };
+    }, [doneTimerRef, imagePreviews]);
+
+    // ── Navigation ─────────────────────────────────────────────────────────────
+    const handleBack = () => {
+        if (step === 1) return;
+        setStep((s) => s - 1);
+        if (step === 2) {
+            setSelectedMain(null);
+            setSubLevel2([]);
+            setSelectedL2(null);
+            setSubLevel3([]);
+            setSelectedL3(null);
+        } else if (step === 3) {
+            setSelectedL2(null);
+            setSubLevel3([]);
+            setSelectedL3(null);
+        } else if (step === 4) {
+            if (selectedL3) setSelectedL3(null);
+            else setSelectedL2(null);
+        }
+    };
+
+    // ── Preload step-4 data when leaf is selected ──────────────────────────────
+    const preloadStepFour = async (leaf: SubCategory) => {
+        try {
+            const [countries, years] = await Promise.all([
+                fetchManufacturingCountries(),
+                fetchManufacturingYears(),
+            ]);
+            setManufacturingCountries(countries);
+            setManufacturingYears(years);
+
+            if (leaf.has_city) {
+                const c = await fetchCities();
+                setCities(c);
+            } else {
+                setCities([]);
+                setAd((p: any) => ({ ...p, city_id: "" }));
+            }
+
+            if (leaf.ad_form === "car") {
+                const brands = await fetchCarBrands();
+                setCarBrands(brands);
+            } else {
+                setCarBrands([]);
+                setCarModels([]);
+                setAd((p: any) => ({ ...p, car_brand_id: "", car_model_id: "", mileage: "" }));
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    // ── Category pickers ───────────────────────────────────────────────────────
+    const pickMain = async (cat: MainCategory) => {
+        setSelectedMain(cat);
+        setSelectedL2(null);
+        setSelectedL3(null);
+        setSubLevel3([]);
+
+        const initialPins: Record<number, boolean> = {};
+        (cat.active_pinning_prices || []).forEach((p) => (initialPins[p.id] = false));
+        setPinSelections(initialPins);
+
+        if (!cat.has_children) {
+            // Treat top-level as leaf (shouldn't normally happen for auctions)
+            setStep(4);
+            return;
+        }
+
+        try {
+            const subs = await fetchAuctionSubCategories(cat.id);
+            setSubLevel2(subs);
+            setStep(2);
+        } catch (e) { console.error(e); }
+    };
+
+    const pickL2 = async (cat: SubCategory) => {
+        setSelectedL2(cat);
+        setSelectedL3(null);
+
+        if (!cat.has_children) {
+            await preloadStepFour(cat);
+            setStep(4);
+            return;
+        }
+
+        try {
+            const subs = await fetchAuctionSubCategories(cat.id);
+            setSubLevel3(subs);
+            setStep(3);
+        } catch (e) { console.error(e); }
+    };
+
+    const pickL3 = async (cat: SubCategory) => {
+        setSelectedL3(cat);
+
+        if (!cat.has_children) {
+            await preloadStepFour(cat);
+            setStep(4);
+            return;
+        }
+
+        // Support deeper nesting in the same step
+        try {
+            const subs = await fetchAuctionSubCategories(cat.id);
+            setSubLevel3(subs);
+            setSelectedL2(cat as any);
+            setSelectedL3(null);
+            setStep(3);
+        } catch (e) { console.error(e); }
+    };
+
+    // ── Car brand → models ─────────────────────────────────────────────────────
     const onCarBrandChange = async (brandId: string) => {
         if (!brandId) { setCarModels([]); return; }
         try {
@@ -84,9 +207,6 @@ export default function AddAuctionWrapper() {
     };
 
     // ── Images ─────────────────────────────────────────────────────────────────
-    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-    const [imageFiles, setImageFiles] = useState<File[]>([]);
-
     const onPickImages = (files: FileList | null) => {
         if (!files || files.length === 0) return;
         const list = Array.from(files);
@@ -111,29 +231,8 @@ export default function AddAuctionWrapper() {
         setImageFiles([]);
     };
 
-    // ── Ad state ───────────────────────────────────────────────────────────────
-    const [ad, setAd] = useState<any>({
-        title: "", description: "", ad_price: "",
-        manufacturing_country_id: "", year: "", city_id: "",
-        car_brand_id: "", car_model_id: "", mileage: "",
-        allow_phone: true, allow_whatsapp: false, allow_notification: false,
-    });
-
-    // ── Step & addons ──────────────────────────────────────────────────────────
-    const [step, setStep] = useState(1);
-    const [pinSelections, setPinSelections] = useState<Record<number, boolean>>({});
-    const [agree, setAgree] = useState(false);
-    const [showDone, setShowDone] = useState(false);
-
-    const progress = STEP_PROGRESS[step - 1] ?? 50;
-
-    // ── Cleanup ────────────────────────────────────────────────────────────────
-    useEffect(() => {
-        return () => {
-            if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
-            imagePreviews.forEach((url) => url.startsWith("blob:") && URL.revokeObjectURL(url));
-        };
-    }, [doneTimerRef, imagePreviews]);
+    const adForm: "default" | "car" = (leafCategory?.ad_form as any) || "car";
+    const hasCity = !!leafCategory?.has_city;
 
     return (
         <section className="content-section" dir="rtl">
@@ -151,7 +250,7 @@ export default function AddAuctionWrapper() {
             <div className="container">
                 <UpperHeader
                     title="إضافة مزاد"
-                    onBack={() => setStep((s) => Math.max(1, s - 1))}
+                    onBack={handleBack}
                     backDisabled={step === 1}
                 />
 
@@ -159,42 +258,34 @@ export default function AddAuctionWrapper() {
                     <Progress value={progress} />
                 </div>
 
-                <h4 className="progress-name">
-                    {step === 1 ? "بيانات المزاد" : ad.title || "مراجعة ونشر"}
-                </h4>
+                <h4 className="progress-name">{title}</h4>
 
-                {/* Category Select — only shown when there are multiple auction categories */}
-                {!categoriesLoading && auctionCategories.length > 1 && (
-                    <div className="form-group mb-4">
-                        <label className="form-label block mb-1 font-medium text-sm text-gray-700">
-                            القسم
-                        </label>
-                        <select
-                            className="form-control w-full border rounded-lg px-3 py-2 text-sm"
-                            value={selectedCategoryId}
-                            onChange={(e) => onCategoryChange(Number(e.target.value))}
-                        >
-                            <option value="">اختر القسم</option>
-                            {auctionCategories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                {/* Step 1: Top-level auction categories */}
+                {step === 1 && (
+                    categoriesLoading
+                        ? <div className="flex justify-center py-10"><span className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
+                        : <AddAdStepOne options={mainCategories} selectedId={selectedMain?.id ?? null} onPick={pickMain} />
                 )}
 
-                {step === 1 && (
+                {/* Step 2: Sub-categories (level 2) */}
+                {step === 2 && <AddAdStepTwo options={subLevel2} selectedId={selectedL2?.id ?? null} onPick={pickL2} />}
+
+                {/* Step 3: Sub-categories (level 3+) */}
+                {step === 3 && <AddAdStepThree options={subLevel3} selectedId={selectedL3?.id ?? null} onPick={pickL3} />}
+
+                {/* Step 4: Ad form */}
+                {step === 4 && (
                     <AddAdStepFour
+                        pathTitle={pathTitle}
                         imagePreviews={imagePreviews}
                         onPickImages={onPickImages}
                         onRemoveImageAt={removeImageAt}
                         onClearImages={clearImages}
                         ad={ad}
                         setAd={setAd}
-                        onNext={() => setStep(2)}
-                        adForm="car"
-                        hasCity={true}
+                        onNext={() => setStep(5)}
+                        adForm={adForm}
+                        hasCity={hasCity}
                         manufacturingCountries={manufacturingCountries}
                         manufacturingYears={manufacturingYears}
                         cities={cities}
@@ -204,9 +295,10 @@ export default function AddAuctionWrapper() {
                     />
                 )}
 
-                {step === 2 && (
+                {/* Step 5: Review & publish */}
+                {step === 5 && (
                     <AddAdStepFive
-                        sel={{ level1: auctionCategory }}
+                        sel={{ level1: selectedMain, level2: selectedL2, level3: selectedL3 }}
                         ad={ad}
                         imagePreview={imagePreviews[0]}
                         addons={pinSelections}
@@ -218,14 +310,14 @@ export default function AddAuctionWrapper() {
                                 ad,
                                 imageFiles,
                                 pinSelections,
-                                categoryId: auctionCategory?.id ?? 0,
-                                hasCityField: true,
+                                categoryId: leafCategory?.id ?? 0,
+                                hasCityField: hasCity,
                                 onSuccess: () => setShowDone(true),
                                 onPaymentRedirect: (url) => { window.location.href = url; },
                             })
                         }
-                        termsHref="#"
-                        mainCategory={auctionCategory}
+                        termsHref="/terms"
+                        mainCategory={selectedMain}
                         isPublishing={isPublishing}
                         isAuction={true}
                     />

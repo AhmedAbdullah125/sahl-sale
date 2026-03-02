@@ -1,53 +1,47 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import UpperHeader from "@/components/General/UpperHeader";
 import { Loader2, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AuctionCard from "./AuctionCard";
-import { useGetAds, type AdItem } from "@/src/hooks/useGetAds";
+import ProductCard from "@/components/General/ProductCard";
+import AuctionCard from "@/components/Auctions/AuctionCard";
+import { useGetPinnedHome } from "@/src/hooks/useGetPinnedHome";
+import type { AdItem } from "@/src/hooks/useGetAds";
 import Loading from "@/src/app/loading";
 
-function adToAuction(ad: AdItem) {
+function adToCard(ad: AdItem) {
     return {
         id: String(ad.id),
-        href: `/auction/${ad.id}`,
+        href: ad.type === "auction" ? `/auction/${ad.id}` : `/product/${ad.id}`,
         imageUrl: ad.image,
+        img: ad.image,
         typeA: ad.car?.brand ?? ad.parent_category,
         typeB: ad.car?.model ?? ad.category,
         name: ad.title,
-        currentBid: ad.latest_bid?.amount ?? ad.price,
-        ended_at: ad.ended_at,
-        isLive: ad.status === "live",
+        price: ad.type === "ad" ? ad.price : undefined,
+        currentBid: ad.type === "auction" ? (ad.latest_bid?.amount ?? ad.price) : undefined,
+        dateText: ad.created_at,
         isPinned: ad.is_pinned,
+        pinned: ad.is_pinned,
+        isLive: ad.status === "live",
+        isFav: ad.is_favorite,
+        ended_at: ad.ended_at,
     };
 }
 
-export default function AuctionsWrapper() {
-    const router = useRouter();
+export default function PinnedProductsWrapper() {
     const [page, setPage] = useState(1);
+    const { data, isLoading: loading, error } = useGetPinnedHome(page);
 
-    const { data, isLoading: loading, error } = useGetAds({ type: "auction", page });
-
-    const items: AdItem[] = data?.items || [];
+    const items = data?.items || [];
     const paginate = data?.paginate || null;
     const errorMessage = error instanceof Error ? error.message : null;
 
     return (
-        <section className="content-section" dir="rtl">
+        <section className="content-section">
             <div className="container">
-                <div className="upper-header">
-                    <button
-                        type="button"
-                        className="back-btn"
-                        onClick={() => router.back()}
-                        aria-label="رجوع"
-                    >
-                        <i className="fa-regular fa-arrow-right" aria-hidden="true" />
-                    </button>
-                    <h3 className="page-title">المزادات</h3>
-                    <div className="empty" />
-                </div>
+                <UpperHeader title="الإعلانات المثبتة" />
 
                 <div className="product-cont">
                     {loading && (
@@ -55,7 +49,7 @@ export default function AuctionsWrapper() {
                     )}
 
                     {errorMessage && (
-                        <div className="flex flex-col items-center justify-center py-12 text-red-500 w-full">
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-red-500 w-full">
                             <p className="text-lg font-medium">{errorMessage}</p>
                         </div>
                     )}
@@ -66,15 +60,20 @@ export default function AuctionsWrapper() {
                                 {items.length === 0 ? (
                                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground w-full">
                                         <SearchX className="h-16 w-16 mb-4 opacity-50" />
-                                        <p className="text-lg font-medium">لا توجد مزادات</p>
+                                        <p className="text-lg font-medium">لا توجد نتائج مطابقة</p>
                                     </div>
                                 ) : (
-                                    items.map((ad) => (
-                                        <AuctionCard key={ad.id} auction={adToAuction(ad)} />
-                                    ))
+                                    items.map((p) =>
+                                        p.type === "auction" ? (
+                                            <AuctionCard key={p.id} auction={adToCard(p)} />
+                                        ) : (
+                                            <ProductCard key={p.id} product={adToCard(p)} />
+                                        )
+                                    )
                                 )}
                             </div>
 
+                            {/* pagination */}
                             {paginate && paginate.total_pages > 1 && (
                                 <div className="flex justify-center gap-2 mt-6">
                                     <Button

@@ -7,6 +7,7 @@ import Link from "next/link";
 import vehicles from "@/src/images/category/vehicles.png";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useGetSettings } from "@/src/hooks/useGetSettings";
 
 export default function AddAdStepFive({
   sel,
@@ -24,6 +25,14 @@ export default function AddAdStepFive({
 }: any) {
   const publishFee = Number(isAuction ? (mainCategory?.auction_fee ?? 0) : (mainCategory?.ad_fee ?? 0));
   const pins = (mainCategory?.active_pinning_prices ?? []) as { id: number; position: string; price: string }[];
+
+  const { data: settings } = useGetSettings();
+  const durationDays = isAuction
+    ? (settings?.auction_duration_days ?? "—")
+    : (settings?.ad_duration_days ?? "—");
+  const durationLabel = settings
+    ? `المدة : ${durationDays} يوم`
+    : "جاري التحميل...";
 
   const pinsTotal = useMemo(() => {
     let sum = 0;
@@ -83,7 +92,7 @@ export default function AddAdStepFive({
         <div className="item-info">
           <div className="item-content">
             <div className="item-name">رسوم نشر الاعلان</div>
-            <div className="item-text">المدة : 1 شهر</div>
+            <div className="item-text">{durationLabel}</div>
           </div>
           <div className="item-box">
             <div className="price">{formatKD(publishFee)}</div>

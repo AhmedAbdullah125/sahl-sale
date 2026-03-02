@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { CirclePlus, Trash2 } from "lucide-react";
+import { CirclePlus, Loader2, Trash2 } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import phoneIcon from "@/src/images/phone-icon.png";
 import whatsIcon from "@/src/images/whats-icon.png";
 import { EditAdSchema } from "./edit-ad.schema";
 
-export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, }: any) {
+export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, isPending, COUNTRIES, BRANDS, MODELS, YEARS, GOVERNORATES, existingImages = [], onDeleteExistingImage }: any) {
     const titleMax = 27;
     const inputRef = useRef<HTMLInputElement>(null);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -43,11 +43,15 @@ export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, COUNTRIE
             contactWhats: !!ad.contactWhats,
         };
     }, [ad, imagePreviews]);
-    const { register, handleSubmit, setValue, watch, trigger, formState: { errors }, } = useForm({
+    const { register, handleSubmit, setValue, watch, trigger, reset, formState: { errors }, } = useForm({
         resolver: zodResolver(EditAdSchema),
         defaultValues,
         mode: "onSubmit",
     });
+
+    useEffect(() => {
+        reset(defaultValues);
+    }, [ad, reset, defaultValues]);
 
     useEffect(() => {
         const sub = watch((v, { name, type }) => {
@@ -87,6 +91,26 @@ export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, COUNTRIE
                 </label>
 
                 {errors.images?.message ? (<p className="mt-2 text-sm text-red-500">{String(errors.images.message)}</p>) : null}
+
+                {/* Existing images from the server */}
+                {existingImages.length > 0 && (
+                    <div className="mt-3 w-full">
+                        <p className="mb-2 text-sm text-[#888]">الصور الحالية:</p>
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                            {existingImages.map((img: { id: number; url: string }) => (
+                                <div key={img.id} className="relative overflow-hidden rounded-md border">
+                                    <Image src={img.url} alt={`existing-${img.id}`} width={200} height={140} className="h-24 w-full object-cover" unoptimized />
+                                    <button type="button" className="remove-btn" onClick={(e) => {
+                                        e.preventDefault();
+                                        onDeleteExistingImage?.(img.id);
+                                    }} aria-label="Remove existing image">
+                                        <Trash2 className="h-5 w-5 text-red-500" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {(!images || images.length === 0) && (
                     <p className="mt-2 text-sm text-[#888]">
@@ -272,7 +296,8 @@ export default function EditAdForm({ isCarOrAuction, ad, setAd, onSave, COUNTRIE
                     </label>
                 </div>
             </div>
-            <button className="form-btn" type="submit">
+            <button className="form-btn" type="submit" disabled={isPending}>
+                {isPending ? <Loader2 className="inline h-4 w-4 animate-spin ml-2" /> : null}
                 حفظ التعديلات
             </button>
         </form>

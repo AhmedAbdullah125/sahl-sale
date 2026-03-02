@@ -4,6 +4,17 @@ footer {
   position: relative;
   background-color: $sec;
   margin-top: 40px;
+
+  @media screen and (max-width: 991px) {
+    margin-top: 50px;
+    background-color: transparent;
+
+    .container {
+
+      display: none !important;
+    }
+  }
+
 }
 
 .copy-flex {
@@ -52,11 +63,3 @@ footer {
   color: $white;
   gap: 5px;
 }
-
-@media (max-width: 991px) {
-  footer {
-    padding: 20px 0 120px;
-  }
-}
-
-/*                                   footer                            */

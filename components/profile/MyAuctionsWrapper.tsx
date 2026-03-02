@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import MyBidCard from "./MyBidCard";
 import { useGetMyBids } from "@/src/hooks/useGetMyBids";
 import { PackageOpen } from "lucide-react";
+import Loading from "@/src/app/loading";
 
 export default function MyAuctionsWrapper() {
     const router = useRouter();
@@ -33,9 +34,7 @@ export default function MyAuctionsWrapper() {
             <div className="product-cont">
                 {/* states */}
                 {loading && (
-                    <div className="flex justify-center py-10">
-                        <span className="text-gray-500">جاري التحميل...</span>
-                    </div>
+                    <Loading />
                 )}
 
                 {isError && (

@@ -8,22 +8,18 @@ import "swiper/css";
 import "swiper/css/pagination";
 import ProductCard from "../General/ProductCard";
 import { Category } from "@/types/home";
+import AuctionCard from "../Auctions/AuctionCard";
 
 export default function CategoryProducts({ category }: { category: Category }) {
-
     return (
         <section className="product-section">
             <div className="container">
                 <div className="section-head">
                     <h3 className="section-title">{category.name}</h3>
-                    {
-                        category.id ?
-                            <Link href={`/categories/${category.id}`} className="products-link">
-                                عرض الكل
-                            </Link>
-                            :
-                            null
-                    }
+
+                    <Link href={category.id ? `/categories/${category.id}` : `/pinned-products`} className="products-link">
+                        عرض الكل
+                    </Link>
                 </div>
 
                 {
@@ -45,23 +41,40 @@ export default function CategoryProducts({ category }: { category: Category }) {
                             >
                                 {category.ads.map((item) => (
                                     <SwiperSlide key={item.id} className="swiper-slide">
-                                        <ProductCard
-                                            product={{
-                                                id: String(item.id),
-                                                href: `/product/${item.id}`,
-                                                img: item.image,
-                                                name: item.title,
-                                                price: item.price,
-                                                kind: item.type,
-                                                typeA: item.parent_category,
-                                                typeB: item.category ?? undefined,
-                                                timer: item.ended_at,
-                                                currentBid: item.latest_bid?.amount ?? undefined,
-                                                dateText: item.created_at,
-                                                pinned: category.slug === "pinned" ? true : item.is_pinned,
-                                                isFav: item.is_favorite,
-                                            }}
-                                        />
+                                        {
+                                            item.type == "ad" ?
+                                                <ProductCard
+                                                    product={{
+                                                        id: String(item.id),
+                                                        href: `/product/${item.id}`,
+                                                        img: item.image,
+                                                        name: item.title,
+                                                        price: item.price,
+                                                        kind: item.type,
+                                                        typeA: item.parent_category,
+                                                        typeB: item.category ?? undefined,
+                                                        timer: item.ended_at,
+                                                        currentBid: item.latest_bid?.amount ?? undefined,
+                                                        dateText: item.created_at,
+                                                        pinned: category.slug === "pinned" ? true : item.is_pinned,
+                                                        isFav: item.is_favorite,
+                                                    }}
+                                                />
+                                                :
+                                                <AuctionCard
+                                                    auction={{
+                                                        id: String(item.id),
+                                                        imageUrl: item.image,
+                                                        name: item.title,
+                                                        typeA: item.parent_category,
+                                                        typeB: item.category ?? undefined,
+                                                        ended_at: item.ended_at,
+                                                        currentBid: item.latest_bid?.amount ?? item.price,
+                                                        isLive: item.status === "live",
+                                                        isPinned: category.slug === "pinned" ? true : item.is_pinned,
+                                                    }}
+                                                />
+                                        }
                                     </SwiperSlide>
                                 ))}
                             </Swiper>

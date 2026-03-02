@@ -8,6 +8,13 @@ export interface CarDetails {
     year: string;
 }
 
+export interface LatestBid {
+    id: number;
+    amount: string;
+    user: string | null;
+    created_at: string;
+}
+
 export interface AdItem {
     id: number;
     title: string;
@@ -21,6 +28,8 @@ export interface AdItem {
     image: string;
     created_at: string;
     ended_at: string;
+    latest_bid?: LatestBid | null;
+    my_bid?: boolean;
     status: string;
     is_favorite: boolean;
 }

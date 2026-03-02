@@ -21,18 +21,14 @@ export async function getFcmToken(): Promise<string | null> {
         if (typeof window === "undefined") return null;
 
         const supported = await isSupported();
-        console.log("[FCM] isSupported:", supported);
         if (!supported) return null;
 
         const permission = await Notification.requestPermission();
-        console.log("[FCM] notification permission:", permission);
         if (permission !== "granted") return null;
 
         const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-        console.log("[FCM] vapidKey present:", !!vapidKey);
 
         const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-        console.log("[FCM] service worker registered:", sw.scope);
 
         const messaging = getMessaging(app);
         const token = await getToken(messaging, {
@@ -40,7 +36,6 @@ export async function getFcmToken(): Promise<string | null> {
             serviceWorkerRegistration: sw,
         });
 
-        console.log("[FCM] token:", token || "(empty — check VAPID key and web APP_ID)");
         return token || null;
     } catch (err) {
         console.error("[FCM] token error:", err);

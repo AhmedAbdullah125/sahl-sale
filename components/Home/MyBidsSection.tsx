@@ -17,7 +17,7 @@ export default function MyBidsSection({ bids }: MyBidsSectionProps) {
       <div className="container">
         <div className="section-head">
           <h3 className="section-title">مزايداتي</h3>
-          <Link href="#" className="products-link">
+          <Link href="/profile/my-auctions" className="products-link">
             عرض الكل
           </Link>
         </div>

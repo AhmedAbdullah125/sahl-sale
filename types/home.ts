@@ -39,6 +39,7 @@ export interface Ad {
     my_bid?: boolean;
     created_at: string;
     ended_at: string;
+    latest_bid_amount: string;
     status: string;
     is_favorite: boolean;
 }
@@ -54,6 +55,7 @@ export interface Category {
     active_pinning_prices: PinningPrice[];
     ads: Ad[];
     slug?: string;
+
 }
 
 export interface HomeData {

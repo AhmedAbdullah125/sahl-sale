@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Bookmark, Link as LinkIcon, AlertCircle, BadgeCheck, PhoneCall, PenLine, Trash2, X } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -18,13 +18,13 @@ import { usePlaceBid } from "@/src/hooks/usePlaceBid";
 import { Loader2 } from "lucide-react";
 import FancyboxWrapper from "../ui/FancyboxWrapper";
 import VerificationModal from "../Auctions/VerificationModal";
+import { useEndAd } from "@/src/hooks/useEndAd";
+import { useDeleteAd } from "@/src/hooks/useDeleteAd";
+import Loading from "@/src/app/loading";
 
 export default function ProductWrapper({ id }: { id: string }) {
     const router = useRouter();
-    const pathname = usePathname()
     const { data: ad, isLoading, error } = useGetAd(id);
-    console.log(ad);
-
     const { data: profile } = useGetProfile();
     // If is_creator is returned from API, use it, otherwise fallback to path check
     const isMyProduct = ad?.user.id === profile?.id;
@@ -51,6 +51,14 @@ export default function ProductWrapper({ id }: { id: string }) {
 
     const { mutate: placeBid, isPending: isPlacingBid } = usePlaceBid();
 
+    // Archive ad
+    const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+    const { mutate: endAd, isPending: isEndingAd } = useEndAd();
+
+    // Delete ad
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const { mutate: deleteAd, isPending: isDeletingAd } = useDeleteAd();
+
     // Use data from API
     const phone = ad?.user?.phone;
     const whatsapp = ad?.user?.whatsapp;
@@ -73,9 +81,7 @@ export default function ProductWrapper({ id }: { id: string }) {
 
     if (isLoading) {
         return (
-            <div className="flex h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <Loading />
         );
     }
 
@@ -193,8 +199,8 @@ export default function ProductWrapper({ id }: { id: string }) {
                                     <button
                                         type="button"
                                         className="delete-btn"
-
                                         aria-label="Delete"
+                                        onClick={() => setIsDeleteOpen(true)}
                                     >
                                         <Trash2 />
                                     </button>
@@ -394,8 +400,12 @@ export default function ProductWrapper({ id }: { id: string }) {
                     )}
 
                     {/* My product only: Sold button */}
-                    {isMyProduct && !isAuction ? (
-                        <button type="button" className="form-btn">
+                    {isMyProduct && !ad.is_ended ? (
+                        <button
+                            type="button"
+                            className="form-btn"
+                            onClick={() => setIsArchiveOpen(true)}
+                        >
                             تم البيع
                         </button>
                     ) : null}
@@ -407,6 +417,101 @@ export default function ProductWrapper({ id }: { id: string }) {
                 isOpen={showVerificationModal}
                 onClose={() => setShowVerificationModal(false)}
             />
+
+            {/* Archive Confirmation Modal */}
+            {isArchiveOpen && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                    <div dir="rtl" className="w-full max-w-md rounded-2xl bg-[#F8F9FA] p-6 shadow-2xl relative">
+                        <button
+                            type="button"
+                            onClick={() => setIsArchiveOpen(false)}
+                            className="absolute left-6 top-6 text-gray-500 hover:text-black"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+
+                        <h2 className="text-xl font-bold text-center mb-3 mt-2">هل أنت متأكد؟</h2>
+                        <p className="text-center text-gray-700 mb-2">هل تريد أرشفة هذا الإعلان؟</p>
+                        <p className="text-center text-sm text-gray-400 mb-6">لن يتمكن أحد من رؤية هذا الإعلان بعد الآن</p>
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsArchiveOpen(false)}
+                                className="flex-1 rounded-xl border border-gray-300 py-3 text-gray-700 font-semibold hover:bg-gray-100 transition-colors"
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isEndingAd}
+                                onClick={() => {
+                                    endAd(id, {
+                                        onSuccess: () => {
+                                            setIsArchiveOpen(false);
+                                            router.back();
+                                        },
+                                        onError: (err) => {
+                                            alert(err.message || 'حدث خطأ أثناء أرشفة الإعلان');
+                                        },
+                                    });
+                                }}
+                                className="flex-1 rounded-xl bg-red-500 py-3 text-white font-bold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center"
+                            >
+                                {isEndingAd ? <Loader2 className="h-5 w-5 animate-spin" /> : "تأكيد"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteOpen && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                    <div dir="rtl" className="w-full max-w-md rounded-2xl bg-[#F8F9FA] p-6 shadow-2xl relative">
+                        <button
+                            type="button"
+                            onClick={() => setIsDeleteOpen(false)}
+                            className="absolute left-6 top-6 text-gray-500 hover:text-black"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+
+                        <h2 className="text-xl font-bold text-center mb-3 mt-2">هل أنت متأكد؟</h2>
+                        <p className="text-center text-gray-700 mb-6">
+                            هل تريد حذف هذا {isAuction ? "المزاد" : "الإعلان"}؟
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsDeleteOpen(false)}
+                                className="flex-1 rounded-xl border border-gray-300 py-3 text-gray-700 font-semibold hover:bg-gray-100 transition-colors"
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isDeletingAd}
+                                onClick={() => {
+                                    deleteAd(id, {
+                                        onSuccess: () => {
+                                            setIsDeleteOpen(false);
+                                            router.back();
+                                        },
+                                        onError: (err) => {
+                                            alert(err.message || 'حدث خطأ أثناء حذف الإعلان');
+                                        },
+                                    });
+                                }}
+                                className="flex-1 rounded-xl bg-red-500 py-3 text-white font-bold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center"
+                            >
+                                {isDeletingAd ? <Loader2 className="h-5 w-5 animate-spin" /> : "حذف"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Report Modal */}
             {

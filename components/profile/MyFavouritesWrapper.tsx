@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductCard from "../General/ProductCard";
 import { useGetFavouriteProducts } from "@/src/hooks/useGetFavouriteProducts";
+import Loading from "@/src/app/loading";
 
 export default function MyFavouritesWrapper() {
     const router = useRouter();
@@ -34,9 +35,7 @@ export default function MyFavouritesWrapper() {
             <div className="product-cont">
                 {/* ── Loading ── */}
                 {isLoading && (
-                    <div className="flex justify-center items-center py-16">
-                        <span className="text-gray-400">جاري التحميل...</span>
-                    </div>
+                    <Loading />
                 )}
 
                 {/* ── Error ── */}

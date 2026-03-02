@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetCategories } from "@/src/hooks/useGetCategories";
+import Loading from "@/src/app/loading";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -17,9 +18,7 @@ export default function CategoriesWrapper() {
                     <h3 className="page-head">الأقسام</h3>
 
                     {isLoading && (
-                        <div className="flex justify-center py-10">
-                            <span className="text-gray-500">جاري التحميل...</span>
-                        </div>
+                        <Loading />
                     )}
 
                     {error && (

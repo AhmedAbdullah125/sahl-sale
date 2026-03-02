@@ -350,7 +350,7 @@ export default function AddAdWrapper() {
             agree={agree}
             setAgree={setAgree}
             onPublish={handlePublish}
-            termsHref="#"
+            termsHref="/terms"
             mainCategory={selectedMain}
             isPublishing={isPublishing}
           />

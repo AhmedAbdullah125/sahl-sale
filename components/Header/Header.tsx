@@ -1,21 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, Bookmark, User, Loader2 } from "lucide-react";
+import { Search, Bell, Bookmark, User, Loader2, X } from "lucide-react";
 import { useGetAds } from "@/src/hooks/useGetAds";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import logo from "@/src/images/logo.svg";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [isDark, setIsDark] = useState(false);
+
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 500);
     return () => clearTimeout(timer);
@@ -28,18 +32,31 @@ export default function Header() {
 
   const searchResults = data?.items || [];
 
-  // Load saved mode
+  // Load saved mode (client-only)
   useEffect(() => {
     const saved = localStorage.getItem("dark-mode") === "true";
     setIsDark(saved);
   }, []);
 
-  // Apply to body + save
+  // Apply to body + save (client-only)
   useEffect(() => {
     document.body.classList.toggle("dark-mode", isDark);
     localStorage.setItem("dark-mode", String(isDark));
   }, [isDark]);
 
+  const hasQuery = q.trim().length > 0;
+
+  const handleClearOrOpen = () => {
+    if (!hasQuery) {
+      setIsDropdownOpen(false);
+      inputRef.current?.focus();
+      return;
+    }
+    setQ("");
+    setIsDropdownOpen(false);
+    inputRef.current?.focus();
+  };
+  const pathname = usePathname();
   return (
     <>
       <header>
@@ -49,33 +66,56 @@ export default function Header() {
               <div className="nav-header">
                 <figure className="img-logo relative w-[150px] h-[50px]">
                   <Link href="/">
-                    <Image src={logo} alt="Logo" width={150} height={50} className="object-contain" priority />
+                    <Image
+                      src={logo}
+                      alt="Logo"
+                      width={150}
+                      height={50}
+                      className="object-contain"
+                      priority
+                    />
                   </Link>
                 </figure>
 
-                <div className="search-section relative" style={{ position: "relative" }}>
-                  <form className="search-form flex items-center gap-2 w-full" onSubmit={(e) => e.preventDefault()}>
-                    <Input
-                      className="search-input w-full"
-                      type="text"
-                      name="search"
-                      placeholder="ابحث"
-                      value={q}
-                      onChange={(e) => {
-                        setQ(e.target.value);
-                        setIsDropdownOpen(true);
-                      }}
-                      onFocus={() => setIsDropdownOpen(true)}
-                      onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                      autoComplete="off"
-                    />
-                    <Button type="submit" size="icon" className="search-button">
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  </form>
+                <div className="search-section relative">
+                  {
+                    pathname == "/" ?
+
+                      <form
+                        className="search-form flex items-center gap-2 w-full"
+                        onSubmit={(e) => e.preventDefault()}
+                      >
+                        <Input
+                          ref={inputRef}
+                          className="search-input w-full"
+                          type="text"
+                          name="search"
+                          placeholder="ابحث"
+                          id="search"
+                          value={q}
+                          onChange={(e) => {
+                            setQ(e.target.value);
+                            setIsDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                          autoComplete="off"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={handleClearOrOpen}
+                          className="search-button border-0 cursor-pointer"
+                          aria-label={hasQuery ? "مسح البحث" : "بحث"}
+                        >
+                          {hasQuery ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+                        </button>
+                      </form>
+                      : null
+                  }
 
                   {/* Search Dropdown */}
-                  {isDropdownOpen && q.trim().length > 0 && (
+                  {isDropdownOpen && hasQuery && (
                     <div className="absolute top-full right-0 mt-2 bg-background border border-border shadow-lg z-50 max-h-96 overflow-y-auto w-full md:w-[400px] rounded-[10px]">
                       {isLoading ? (
                         <div className="flex justify-center py-4">
@@ -83,15 +123,34 @@ export default function Header() {
                         </div>
                       ) : searchResults.length > 0 ? (
                         <div className="flex flex-col">
-                          {searchResults.map((item) => (
-                            <Link key={item.id} href={`/product/${item.id}`} className="flex items-center gap-3 p-3 hover:bg-muted border-b border-border last:border-0 transition-colors">
-                              <Image src={item.image || "http://sahl.test/placeholders/logo.jpg"} alt={item.title} width={50} height={50} className="object-cover rounded-md" unoptimized />
+                          {searchResults.map((item: any) => (
+                            <Link
+                              key={item.id}
+                              href={`/product/${item.id}`}
+                              className="flex items-center gap-3 p-3 hover:bg-muted border-b border-border last:border-0 transition-colors"
+                              onMouseDown={(e) => e.preventDefault()} // prevents blur before click navigation
+                              onClick={() => setIsDropdownOpen(false)}
+                            >
+                              <Image
+                                src={item.image || "http://sahl.test/placeholders/logo.jpg"}
+                                alt={item.title}
+                                width={50}
+                                height={50}
+                                className="object-cover rounded-md"
+                                unoptimized
+                              />
                               <div className="flex flex-col flex-1">
-                                <span className="text-sm font-semibold truncate text-foreground">{item.title}</span>
+                                <span className="text-sm font-semibold truncate text-foreground">
+                                  {item.title}
+                                </span>
                                 {item.type === "ad" ? (
-                                  <span className="text-xs text-primary font-bold">{item.price} د.ك</span>
+                                  <span className="text-xs text-primary font-bold">
+                                    {item.price} د.ك
+                                  </span>
                                 ) : (
-                                  <span className="text-xs text-orange-500 font-bold">بالمزاد: {item.price} د.ك</span>
+                                  <span className="text-xs text-orange-500 font-bold">
+                                    بالمزاد: {item.price} د.ك
+                                  </span>
                                 )}
                               </div>
                             </Link>
@@ -201,19 +260,31 @@ export default function Header() {
           </div>
 
           <div className="container">
-            <nav >
+            <nav>
               <ul className="big-menu list-unstyled flex gap-4">
                 <li className="cat-li">
-                  <Link href="/" className="cat-anchor">الرئيسية</Link>
+                  <Link href="/" className="cat-anchor">
+                    الرئيسية
+                  </Link>
                 </li>
                 <li className="cat-li">
-                  <Link href="/categories" className="cat-anchor">الأقسام</Link>
+                  <Link href="/categories" className="cat-anchor">
+                    الأقسام
+                  </Link>
                 </li>
                 <li className="cat-li">
-                  <button type="button" onClick={() => setIsAddModalOpen(true)} className="cat-anchor font-inherit bg-transparent border-0 cursor-pointer p-0 text-inherit w-full text-right">أضف اعلان</button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="cat-anchor font-inherit bg-transparent border-0 cursor-pointer p-0 text-inherit w-full text-right"
+                  >
+                    أضف اعلان
+                  </button>
                 </li>
                 <li className="cat-li">
-                  <Link href="/auctions" className="cat-anchor">المزادات</Link>
+                  <Link href="/auctions" className="cat-anchor">
+                    المزادات
+                  </Link>
                 </li>
               </ul>
             </nav>
@@ -224,19 +295,23 @@ export default function Header() {
       {/* bottom menu (unchanged) */}
       <div className="menu-bar">
         <div>
-          <Link href="/" className="active">
+          <Link href="/" className={pathname == "/" ? "active" : ""}>
             <i className="fa-solid fa-house"></i>
             <span>الرئيسية</span>
           </Link>
         </div>
         <div>
-          <Link href="/categories">
+          <Link href="/categories" className={pathname == "/categories" ? "active" : ""}>
             <i className="fa-solid fa-grid-2"></i>
             <span>الأقسام</span>
           </Link>
         </div>
         <div>
-          <button type="button" onClick={() => setIsAddModalOpen(true)} className="add-icon bg-transparent border-0 p-0 m-0 w-full flex flex-col items-center justify-center cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setIsAddModalOpen(true)}
+            className="add-icon bg-transparent border-0 p-0 m-0 w-full flex flex-col items-center justify-center cursor-pointer"
+          >
             <span className="add-plus">
               <i className="fa-solid fa-plus"></i>
             </span>
@@ -244,13 +319,13 @@ export default function Header() {
           </button>
         </div>
         <div>
-          <Link href="/auctions">
+          <Link href="/auctions" className={pathname == "/auctions" ? "active" : ""}>
             <i className="fa-solid fa-gavel"></i>
             <span>المزادات</span>
           </Link>
         </div>
         <div>
-          <Link href="/profile">
+          <Link href="/profile" className={pathname == "/profile" ? "active" : ""}>
             <i className="fa-solid fa-circle-user"></i>
             <span>الحساب</span>
           </Link>
@@ -260,10 +335,15 @@ export default function Header() {
       {/* Add Type Selection Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 transition-opacity">
-          <div dir="rtl" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+          <div
+            dir="rtl"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200"
+          >
             <button
               onClick={() => setIsAddModalOpen(false)}
               className="absolute top-4 left-4 text-gray-400 hover:text-gray-900 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              aria-label="إغلاق"
+              type="button"
             >
               <i className="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -284,7 +364,9 @@ export default function Header() {
                 </div>
                 <div className="text-center">
                   <span className="block font-bold text-base text-gray-900 mb-1">إعلان عادي</span>
-                  <span className="block text-xs text-gray-500 font-medium leading-tight">بيع منتجاتك أو خدماتك بالسعر الذي تحدده</span>
+                  <span className="block text-xs text-gray-500 font-medium leading-tight">
+                    بيع منتجاتك أو خدماتك بالسعر الذي تحدده
+                  </span>
                 </div>
               </Link>
 
@@ -298,7 +380,9 @@ export default function Header() {
                 </div>
                 <div className="text-center">
                   <span className="block font-bold text-base text-gray-900 mb-1">مزاد علني</span>
-                  <span className="block text-xs text-gray-500 font-medium leading-tight">اعرض سيارتك في مزاد علني لأعلى سعر</span>
+                  <span className="block text-xs text-gray-500 font-medium leading-tight">
+                    اعرض سيارتك في مزاد علني لأعلى سعر
+                  </span>
                 </div>
               </Link>
             </div>

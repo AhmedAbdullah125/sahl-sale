@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGetProfile } from "@/src/hooks/useGetProfile";
-
+import Loading from "@/src/app/loading";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -14,9 +14,7 @@ export default function SideData() {
     return (
         <aside className={`profile-container ${pathname !== "/profile" ? "not-the-main-page" : ""}`} dir="rtl">
             {loading && (
-                <div className="flex justify-center items-center py-10">
-                    <span className="text-gray-500">جاري التحميل...</span>
-                </div>
+                <Loading />
             )}
 
             {isError && !loading && (
@@ -107,6 +105,14 @@ export default function SideData() {
                             <Link href="/privacy">
                                 <span>
                                     <i className="fa-solid fa-file-contract" aria-hidden="true"></i> سياسة الخصوصية
+                                </span>
+                                <i className="fa-solid fa-caret-left" aria-hidden="true"></i>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/terms">
+                                <span>
+                                    <i className="fa-solid fa-file-contract" aria-hidden="true"></i> الشروط والأحكام
                                 </span>
                                 <i className="fa-solid fa-caret-left" aria-hidden="true"></i>
                             </Link>

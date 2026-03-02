@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import UpperHeader from "@/components/General/UpperHeader";
 import { useRouter } from "next/navigation";
 import { useGetAd } from "@/src/hooks/useGetAd";
@@ -11,6 +11,7 @@ import { useGetManufacturingYears } from "@/src/hooks/useGetManufacturingYears";
 import { useGetCities } from "@/src/hooks/useGetCities";
 import { Loader2 } from "lucide-react";
 import EditAdForm from "./EditAdForm";
+import Loading from "@/src/app/loading";
 
 export default function EditAdWrapper({ id }: { id: string }) {
     const router = useRouter();
@@ -22,69 +23,35 @@ export default function EditAdWrapper({ id }: { id: string }) {
     const { data: years } = useGetManufacturingYears();
     const { data: cities } = useGetCities();
 
-    // Initial structure matching the form fields
     const [ad, setAd] = useState<any>(null);
-    const [isMapping, setIsMapping] = useState(true);
+    const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
 
     const { mutateAsync: editAd, isPending } = useEditAd();
 
-    // 1. Initial mapping from adData to ad state
+    // Map adData → form state using direct IDs from the API response
     useEffect(() => {
-        if (adData && countries && brands && years && cities && !ad) {
-            const isCar = adData.ad_form === 'car' || adData.type === 'auction';
-
-            let brandId = "";
-            let yearVal = "";
-            let cityId = "";
-
-            if (isCar && adData.car) {
-                brandId = brands.find(b => b.name === adData.car?.brand)?.id?.toString() || "";
-                yearVal = years.find(y => y.label === adData.car?.year || y.value.toString() === adData.car?.year)?.value?.toString() || "";
-            }
-            cityId = cities.find(c => c.name === adData.city)?.id?.toString() || "";
-
+        if (adData && !ad) {
+            const isCar = adData.ad_form === "car" || adData.type === "auction";
             setAd({
-                section: "motors",
-                subSection: "vehicles",
                 title: adData.title || "",
-                country: "", // API doesn't return manufacturing_country, leave empty or map if needed
-                brand: brandId,
-                model: "", // We map this later once models load
-                year: yearVal,
-                mileage: "", // Not returned yet
-                governorate: cityId,
+                country: "",
+                brand: isCar ? adData.car?.brand_id?.toString() || "" : "",
+                model: isCar ? adData.car?.model_id?.toString() || "" : "",
+                year: isCar ? adData.car?.year?.toString() || "" : "",
+                mileage: isCar ? adData.car?.mileage?.toString() || "" : "",
+                governorate: adData.city_id?.toString() || "",
                 price: adData.price || "",
                 description: adData.description || "",
                 contactCall: adData.allow_phone === 1,
                 contactWhats: adData.allow_whatsapp === 1,
-                _originalModelString: adData.car?.model
             });
-
-            if (!brandId) {
-                setIsMapping(false);
-            }
         }
-    }, [adData, countries, brands, years, cities, ad]);
+    }, [adData, ad]);
 
-    // 2. Load models for the selected brand
+    // Load models for the selected brand (depends on brand ID being set first)
     const { data: models } = useGetCarModels(ad?.brand);
 
-    // 3. Map model string to model ID once models load
-    useEffect(() => {
-        if (ad && isMapping) {
-            if (ad.brand && ad._originalModelString) {
-                if (models) {
-                    const modelId = models.find(m => m.name === ad._originalModelString)?.id?.toString() || "";
-                    setAd(prev => ({ ...prev, model: modelId, _originalModelString: undefined }));
-                    setIsMapping(false);
-                }
-            } else {
-                setIsMapping(false);
-            }
-        }
-    }, [ad, models, isMapping]);
-
-    const optimizeImage = async (file: File) => {
+    const optimizeImage = async (file: File): Promise<File> => {
         try {
             const formData = new FormData();
             formData.append("image", file);
@@ -94,22 +61,17 @@ export default function EditAdWrapper({ id }: { id: string }) {
             return new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
         } catch (error) {
             console.error("Image optimization error:", error);
-            return file; // Fallback
+            return file;
         }
     };
 
     const handleSave = async (payload: any) => {
-        console.log(payload);
-
         try {
-            // Optimize new added images
             const optimizedImages = await Promise.all(
-                (payload.images || []).map(async (file: File) => {
-                    return await optimizeImage(file);
-                })
+                (payload.images || []).map((file: File) => optimizeImage(file))
             );
 
-            const isCar = adData?.ad_form === 'car' || adData?.type === 'auction';
+            const isCar = adData?.ad_form === "car" || adData?.type === "auction";
 
             await editAd({
                 id,
@@ -119,18 +81,15 @@ export default function EditAdWrapper({ id }: { id: string }) {
                 contactWhats: payload.contactWhats ? 1 : 0,
                 contactCall: payload.contactCall ? 1 : 0,
                 images: optimizedImages,
-                deleted_images: [],
+                deleted_images: deletedImageIds,
 
-                // Cars / Auctions specific fields
                 ...(isCar && {
-                    country: payload.country ? payload.country : undefined,
-                    brand: payload.brand ? payload.brand : undefined,
-                    model: payload.model ? payload.model : undefined,
+                    country: payload.country || undefined,
+                    brand: payload.brand || undefined,
+                    model: payload.model || undefined,
                     year: payload.year,
                     mileage: payload.mileage,
                 }),
-
-                // governorate: payload.governorate ? payload.governorate : undefined,
             });
 
             router.back();
@@ -139,10 +98,16 @@ export default function EditAdWrapper({ id }: { id: string }) {
         }
     };
 
-    if (isLoading || !ad || isMapping) {
+    if (isLoading) {
+        return (
+            <Loading />
+        );
+    }
+
+    if (!ad) {
         return (
             <div className="flex h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-red-500">الإعلان غير موجود</span>
             </div>
         );
     }
@@ -151,20 +116,23 @@ export default function EditAdWrapper({ id }: { id: string }) {
         <section className="content-section" dir="rtl">
             <div className="container">
                 <UpperHeader title="تعديل إعلان" />
-
-                {/* نفس فكرة عنوان progress-name */}
                 <h4 className="progress-name">بيانات الإعلان</h4>
 
                 <EditAdForm
-                    isCarOrAuction={adData?.ad_form === 'car' || adData?.type === 'auction'}
+                    isCarOrAuction={adData?.ad_form === "car" || adData?.type === "auction"}
                     ad={ad}
                     setAd={setAd}
                     onSave={handleSave}
+                    isPending={isPending}
                     COUNTRIES={countries || []}
                     BRANDS={brands || []}
                     MODELS={models || []}
                     YEARS={years || []}
                     GOVERNORATES={cities || []}
+                    existingImages={adData?.images || []}
+                    onDeleteExistingImage={(imgId: number) =>
+                        setDeletedImageIds((prev) => [...prev, imgId])
+                    }
                 />
             </div>
         </section>
