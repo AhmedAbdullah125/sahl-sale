@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import phoneIcon from "@/src/images/phone-icon.png";
 import whatsIcon from "@/src/images/whats-icon.png";
 

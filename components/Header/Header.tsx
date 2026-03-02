@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Search, Bell, Bookmark, User, Loader2, X } from "lucide-react";
 import { useGetAds } from "@/src/hooks/useGetAds";
 import { Input } from "@/components/ui/input";
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import { usePathname } from "next/navigation";
 
 export default function Header() {

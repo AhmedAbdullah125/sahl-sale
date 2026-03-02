@@ -150,7 +150,10 @@ header nav {
 }
 
 .top-header .img-logo img {
-  width: 120px;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 12px !important;
   image-rendering: -webkit-optimize-contrast;
 }
 

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import { API_BASE_URL } from "@/lib/apiConfig";
 
 interface VerifiyProps {

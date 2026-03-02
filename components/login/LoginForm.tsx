@@ -9,7 +9,7 @@ import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

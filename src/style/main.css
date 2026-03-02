@@ -561,7 +561,11 @@ header nav {
 }
 
 .top-header .img-logo img {
-  width: 120px;
+  width: 50px;
+  height: 50px;
+  -o-object-fit: contain;
+     object-fit: contain;
+  border-radius: 12px !important;
   image-rendering: -webkit-optimize-contrast;
 }
 
@@ -1364,6 +1368,14 @@ header nav {
 }
 
 /*product section */
+.profile-content .img-empty img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+  border-radius: 12px !important;
+}
+
 .loading-container {
   width: 150px;
   height: 600px;
@@ -1971,7 +1983,7 @@ textarea.form-input {
 
 .sign-section {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   overflow: hidden;
   position: relative;
   display: flex;
@@ -2015,12 +2027,14 @@ textarea.form-input {
   display: inline-block;
 }
 
-.logo-img {
-  margin-bottom: 40px;
-}
 .logo-img img {
-  width: 271px;
+  width: 250px;
   max-width: 100%;
+}
+@media screen and (max-width: 991px) {
+  .logo-img img {
+    width: 200px;
+  }
 }
 
 .form-head {

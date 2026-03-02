@@ -1,6 +1,6 @@
 .sign-section {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   overflow: hidden;
   position: relative;
   display: flex;
@@ -41,11 +41,14 @@
 }
 
 .logo-img {
-  margin-bottom: 40px;
 
   img {
-    width: 271px;
+    width: 250px;
     max-width: 100%;
+
+    @media screen and (max-width: 991px) {
+      width: 200px;
+    }
   }
 }
 

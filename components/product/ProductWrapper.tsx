@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import done from "@/src/images/done.gif";
 import { useGetAd } from "@/src/hooks/useGetAd";
 import { useReportAd } from "@/src/hooks/useReportAd";

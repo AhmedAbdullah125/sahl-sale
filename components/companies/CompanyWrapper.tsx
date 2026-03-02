@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 
-import logo from "@/src/images/logo.svg";
+import logo from "@/src/images/logo.png";
 import ProductCard from "../General/ProductCard";
 import { useGetCarBrands } from "@/src/hooks/useGetCarBrands";
 import { useGetCarModels } from "@/src/hooks/useGetCarModels";
