@@ -95,55 +95,21 @@ a {
   }
 }
 
-/*style scroll bar*/
-/* width */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 2px;
+/* ── Hide scrollbars globally ── */
+* {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE / Edge */
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: $main;
+*::-webkit-scrollbar {
+  display: none;
+  /* Chrome / Safari / Edge */
 }
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: $sec;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: $sec;
-}
-
 
 html {
-  scrollbar-width: thin;
-  scrollbar-color: $main #fff;
   scroll-behavior: smooth !important;
-}
-
-/*style scroll bar*/
-/* width */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 1px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: $white;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: $main;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: $sec;
 }
 
 

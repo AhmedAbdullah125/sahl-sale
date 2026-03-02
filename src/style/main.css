@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --main-color: #37B5FF;
   --primary-color: #0a0a0a;
@@ -108,54 +109,21 @@ a:hover {
   text-decoration: none;
 }
 
-/*style scroll bar*/
-/* width */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 2px;
+/* ── Hide scrollbars globally ── */
+* {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE / Edge */
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--main-color);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: var(--sec-color);
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--sec-color);
+*::-webkit-scrollbar {
+  display: none;
+  /* Chrome / Safari / Edge */
 }
 
 html {
-  scrollbar-width: thin;
-  scrollbar-color: var(--main-color) #fff;
   scroll-behavior: smooth !important;
-}
-
-/*style scroll bar*/
-/* width */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 1px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--white-color);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: var(--main-color);
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--sec-color);
 }
 
 /* Hide scrollbar for .disabled-scroll */
@@ -2030,6 +1998,7 @@ textarea.form-input {
 .logo-img img {
   width: 250px;
   max-width: 100%;
+  border-radius: 12px !important;
 }
 @media screen and (max-width: 991px) {
   .logo-img img {
