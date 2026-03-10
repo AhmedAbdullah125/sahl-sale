@@ -18,17 +18,35 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
  */
 export async function getFcmToken(): Promise<string | null> {
     try {
-        if (typeof window === "undefined") return null;
+        if (typeof window === "undefined") {
+            console.log("[FCM] skipped: server-side");
+            return null;
+        }
 
         const supported = await isSupported();
-        if (!supported) return null;
+        if (!supported) {
+            console.warn("[FCM] not supported in this browser");
+            return null;
+        }
 
         const permission = await Notification.requestPermission();
+        console.log("[FCM] notification permission:", permission);
         if (permission !== "granted") return null;
 
         const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        if (!vapidKey) {
+            console.error("[FCM] NEXT_PUBLIC_FIREBASE_VAPID_KEY is missing or empty!");
+            return null;
+        }
 
-        const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        let sw: ServiceWorkerRegistration;
+        try {
+            sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+            console.log("[FCM] service worker registered:", sw.scope);
+        } catch (swErr) {
+            console.error("[FCM] service worker registration failed:", swErr);
+            return null;
+        }
 
         const messaging = getMessaging(app);
         const token = await getToken(messaging, {
@@ -36,6 +54,7 @@ export async function getFcmToken(): Promise<string | null> {
             serviceWorkerRegistration: sw,
         });
 
+        console.log("[FCM] token obtained:", token ? "✅ success" : "❌ empty");
         return token || null;
     } catch (err) {
         console.error("[FCM] token error:", err);
