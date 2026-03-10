@@ -14,7 +14,7 @@ firebase.initializeApp({
     projectId: "sahlsale-9ae7a",
     storageBucket: "sahlsale-9ae7a.appspot.com",
     messagingSenderId: "125311735751",
-    appId: "1:125311735751:ios:93badf49eb160fd8c66be2",
+    appId: "REPLACE_WITH_WEB_APP_ID", // ⚠️ Must be Web appId (1:...:web:...) from Firebase Console → Project Settings → Your apps
 });
 
 const messaging = firebase.messaging();
