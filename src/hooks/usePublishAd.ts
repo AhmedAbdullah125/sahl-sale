@@ -1,6 +1,24 @@
 import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/apiConfig";
 
+// ── Image optimization ──────────────────────────────────────────────────────
+async function optimizeImage(file: File): Promise<File> {
+    try {
+        const fd = new FormData();
+        fd.append("image", file);
+
+        const res = await fetch("/api/optimize-image", { method: "POST", body: fd });
+        if (!res.ok) throw new Error(`optimize-image HTTP ${res.status}`);
+
+        const blob = await res.blob();
+        const name = file.name.replace(/\.[^.]+$/, "") + ".png";
+        return new File([blob], name, { type: "image/png" });
+    } catch (err) {
+        console.warn("[optimizeImage] fallback to original:", err);
+        return file; // fallback — send original if optimization fails
+    }
+}
+
 export interface PublishAdPayload {
     categoryId: number;
     title: string;
@@ -33,6 +51,11 @@ export function usePublishAd() {
                 headers.Authorization = `Bearer ${token}`;
             }
 
+            // Optimize all images in parallel before building the form data
+            const optimizedFiles = await Promise.all(
+                payload.imageFiles.map(optimizeImage)
+            );
+
             const fd = new FormData();
 
             fd.append("category_id", String(payload.categoryId));
@@ -40,7 +63,7 @@ export function usePublishAd() {
             fd.append("description", payload.description || "");
             if (payload.adPrice) fd.append("ad_price", String(payload.adPrice));
 
-            payload.imageFiles.forEach((file, idx) => {
+            optimizedFiles.forEach((file, idx) => {
                 fd.append(`images[${idx}]`, file);
             });
 
