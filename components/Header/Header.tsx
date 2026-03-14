@@ -16,8 +16,10 @@ export default function Header() {
   const [debouncedQ, setDebouncedQ] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isNavFixed, setIsNavFixed] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const lastScrollY = useRef(0);
 
   // Debounce search query
   useEffect(() => {
@@ -44,6 +46,18 @@ export default function Header() {
     localStorage.setItem("dark-mode", String(isDark));
   }, [isDark]);
 
+  // Fixed nav-header: visible only when scrolled > 500px AND scrolling up
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const scrollingUp = currentY < lastScrollY.current;
+      setIsNavFixed(currentY > 500 && scrollingUp);
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const hasQuery = q.trim().length > 0;
 
   const handleClearOrOpen = () => {
@@ -63,7 +77,7 @@ export default function Header() {
         <div className="header-cont">
           <div className="top-header">
             <div className="container">
-              <div className="nav-header">
+              <div className={`nav-header${isNavFixed ? " nav-header--fixed" : ""}`}>
                 <figure className="img-logo relative w-[150px] h-[50px]">
                   <Link href="/">
                     <Image
