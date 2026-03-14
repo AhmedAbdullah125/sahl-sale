@@ -86,13 +86,6 @@ export default function LoginForm({ fcmToken, onSuccess, onSkip }: LoginFormProp
                     </button>
                 </div>
 
-                <div className="upper-head">
-                    <Link href="/" className="logo-ancor" aria-label="Home">
-                        <figure className="logo-img">
-                            <Image src={logo} alt="logo" width={140} height={60} className="img-fluid" />
-                        </figure>
-                    </Link>
-                </div>
 
                 <h2 className="form-head">تسجيل دخول</h2>
                 <p className="form-pargh">من فضلك ادخل اسمك ورقم هاتفك لتسجيل الدخول</p>

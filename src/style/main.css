@@ -1973,7 +1973,6 @@ textarea.form-input {
 
 .sign-section {
   width: 100%;
-  min-height: calc(100vh - 200px);
   overflow: hidden;
   position: relative;
   display: flex;

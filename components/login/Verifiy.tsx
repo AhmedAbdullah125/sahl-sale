@@ -90,14 +90,6 @@ export default function Verifiy({ phone, countryCode, onBack, onConfirm }: Verif
                     </button>
                 </div>
 
-                <div className="upper-head">
-                    <Link href="/" className="logo-ancor" aria-label="Home">
-                        <figure className="logo-img">
-                            <Image src={logo} alt="logo" width={140} height={60} className="img-fluid" />
-                        </figure>
-                    </Link>
-                </div>
-
                 <h2 className="form-head">تحقق من الهاتف</h2>
                 <p className="form-pargh">من فضلك ادخل الرمز المرسل إلى رقم الهاتف</p>
 
