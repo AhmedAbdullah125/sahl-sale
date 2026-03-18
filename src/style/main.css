@@ -197,7 +197,7 @@ html {
   .container-md,
   .container-sm,
   .container-xl {
-    max-width: 1320px;
+    max-width: 1420px;
   }
 }
 .darkmode-input {
@@ -2105,7 +2105,7 @@ textarea.form-input {
 }
 @media only screen and (max-width: 991px) {
   .sign-container {
-    padding: 20px;
+    padding: 0px;
     border: none;
     background-color: transparent;
   }
