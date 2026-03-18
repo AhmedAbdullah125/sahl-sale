@@ -78,7 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning={true}>
         <ClientProviders>
           <Header />
-          {children}
+          <div className="pt-[130px]">
+            {children}
+          </div>
           <Footer />
         </ClientProviders>
       </body>

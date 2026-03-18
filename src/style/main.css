@@ -503,13 +503,14 @@ ul.breadcrumb li a:hover {
 /*fixed nav*/
 /*top header*/
 header {
-  position: relative;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 200;
   background-color: var(--back-color);
   transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 header nav {
