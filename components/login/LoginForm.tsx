@@ -75,7 +75,7 @@ export default function LoginForm({ fcmToken, onSuccess, onSkip }: LoginFormProp
     return (
         <div className="sign-section" dir="rtl">
             <div className="sign-container">
-                <div className="upper-header">
+                {/* <div className="upper-header">
                     <button
                         type="button"
                         className="back-btn"
@@ -84,7 +84,7 @@ export default function LoginForm({ fcmToken, onSuccess, onSkip }: LoginFormProp
                     >
                         <i className="fa-regular fa-arrow-right"></i>
                     </button>
-                </div>
+                </div> */}
 
 
                 <h2 className="form-head">تسجيل دخول</h2>

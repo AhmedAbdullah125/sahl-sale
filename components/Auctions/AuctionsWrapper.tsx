@@ -37,14 +37,14 @@ export default function AuctionsWrapper() {
         <section className="content-section" dir="rtl">
             <div className="container">
                 <div className="upper-header">
-                    <button
+                    {/* <button
                         type="button"
                         className="back-btn"
                         onClick={() => router.back()}
                         aria-label="رجوع"
                     >
                         <i className="fa-regular fa-arrow-right" aria-hidden="true" />
-                    </button>
+                    </button> */}
                     <h3 className="page-title">المزادات</h3>
                     <div className="empty" />
                 </div>

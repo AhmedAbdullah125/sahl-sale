@@ -22,10 +22,10 @@ export default function HomeCategories({ categories, isLoading }: HomeCategories
         <div className="container">
           <div className="category-slider">
             <div style={{ display: "flex", gap: 16, overflow: "hidden", padding: "8px 0" }}>
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="category-ancor" style={{ pointerEvents: "none" }}>
                   <figure className="category-figure">
-                    <Skeleton className="h-[80px] w-[80px] rounded-full" />
+                    <Skeleton className="h-[212px] w-[212px]" />
                   </figure>
                   <Skeleton style={{ height: 14, width: 56, borderRadius: 6, marginTop: 6 }} />
                 </div>
