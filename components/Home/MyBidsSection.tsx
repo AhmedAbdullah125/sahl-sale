@@ -1,15 +1,50 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { Card } from "@/components/ui/card";
 import { Ad } from "@/types/home";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MyBidsSectionProps {
   bids: Ad[];
+  isLoading?: boolean;
 }
 
-export default function MyBidsSection({ bids }: MyBidsSectionProps) {
+export default function MyBidsSection({ bids, isLoading }: MyBidsSectionProps) {
+  if (isLoading) {
+    return (
+      <section className="my-bids-section">
+        <div className="container">
+          <div className="section-head">
+            <h3 className="section-title">
+              <Skeleton className="h-5 w-24 rounded" />
+            </h3>
+            <Skeleton className="products-link h-4 w-16 rounded" />
+          </div>
+          <div className="grid-cont">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="my-bids-item">
+                <div className="my-bids-flex">
+                  <div className="my-bids-info">
+                    <figure>
+                      <Skeleton className="h-[80px] w-[80px] rounded" />
+                    </figure>
+                    <h3 className="product-name">
+                      <Skeleton className="h-4 w-32 rounded mt-2" />
+                    </h3>
+                  </div>
+                </div>
+                <div className="bids-status">
+                  <Skeleton className="h-8 w-full rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!bids || bids.length === 0) return null;
 
   return (

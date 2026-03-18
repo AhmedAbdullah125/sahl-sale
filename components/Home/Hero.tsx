@@ -3,25 +3,36 @@
 import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Banner } from "@/types/home";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface HeroProps {
     banners: Banner[];
+    isLoading?: boolean;
 }
 
-export default function Hero({ banners }: HeroProps) {
+export default function Hero({ banners, isLoading }: HeroProps) {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
+
+    if (isLoading) {
+        return (
+            <main className="w-full py-6">
+                <div className="container">
+                    <div className="relative">
+                        <Skeleton className="h-[240px] w-full  rounded-2xl sm:h-[360px] md:h-[460px]" />
+                    </div>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="w-full py-6">
@@ -38,10 +49,8 @@ export default function Hero({ banners }: HeroProps) {
                             nextEl: nextRef.current,
                         }}
                         onBeforeInit={(swiper) => {
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             swiper.params.navigation.prevEl = prevRef.current;
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             swiper.params.navigation.nextEl = nextRef.current;
                         }}
@@ -78,7 +87,6 @@ export default function Hero({ banners }: HeroProps) {
                     >
                         <ChevronRight className="h-5 w-5" />
                     </Button>
-
                     <Button
                         ref={nextRef}
                         type="button"
