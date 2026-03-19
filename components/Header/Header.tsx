@@ -8,6 +8,7 @@ import { useGetAds } from "@/src/hooks/useGetAds";
 import { Input } from "@/components/ui/input";
 import logo from "@/src/images/logo.png";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isDark, setIsDark] = useState(false);
@@ -18,7 +19,7 @@ export default function Header() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const router = useRouter()
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 500);
@@ -65,7 +66,7 @@ export default function Header() {
             <div className="container">
               <div className="nav-header">
                 <figure className="img-logo relative w-[150px] h-[50px]">
-                  <Link href="/">
+                  <button onClick={() => router.push("/")}>
                     <Image
                       src={logo}
                       alt="Logo"
@@ -74,7 +75,7 @@ export default function Header() {
                       className="object-contain"
                       priority
                     />
-                  </Link>
+                  </button>
                 </figure>
 
                 <div className="search-section relative">
@@ -166,23 +167,23 @@ export default function Header() {
                 </div>
 
                 <div className="header-icons flex items-center gap-4">
-                  <Link href="/favourite" className="add-to flex items-center gap-2">
+                  <button onClick={() => router.push("/favourite")} className="add-to flex items-center gap-2">
                     <Bookmark className="h-5 w-5" />
                     <span className="user-anc">المفضلة</span>
-                  </Link>
+                  </button>
 
-                  <Link href="/notification" className="add-to flex items-center gap-2 relative">
+                  <button onClick={() => router.push("/notification")} className="add-to flex items-center gap-2 relative">
                     <Bell className="h-5 w-5" />
                     <span className="user-anc">نبهني</span>
                     <span className="counter absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                       1
                     </span>
-                  </Link>
+                  </button>
 
-                  <Link href="/profile" className="add-to hide-sm flex items-center gap-2">
+                  <button onClick={() => router.push("/profile")} className="add-to hide-sm flex items-center gap-2">
                     <User className="h-5 w-5" />
                     <span className="user-anc">الحساب</span>
-                  </Link>
+                  </button>
 
                   {/* Dark Mode */}
                   <div className="mode">
@@ -263,14 +264,12 @@ export default function Header() {
             <nav>
               <ul className="big-menu list-unstyled flex gap-4">
                 <li className="cat-li">
-                  <Link href="/" className="cat-anchor">
-                    الرئيسية
-                  </Link>
+                  <button onClick={() => router.push("/")} className="cat-anchor">الرئيسية</button>
                 </li>
                 <li className="cat-li">
-                  <Link href="/categories" className="cat-anchor">
+                  <button onClick={() => router.push("/categories")} className="cat-anchor">
                     الأقسام
-                  </Link>
+                  </button>
                 </li>
                 <li className="cat-li">
                   <button
@@ -282,9 +281,9 @@ export default function Header() {
                   </button>
                 </li>
                 <li className="cat-li">
-                  <Link href="/auctions" className="cat-anchor">
+                  <button onClick={() => router.push("/auctions")} className="cat-anchor">
                     المزادات
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </nav>
@@ -295,16 +294,16 @@ export default function Header() {
       {/* bottom menu (unchanged) */}
       <div className="menu-bar">
         <div>
-          <Link href="/" className={pathname == "/" ? "active" : ""}>
+          <button onClick={() => router.push("/")} className={pathname == "/" ? "active" : ""}>
             <i className="fa-solid fa-house"></i>
             <span>الرئيسية</span>
-          </Link>
+          </button>
         </div>
         <div>
-          <Link href="/categories" className={pathname == "/categories" ? "active" : ""}>
+          <button onClick={() => router.push("/categories")} className={pathname == "/categories" ? "active" : ""}>
             <i className="fa-solid fa-grid-2"></i>
             <span>الأقسام</span>
-          </Link>
+          </button>
         </div>
         <div>
           <button
@@ -319,16 +318,16 @@ export default function Header() {
           </button>
         </div>
         <div>
-          <Link href="/auctions" className={pathname == "/auctions" ? "active" : ""}>
+          <button onClick={() => router.push("/auctions")} className={pathname == "/auctions" ? "active" : ""}>
             <i className="fa-solid fa-gavel"></i>
             <span>المزادات</span>
-          </Link>
+          </button>
         </div>
         <div>
-          <Link href="/profile" className={pathname == "/profile" ? "active" : ""}>
+          <button onClick={() => router.push("/profile")} className={pathname == "/profile" ? "active" : ""}>
             <i className="fa-solid fa-circle-user"></i>
             <span>الحساب</span>
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -354,9 +353,8 @@ export default function Header() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Link
-                href="/add-ad"
-                onClick={() => setIsAddModalOpen(false)}
+              <button
+                onClick={() => router.push("/add-ad")}
                 className="group flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-primary hover:bg-primary/5 transition-all outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl group-hover:scale-110 transition-transform">
@@ -368,11 +366,10 @@ export default function Header() {
                     بيع منتجاتك أو خدماتك بالسعر الذي تحدده
                   </span>
                 </div>
-              </Link>
+              </button>
 
-              <Link
-                href="/add-auction"
-                onClick={() => setIsAddModalOpen(false)}
+              <button
+                onClick={() => router.push("/add-auction")}
                 className="group flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-orange-500 hover:bg-orange-50 transition-all outline-none focus:ring-2 focus:ring-orange-500/20"
               >
                 <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-2xl group-hover:scale-110 transition-transform">
@@ -384,7 +381,7 @@ export default function Header() {
                     اعرض سيارتك في مزاد علني لأعلى سعر
                   </span>
                 </div>
-              </Link>
+              </button>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 // proxy.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/profile", "/add-ad", "/add-auction", "/add-alert", "/notification"];
+const PROTECTED_PATHS = ["/profile", "/add-ad", "/add-auction", "/add-alert", "/notification", "/favourite"];
 const AUTH_PAGES = ["/login"];
 
 export function proxy(request: NextRequest) {
@@ -42,6 +42,8 @@ export const config = {
         "/add-alert/:path*",
         "/notification",
         "/notification/:path*",
+        "/favourite",
+
         "/login",
     ],
 };

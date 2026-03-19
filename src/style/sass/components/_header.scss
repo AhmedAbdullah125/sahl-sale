@@ -188,6 +188,7 @@ header nav {
     transform: translateY(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -428,7 +429,8 @@ header nav {
     text-align: center;
   }
 
-  a {
+  a,
+  button {
     display: flex;
     flex-direction: column;
     gap: 8px;
